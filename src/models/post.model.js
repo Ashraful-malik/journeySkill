@@ -43,4 +43,4 @@ const postSchema = new Schema(
 
 postSchema.index({ challengeId: 1 });
 
-export const Post = mongoose.model("Post", postSchema);
+export const Post = mongoose.models.Post || mongoose.model("Post", postSchema);

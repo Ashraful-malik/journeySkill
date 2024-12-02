@@ -1,5 +1,7 @@
 import Navbar from "@/components/ui/Navbar";
 import "./globals.css";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 export const metadata = {
   title: "JourneySkill",
@@ -42,12 +44,24 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={` antialiased`}>
-        <Navbar />
-
-        {children}
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}
+    >
+      <html lang="en">
+        <body className={` antialiased`}>
+          <ClerkLoading>
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+              <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
+            </div>
+          </ClerkLoading>
+          <ClerkLoaded>
+            <Navbar />
+            {children}
+          </ClerkLoaded>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

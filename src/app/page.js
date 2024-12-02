@@ -1,6 +1,13 @@
+"use client";
+import { useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 export default function Home() {
+  // const { isLoaded, userId, sessionId, getToken } = useAuth();
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  console.log(user, isLoaded, isSignedIn);
+
   const content = {
     title: "Learn, Grow, and Inspire—Together.",
     description:

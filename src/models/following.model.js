@@ -25,4 +25,5 @@ const followingSchema = new Schema(
 // Ensuring that a user cannot follow the same person more than once
 followingSchema.index({ user: 1, following: 1 }, { unique: true });
 
-export const Following = mongoose.model("Following", followingSchema);
+export const Following =
+  mongoose.models.Following || mongoose.model("Following", followingSchema);

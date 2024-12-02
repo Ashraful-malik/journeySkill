@@ -92,4 +92,5 @@ const challengeSchema = new Schema(
 
 challengeSchema.index({ tags: 1, isPublic: 1 });
 
-export const Challenge = mongoose.model("Challenge", challengeSchema);
+export const Challenge =
+  mongoose.models.challenges || mongoose.model("challenges", challengeSchema);

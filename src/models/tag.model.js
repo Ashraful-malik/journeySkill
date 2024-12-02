@@ -23,4 +23,4 @@ const tagSchema = new Schema(
   { timestamps: true }
 );
 
-export const Tag = mongoose.model("Tag", tagSchema);
+export const Tag = mongoose.models.tags || mongoose.model("tags", tagSchema);

@@ -27,4 +27,5 @@ commentSchema.pre("save", function (next) {
   next();
 });
 
-export const Comment = mongoose.model("Comment", commentSchema);
+export const Comment =
+  mongoose.models.Comment || mongoose.model("Comment", commentSchema);

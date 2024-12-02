@@ -31,4 +31,6 @@ const challengeProgressSchema = new Schema(
   { timestamps: true }
 );
 
-export const Progress = mongoose.model("Progress", challengeProgressSchema);
+export const Progress =
+  mongoose.Model.Progress ||
+  mongoose.model("Progress", challengeProgressSchema);

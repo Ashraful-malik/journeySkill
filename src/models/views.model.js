@@ -29,4 +29,4 @@ const viewSchema = new Schema(
   { timestamps: true }
 );
 viewSchema.index({ viewer: 1, target: 1, onModel: 1 }, { unique: true });
-export const View = mongoose.model("View", viewSchema);
+export const View = mongoose.models.View || mongoose.model("View", viewSchema);

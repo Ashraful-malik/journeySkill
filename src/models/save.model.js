@@ -23,4 +23,4 @@ const saveSchema = new Schema(
   { timestamps: true }
 );
 saveSchema.index({ user: 1, challenge: 1, post: 1 }, { unique: true });
-export const Save = mongoose.model("Save", saveSchema);
+export const Save = mongoose.models.Save || mongoose.model("Save", saveSchema);
