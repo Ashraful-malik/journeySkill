@@ -6,7 +6,8 @@ import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 
 export async function POST(req) {
-  const { userId } = auth();
+  const { userId, user } = auth();
+  console.log("user", user);
   try {
     await dbConnect();
     const data = await req.formData();
@@ -62,6 +63,18 @@ export async function POST(req) {
         { fetch_format: "auto" },
       ];
     } else if (type === "banner") {
+      // if already have banner image delete it first
+      // const user = await User.findOne({ clerkId: userId });
+      // if (!user) {
+      //   return createErrorResponse({
+      //     success: false,
+      //     status: 400,
+      //     message: "User not found",
+      //   });
+      // }
+      // if (user.bannerImage) {
+      //   await cloudinary.uploader.destroy(user.bannerImage.publicId);
+
       // Banner image: Resize for wider aspect ratio
       transformations = [
         { width: 1600, height: 600, crop: "crop" },
@@ -86,7 +99,7 @@ export async function POST(req) {
 
     // Upload the image to Cloudinary with the selected transformations
     const result = await uploadImageToCloudinary(file, folder, transformations);
-    console.log("====>", result);
+    console.log("result====>", result);
     // Return the response with the image URL
     return createResponse({
       success: true,

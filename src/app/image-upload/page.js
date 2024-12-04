@@ -1,13 +1,16 @@
 "use client";
 import { useAuth } from "@clerk/nextjs";
-import { useState } from "react";
-import axios from "axios"; // Import axios
+import { useRef, useState } from "react";
+import axios, { all } from "axios"; // Import axios
+import { IMAGE_FILE_SIZE_LIMIT } from "@/lib/constants";
 
 const ImageUploadForm = () => {
   const [loading, setLoading] = useState(false);
   const [publicId, setPublicId] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [progress, setProgress] = useState(0); // Track progress
+  const [error, setError] = useState(null);
+  const progressRef = useRef(0);
 
   const { userId } = useAuth();
 
@@ -19,8 +22,25 @@ const ImageUploadForm = () => {
       return;
     }
 
+    if (file.size > IMAGE_FILE_SIZE_LIMIT) {
+      setError("file size cannot be larger than 5MB");
+      return;
+    }
+    const allowedImageTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!allowedImageTypes.includes(file.type)) {
+      setError("Please select an image file.");
+      return;
+    }
+
     setLoading(true);
     setProgress(0); // Reset progress
+    progressRef.current = 0; // Reset ref
 
     const folder = `user/${userId}/profile`;
     const postType = "profile";
@@ -31,13 +51,14 @@ const ImageUploadForm = () => {
     formData.append("type", postType);
 
     try {
-      const response = await axios.post("/api/upload", formData, {
+      const response = await axios.post("/api/image-upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (progressEvent) => {
           console.log("Upload Progress:", progressEvent);
           console.log(progressEvent.loaded, progressEvent.total);
+
           console.log(
             "percentage converter",
             Math.round((progressEvent.loaded / progressEvent.total) * 100)
@@ -48,10 +69,12 @@ const ImageUploadForm = () => {
             );
             console.log("Percentage:", percentage);
 
+            progressRef.current = percentage;
             setProgress(percentage); // Update progress state
           }
         },
       });
+      console.log(response);
 
       // Handle the response after successful upload
       const data = response.data;
@@ -74,9 +97,10 @@ const ImageUploadForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input type="file" onChange={handleFileChange} />
+      <p className="text-red-500">{error}</p>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
 
-      {progress > 0 && progress < 100 && <p>Uploading... {progress}%</p>}
+      {progress > 0 && <p>Uploading... {progress}%</p>}
 
       {imageUrl && (
         <div>
