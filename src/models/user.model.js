@@ -1,3 +1,4 @@
+import { put } from "axios";
 import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema(
@@ -17,14 +18,14 @@ const userSchema = new Schema(
       index: true,
     },
     profileImage: {
-      type: String,
+      imageUrl: { type: String },
+      publicId: { type: String },
     },
-    profileImagePublicId: {
-      type: String,
+    bannerImage: {
+      ImageUrl: { type: String },
+      publicId: { type: String },
     },
-    coverImagePublicId: {
-      type: String,
-    },
+
     email: {
       type: String,
       required: true,
