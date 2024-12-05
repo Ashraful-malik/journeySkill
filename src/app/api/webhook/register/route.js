@@ -4,7 +4,7 @@ import { createResponse } from "@/lib/utils/response";
 import User from "@/models/user.model";
 import dbConnect from "@/lib/dbConnect";
 import { Webhook } from "svix";
-import { clerkClient } from "@clerk/nextjs/dist/types/server";
+import { clerkClient } from "@clerk/nextjs/server";
 
 /**
  * Handles incoming POST requests for webhook registration.
@@ -133,7 +133,9 @@ export async function POST(req) {
           lastName: last_name,
         });
         if (newUser) {
-          await clerkClient.users.updateUserMetadata(id, {
+          const client = await clerkClient();
+
+          await client.users.updateUserMetadata(id, {
             publicMetadata: { userId: newUser._id },
           });
         }

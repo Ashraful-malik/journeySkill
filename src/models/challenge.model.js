@@ -90,7 +90,7 @@ const challengeSchema = new Schema(
   { timestamps: true }
 );
 
-challengeSchema.index({ tags: 1, isPublic: 1 });
+challengeSchema.index({ tags: 1, isPublic: 1, challengeOwner: 1 });
 
 export const Challenge =
   mongoose.models.challenges || mongoose.model("challenges", challengeSchema);

@@ -4,37 +4,10 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Challenge } from "@/models/challenge.model";
 import { Tag } from "@/models/tag.model";
-
-const createOrUpdateTags = async (tags, challenge) => {
-  if (Array.isArray(tags)) {
-    const TagIds = [];
-
-    for (const tag of tags) {
-      if (!tag.trim()) {
-        throw new ApiError(400, "Tag tag cannot be empty.");
-      }
-
-      let hashtag = await Tag.findOne({ tag: tag.toLowerCase().trim() });
-
-      if (!hashtag) {
-        const saveTag = new Tag({ tag: tag.toLowerCase().trim() });
-        await saveTag.save();
-      }
-      // Ensure the Tag is linked to the challenge
-      if (hashtag.challenge.length === 0) {
-        hashtag.challenge.push(challenge._id);
-        await hashtag.save();
-      }
-
-      TagIds.push(hashtag._id);
-    }
-    return TagIds;
-  }
-};
-const calculateEndDate = async (days) => {
-  const endDate = new Date();
-  return endDate.setDate(endDate.getDate() + days);
-};
+import {
+  createOrUpdateTags,
+  calculateEndDate,
+} from "@/lib/utils/utilsForChallenge";
 //calculatePostsRequired
 function calculatePostsRequired(durationInDays, postsPerInterval) {
   return Math.floor(durationInDays / postsPerInterval); // Example: 45 days -> 22 posts (45/2 = 22.5, rounded down to 22)
