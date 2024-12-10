@@ -1,27 +1,36 @@
+import dbConnect from "@/lib/dbConnect";
+import { createErrorResponse } from "@/lib/utils/error";
+import { createResponse } from "@/lib/utils/response";
 import { Challenge } from "@/models/challenge.model";
 
 // get all user challenges
 export async function GET(req, { params }) {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-
   try {
     await dbConnect();
-    const { sessionClaims } = await auth();
-    const mongoUserId = sessionClaims.user_id;
     const { userId } = await params;
+    if (!userId) {
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "User ID not Found or Invalid",
+      });
+    }
+    // Extract pagination parameters from query
+    const { searchParams } = req.nextUrl;
+    const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
+    const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
+    const skip = (page - 1) * limit;
 
-    const challenge = await Challenge.find({
-      challengeOwner: mongoUserId,
+    const challenges = await Challenge.find({
+      challengeOwner: userId,
     })
+      .populate("tags")
+      .sort({ createdAt: -1 }) // Sort by latest
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 })
-      .populate("challengeOwner")
-      .populate("tags");
+      .exec();
 
-    if (!challenge) {
+    if (!challenges) {
       return createErrorResponse({
         success: false,
         status: 404,
@@ -29,7 +38,7 @@ export async function GET(req, { params }) {
       });
     }
     const total = await Challenge.countDocuments({
-      challengeOwner: mongoUserId,
+      challengeOwner: userId,
     });
     const totalPages = Math.ceil(total / limit);
 
@@ -38,8 +47,13 @@ export async function GET(req, { params }) {
       message: "success",
       status: 200,
       data: {
-        challenge,
-        totalPages,
+        challenges,
+        pagination: {
+          total,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
       },
     });
   } catch (error) {

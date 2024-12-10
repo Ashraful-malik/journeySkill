@@ -1,9 +1,16 @@
+import dbConnect from "@/lib/dbConnect";
+import { createErrorResponse } from "@/lib/utils/error";
+import { createResponse } from "@/lib/utils/response";
+import { Challenge } from "@/models/challenge.model";
+
 export async function GET(req) {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const { searchParams } = req.nextUrl;
+  const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
+  const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
   const skip = (page - 1) * limit;
 
   try {
+    await dbConnect();
     const pipeline = [
       { $match: { isPublic: true } },
       {
@@ -83,7 +90,6 @@ export async function GET(req) {
     });
   } catch (error) {
     console.error(error);
-
     return createErrorResponse({
       success: false,
       status: 400,

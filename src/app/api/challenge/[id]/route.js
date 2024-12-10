@@ -80,13 +80,23 @@ export async function PUT(req, { params }) {
       }
       const updatedChallenge = await challenge.save();
       await removeUnlinkedTags(updatedChallenge._id, updatedChallenge.tags); // Remove unlinked ();
-
+      console.log(updatedChallenge);
       return createResponse({
         success: true,
         message: "challenge updated successfully",
+        data: {
+          updatedChallenge,
+        },
         status: 200,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      return createErrorResponse({
+        success: false,
+        status: 500,
+        message: error.message || "Internal server error",
+      });
+    }
   } catch (error) {
     console.log(error);
     return createErrorResponse({
@@ -98,7 +108,6 @@ export async function PUT(req, { params }) {
 }
 
 // deleteChallenge
-
 export async function DELETE(req, { params }) {
   try {
     await dbConnect();
@@ -121,7 +130,7 @@ export async function DELETE(req, { params }) {
     }
 
     await Challenge.deleteOne({ _id: id });
-    await removeUnlinkedTags();
+    await removeUnlinkedTags(challenge._id, challenge.tags);
 
     return createResponse({
       success: true,

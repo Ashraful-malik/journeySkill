@@ -4,10 +4,12 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Challenge } from "@/models/challenge.model";
 import { Tag } from "@/models/tag.model";
+import { auth } from "@clerk/nextjs/server";
 import {
   createOrUpdateTags,
   calculateEndDate,
 } from "@/lib/utils/utilsForChallenge";
+
 //calculatePostsRequired
 function calculatePostsRequired(durationInDays, postsPerInterval) {
   return Math.floor(durationInDays / postsPerInterval); // Example: 45 days -> 22 posts (45/2 = 22.5, rounded down to 22)
@@ -15,12 +17,23 @@ function calculatePostsRequired(durationInDays, postsPerInterval) {
 export async function POST(req) {
   try {
     await dbConnect();
+    const { sessionClaims } = await auth();
+    console.log(sessionClaims);
+    const mongoUserId = sessionClaims.user_id;
+
+    if (!mongoUserId) {
+      return createErrorResponse({
+        success: false,
+        status: 401,
+        message: "Unauthorized",
+      });
+    }
+
     const {
       challengeName,
       challengeDescription,
       tags,
       challengeDays,
-      userId,
       isPublic,
     } = await req.json();
 
@@ -28,8 +41,7 @@ export async function POST(req) {
       !challengeName ||
       !challengeDescription ||
       !Array.isArray(tags) ||
-      !challengeDays ||
-      !userId
+      !challengeDays
     ) {
       return createErrorResponse({
         success: false,
@@ -57,7 +69,7 @@ export async function POST(req) {
     const consistencyIncentiveDays = Math.ceil(challengeDays / tasksRequired);
     try {
       const challenge = new Challenge({
-        challengeOwner: userId,
+        challengeOwner: mongoUserId,
         challengeName,
         description: challengeDescription,
         days: challengeDays,

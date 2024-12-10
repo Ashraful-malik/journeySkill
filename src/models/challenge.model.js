@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-
+import User from "./user.model";
+import { Tag } from "./tag.model";
 const TaskLogSchema = new mongoose.Schema({
   taskId: { type: String, required: true },
   completionDate: { type: Date, required: true },
@@ -10,6 +11,7 @@ const challengeSchema = new Schema(
     challengeOwner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     challengeName: {
@@ -25,6 +27,7 @@ const challengeSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Tag",
+        required: true,
       },
     ],
     days: {
@@ -50,11 +53,6 @@ const challengeSchema = new Schema(
     },
 
     taskLogs: [TaskLogSchema],
-
-    tasksRequired: {
-      type: Number,
-      required: true,
-    },
 
     lastActivityDate: {
       type: Date,
@@ -90,7 +88,7 @@ const challengeSchema = new Schema(
   { timestamps: true }
 );
 
-challengeSchema.index({ tags: 1, isPublic: 1, challengeOwner: 1 });
+challengeSchema.index({ isPublic: 1, challengeOwner: 1, tags: 1 });
 
 export const Challenge =
-  mongoose.models.challenges || mongoose.model("challenges", challengeSchema);
+  mongoose.models.Challenge || mongoose.model("Challenge", challengeSchema);

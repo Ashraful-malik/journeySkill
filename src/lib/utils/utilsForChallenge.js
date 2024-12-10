@@ -1,5 +1,6 @@
 import { Challenge } from "@/models/challenge.model";
 import { Tag } from "@/models/tag.model";
+import { createErrorResponse } from "./error";
 
 export const calculateEndDate = async (days) => {
   const endDate = new Date();
@@ -11,20 +12,25 @@ export const createOrUpdateTags = async (tags, challenge) => {
     const TagIds = [];
 
     for (const tag of tags) {
-      if (!tag.trim()) {
-        throw new ApiError(400, "Tag  cannot be empty.");
+      const trimmedTag = tag.toLowerCase().trim();
+      if (!trimmedTag) {
+        throw new ApiError(400, "Tag cannot be empty.");
       }
 
-      let hashtag = await Tag.findOne({ tag: tag.toLowerCase().trim() });
+      let hashtag = await Tag.findOne({ tag: trimmedTag });
 
       if (!hashtag) {
-        const saveTag = new Tag({ tag: tag.toLowerCase().trim() });
-        await saveTag.save();
-      }
-      // Ensure the Tag is linked to the challenge
-      if (hashtag.challenge.length === 0) {
-        hashtag.challenge.push(challenge._id);
+        hashtag = new Tag({
+          tag: trimmedTag,
+          challenge: [challenge._id], // Initialize the challenge array
+        });
         await hashtag.save();
+      } else {
+        // Ensure the Tag is linked to the challenge
+        if (!hashtag.challenge.includes(challenge._id)) {
+          hashtag.challenge.push(challenge._id);
+          await hashtag.save();
+        }
       }
 
       TagIds.push(hashtag._id);
@@ -40,11 +46,10 @@ export const removeUnlinkedTags = async (
 ) => {
   try {
     // Delete all tags that are not linked to the challenge
-    //how to check if the tag is linked to the challenge
-    const allTags = await Tag.find({});
 
+    const allTags = await Tag.find({});
     for (const tag of allTags) {
-      if (!updatedChallengeTag.includes(tag._id)) {
+      if (!updatedChallengeTag?.includes(tag._id)) {
         // if the tag is not in the updatedChallengeTag array, then delete it
         await Tag.deleteOne({ _id: tag._id });
 
@@ -57,6 +62,11 @@ export const removeUnlinkedTags = async (
     }
   } catch (error) {
     console.log(error);
-    throw new ApiError(400, error, "Error removing unlinked Tags");
+    return createErrorResponse({
+      success: false,
+      status: 500,
+      message: "Error removing unlinked tags",
+      error: error.message,
+    });
   }
 };
