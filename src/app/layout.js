@@ -43,9 +43,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
-      <body className={` antialiased`}>
+      <head>
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="https://prod-waitlist-widget.s3.us-east-2.amazonaws.com/getwaitlist.min.css"
+        />
+      </head>
+      <body className="bg-gray-300 text-gray-950 dark:bg-black">
         <Navbar />
-
         {children}
       </body>
     </html>
