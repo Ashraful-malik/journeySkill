@@ -2,12 +2,41 @@ import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Challenge } from "@/models/challenge.model";
-import { auth } from "@clerk/nextjs/server";
 import {
   calculateEndDate,
   createOrUpdateTags,
   removeUnlinkedTags,
 } from "@/lib/utils/utilsForChallenge";
+
+//get challenge by id
+export async function GET(req, { params }) {
+  try {
+    await dbConnect();
+    const { id } = await params;
+    if (!id) {
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "Challenge ID is required or invalid",
+      });
+    }
+    const challenge = await Challenge.findById(id);
+    if (!challenge) {
+      return createErrorResponse({
+        success: false,
+        status: 404,
+        message: "Challenge not found",
+      });
+    }
+    return createResponse({ data: challenge, message: "success", status: 200 });
+  } catch (error) {
+    return createResponse({
+      success: false,
+      status: 500,
+      message: error.message || "Internal server error",
+    });
+  }
+}
 
 // updateChallenge
 export async function PUT(req, { params }) {

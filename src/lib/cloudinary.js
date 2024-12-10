@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import { createErrorResponse } from "./utils/error";
 
 // Cloudinary configuration
 cloudinary.config({
@@ -39,5 +40,25 @@ export const uploadImageToCloudinary = async (
     return result;
   } catch (error) {
     throw new Error("Error uploading image to Cloudinary: " + error.message);
+  }
+};
+
+export const deleteFileOnCloudinary = async (publicId) => {
+  try {
+    const deletedFile = await cloudinary.uploader.destroy(publicId);
+    console.log("deletedFile", deletedFile);
+    return createResponse({
+      success: true,
+      status: 200,
+      message: "File deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return createErrorResponse({
+      success: false,
+      status: 500,
+      message: "Error deleting file on Cloudinary",
+      error: error,
+    });
   }
 };
