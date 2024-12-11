@@ -49,10 +49,10 @@ export default function RootLayout({ children }) {
         baseTheme: dark,
       }}
     >
-      <html lang="en">
-        <body className={` antialiased`}>
+      <html lang="en" className="dark">
+        <body className="dark:bg-black">
           <ClerkLoading>
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="fixed inset-0 flex items-center justify-center z-50 dark:bg-black bg-opacity-50">
               <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
             </div>
           </ClerkLoading>
