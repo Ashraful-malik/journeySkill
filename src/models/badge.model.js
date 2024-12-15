@@ -6,5 +6,5 @@ const badgeSchema = new mongoose.Schema({
   streak: { type: Number }, // Number of streak days needed to earn the badge
 });
 
-export const Badge =
-  mongoose.models.Badge || mongoose.model("Badge", badgeSchema);
+const Badge = mongoose.models.Badge || mongoose.model("Badge", badgeSchema);
+export default Badge;

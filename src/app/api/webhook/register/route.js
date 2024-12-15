@@ -111,6 +111,7 @@ export async function POST(req) {
           message: "Missing primary email address",
         });
       }
+
       const existingUser = await User.findOne({ clerkId: id });
 
       if (existingUser) {
@@ -122,6 +123,7 @@ export async function POST(req) {
           data: existingUser,
         });
       }
+      const fullName = [first_name, last_name].filter(Boolean).join(" ");
       // insert User to database
       try {
         const newUser = await User.create({
@@ -131,6 +133,7 @@ export async function POST(req) {
           profileImage: image_url,
           firstName: first_name,
           lastName: last_name,
+          fullName: fullName,
         });
         if (newUser) {
           const client = await clerkClient();

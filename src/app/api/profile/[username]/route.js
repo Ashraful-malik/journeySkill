@@ -1,10 +1,15 @@
 import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
+import { createResponse } from "@/lib/utils/response";
 import User from "@/models/user.model";
+
 //get user profile data
 export async function GET(req, { params }) {
   try {
+    await dbConnect();
+
     const { username } = await params;
+    console.log(username);
     if (!username) {
       return createErrorResponse({
         success: false,
@@ -12,11 +17,10 @@ export async function GET(req, { params }) {
         message: "Username is required or invalid",
       });
     }
-    await dbConnect();
-    const user = await User.findOne({ username })
-      .populate("badges")
-      .populate("challenges")
-      .exec();
+    const user = await User.findOne({ username: username })
+      .select("-bannerImage.publicId -profileImage.publicId")
+      .populate("badges");
+
     if (!user) {
       return createErrorResponse({
         status: 404,
@@ -31,7 +35,7 @@ export async function GET(req, { params }) {
       success: false,
       status: 500,
       message: "Error getting user profile",
-      error: error.message,
+      errors: error.message,
     });
   }
 }

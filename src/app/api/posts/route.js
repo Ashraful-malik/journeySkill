@@ -6,13 +6,14 @@ import {
   commitSession,
   startSession,
 } from "@/lib/utils/mongodbSession";
+import { createResponse } from "@/lib/utils/response";
 import { Badge } from "@/models/badge.model";
 import { Challenge } from "@/models/challenge.model";
 import { Post } from "@/models/post.model";
 import User from "@/models/user.model";
 
 //create new post
-export default async function POST(req) {
+export async function POST(req) {
   const session = await startSession();
   try {
     await dbConnect();
@@ -33,17 +34,20 @@ export default async function POST(req) {
         message: "user id or challenge id is required or invalid",
       });
     }
-    if (!text || !link || !imageUrl || !imagePublicId) {
+    if (!text && !link && !imageUrl) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "text, link or image is required",
+        message: "At least one of text, link, or image is required",
       });
     }
 
+    const userPromise = User.findById(userId).session(session);
+    const challengePromise = Challenge.findById(challengeId).session(session);
+
     const [user, challenge] = await Promise.all([
-      User.findById(userId).session(session),
-      Challenge.findById(challengeId).session(session),
+      userPromise,
+      challengePromise,
     ]);
 
     if (!user) {
@@ -81,7 +85,7 @@ export default async function POST(req) {
 
     challenge.taskLogs.push({
       taskId: newPost._id,
-      completionDate: new Date(),
+      taskCompletionDate: new Date(),
     });
 
     challenge.tasksCompleted += 1;
@@ -135,12 +139,14 @@ export default async function POST(req) {
       challenge.completionDate = new Date();
     }
     // Save challenge and post in parallel
+
     const [savedPost] = await Promise.all([
       newPost.save({ session }),
       challenge.save({ session }),
     ]);
+
     await commitSession(session);
-    return createErrorResponse({
+    return createResponse({
       success: true,
       status: 200,
       message: "Post created successfully",
@@ -155,7 +161,7 @@ export default async function POST(req) {
       success: false,
       status: 500,
       message: "Error creating post",
-      error: error.message,
+      errors: error.message,
     });
   }
 }

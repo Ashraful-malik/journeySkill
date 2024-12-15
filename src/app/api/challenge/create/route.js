@@ -14,6 +14,8 @@ import {
 function calculatePostsRequired(durationInDays, postsPerInterval) {
   return Math.floor(durationInDays / postsPerInterval); // Example: 45 days -> 22 posts (45/2 = 22.5, rounded down to 22)
 }
+
+// create challenge
 export async function POST(req) {
   try {
     await dbConnect();

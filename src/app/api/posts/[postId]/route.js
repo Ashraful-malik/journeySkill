@@ -2,6 +2,7 @@ import { deleteFileOnCloudinary } from "@/lib/cloudinary";
 import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { Post } from "@/models/post.model";
+import { createResponse } from "@/lib/utils/response";
 
 // update post
 export async function PATCH(req, { params }) {
@@ -58,7 +59,7 @@ export async function PATCH(req, { params }) {
       success: false,
       status: 500,
       message: "Error creating post",
-      error: error.message,
+      errors: error.message,
     });
   }
 }
@@ -96,7 +97,7 @@ export async function DELETE(req, { params }) {
       success: false,
       status: 500,
       message: "Error deleting post",
-      error: error.message,
+      errors: error.message,
     });
   }
 }

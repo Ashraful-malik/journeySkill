@@ -1,23 +1,26 @@
 import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
+import { createResponse } from "@/lib/utils/response";
 import { Post } from "@/models/post.model";
+import { auth } from "@clerk/nextjs/server";
 
 //Get all users post
 export async function GET(req, { params }) {
-  const { searchParams } = req.nextUrl;
-  const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
-  const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
-  const skip = (page - 1) * limit;
-
   try {
+    const { searchParams } = req.nextUrl;
+    const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
+    const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
+    const skip = (page - 1) * limit;
+
     const { userId } = await params;
     if (!userId) {
       return createErrorResponse({
         success: false,
-        status: 400,
-        message: "User ID not Found or Invalid",
+        status: 401,
+        message: "Unauthorized",
       });
     }
+
     //connecting database
     await dbConnect();
     const posts = await Post.find({ owner: userId })
@@ -25,7 +28,7 @@ export async function GET(req, { params }) {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate("owner", "fullName username profileImage")
+      .populate("owner", "firstName lastName username profileImage")
       .populate("challengeId", "challengeName");
 
     if (!posts) {
@@ -55,7 +58,7 @@ export async function GET(req, { params }) {
       success: false,
       status: 500,
       message: "Internal Server Error",
-      error: error.message,
+      errors: error.message,
     });
   }
 }

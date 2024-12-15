@@ -1,5 +1,5 @@
-import { put } from "axios";
 import mongoose, { Schema } from "mongoose";
+import Badge from "./badge.model";
 
 const userSchema = new Schema(
   {
@@ -43,9 +43,8 @@ const userSchema = new Schema(
       type: String,
       trim: true,
     },
-
-    coverImage: {
-      type: String, //cloudinary url
+    fullName: {
+      type: String,
     },
 
     bio: {

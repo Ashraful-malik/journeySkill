@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { Challenge } from "./challenge.model";
 const postSchema = new Schema(
   {
     owner: {

@@ -3,6 +3,7 @@ import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Post } from "@/models/post.model";
+import User from "@/models/user.model";
 
 export async function GET(req) {
   const { searchParams } = req.nextUrl;
@@ -17,7 +18,7 @@ export async function GET(req) {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate("owner", "fullName username profileImage")
+      .populate("owner", "firstName lastName username profileImage")
       .populate("challengeId", "challengeName");
 
     if (!posts) {
@@ -43,8 +44,8 @@ export async function GET(req) {
     return createErrorResponse({
       success: false,
       status: 500,
-      message: "Error creating post",
-      error: error.message,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 }
