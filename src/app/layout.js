@@ -1,8 +1,15 @@
-import Navbar from "@/components/ui/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import "./globals.css";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
+import { Inter } from "next/font/google";
+import NavbarWrapper from "@/components/navbar/NavbarWrapper";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 export const metadata = {
   title: "JourneySkill",
   description:
@@ -49,16 +56,17 @@ export default function RootLayout({ children }) {
         baseTheme: dark,
       }}
     >
-      <html lang="en" className="dark">
+      <html lang="en" className={`dark ${inter.className}`}>
         <body className=" antialiased">
           <ClerkLoading>
-            {/* loading */}
+            loading
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
               <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
             </div>
           </ClerkLoading>
+
           <ClerkLoaded>
-            <Navbar />
+            <NavbarWrapper />
             {children}
           </ClerkLoaded>
         </body>
