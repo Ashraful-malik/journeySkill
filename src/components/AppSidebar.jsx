@@ -6,10 +6,15 @@ import {
   Home,
   Inbox,
   LogOut,
-  Search,
   Settings,
   SunMoon,
-  User,
+  User2,
+  ChevronUp,
+  Swords,
+  SquarePlus,
+  ChevronRight,
+  FileText,
+  Flag,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,7 +37,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User2, ChevronUp } from "lucide-react";
 
 // Menu items.
 const items = [
@@ -44,18 +48,20 @@ const items = [
   {
     title: "Challenges",
     url: "#",
-    icon: Inbox,
+    icon: Swords,
   },
   {
     title: "Create",
-    url: "#",
-    icon: Calendar,
+    submenu: [
+      { title: "Create Post", url: "#create-post", icon: FileText },
+      { title: "Create Challenge", url: "#create-challenge", icon: Flag },
+    ],
+    icon: SquarePlus,
   },
-
   {
     title: "Profile",
     url: "#",
-    icon: Settings,
+    icon: User2,
   },
 ];
 
@@ -89,24 +95,66 @@ const footerMenuItems = [
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" className="text-neutral-300">
+    <Sidebar className="bg-none">
+      <SidebarHeader>
+        <Avatar>
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback>SM</AvatarFallback>
+        </Avatar>
+      </SidebarHeader>
       <SidebarContent>
-        <SidebarHeader className="flex-row items-center border-b">
-          <SidebarTrigger />
-        </SidebarHeader>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title} className="pb-4 ">
-                  <SidebarMenuButton asChild size="base">
-                    <a href={item.url} className="flex items-center ">
-                      <item.icon style={{ width: "24px", height: "24px" }} />
-                      <span className="text-base">{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) =>
+                item.submenu ? (
+                  // Dropdown menu for items with submenu
+                  <SidebarMenuItem key={item.title} className="pb-4">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuButton
+                          className="flex items-center justify-between w-full"
+                          size="base"
+                          isActive="true"
+                        >
+                          <div className="flex items-center">
+                            <item.icon
+                              style={{ width: "20px", height: "20px" }}
+                            />
+                            <span className="text-base ml-2">{item.title}</span>
+                          </div>
+                          <ChevronRight className="ml-auto" />
+                        </SidebarMenuButton>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        side="bottom"
+                        className="w-[--radix-popper-anchor-width]"
+                      >
+                        {item.submenu.map((subItem) => (
+                          <DropdownMenuItem key={subItem.title}>
+                            <a href={subItem.url} className="flex items">
+                              <subItem.icon
+                                style={{ width: "20px", height: "20px" }}
+                              />
+                              <span className="ml-2">{subItem.title}</span>
+                            </a>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
+                ) : (
+                  // Normal menu item
+                  <SidebarMenuItem key={item.title} className="pb-4">
+                    <SidebarMenuButton asChild size="base">
+                      <a href={item.url} className="flex items-center ">
+                        <item.icon style={{ width: "20px", height: "20px" }} />
+                        <span className="text-base ml-2">{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

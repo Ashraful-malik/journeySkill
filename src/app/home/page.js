@@ -1,19 +1,14 @@
-import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import React from "react";
+"use client";
+// export default Page;
+import PostFeed from "@/components/feed/PostFeed";
+import WrapperLayout from "@/components/layouts/WrapperLayout";
 
-function page() {
+const Page = () => {
   return (
-    <div className="h-screen ">
-      <SidebarProvider className="h-full">
-        <AppSidebar />
-        <div className="p-4">
-          <p>this is the home page</p>
-        </div>
-      </SidebarProvider>
-      <div></div>
-    </div>
+    <WrapperLayout>
+      <PostFeed />
+    </WrapperLayout>
   );
-}
+};
 
-export default page;
+export default Page;
