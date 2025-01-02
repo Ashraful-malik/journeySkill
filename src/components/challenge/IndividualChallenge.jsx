@@ -1,10 +1,19 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User } from "lucide-react";
+import { ChartColumnStacked, User } from "lucide-react";
 import { Button } from "../ui/button";
 import PostCard from "../cards/PostCard";
+import { Progress } from "../ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
+import Link from "next/link";
 
-function IndividualChallenge() {
+function IndividualChallenge({ challengeId }) {
+  // all posts related to this challenge
   const posts = [
     {
       content:
@@ -22,9 +31,9 @@ function IndividualChallenge() {
     },
   ];
   return (
-    <div className="mt-5">
+    <div className="mt-5 px-2 lg:px-0">
       {/* header */}
-      <header className="flex items-center  justify-between border-b pb-4">
+      <header className="flex items-center justify-between border-b pb-4">
         <div className="flex items-center gap-2">
           <Avatar className="w-12 h-12 ">
             <AvatarImage src="https://github.com/shadcn.png" alt="@maria" />
@@ -38,17 +47,34 @@ function IndividualChallenge() {
           </div>
         </div>
         {/* follow button */}
+
         <div>
           <Button size="sm">Follow</Button>
         </div>
       </header>
+      <Progress value={51} />
 
       {/* body */}
       <div className="my-8">
-        <div className="content">
-          <p className="text-sm text-muted-foreground">
-            Challenge started: 01/01/2023
-          </p>
+        <div className="content ">
+          <div className="flex items-center justify-between   ">
+            <p className="text-sm text-muted-foreground">
+              Challenge started: 01/01/2023
+            </p>
+            {/* analytics */}
+            <TooltipProvider arial-label="challenge analytics">
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link href={`/challenges/analytics/${challengeId}`}>
+                    <ChartColumnStacked size={20} />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Challenge Analytics</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight">
             30 Days Coding Challenge
           </h1>
@@ -62,9 +88,10 @@ function IndividualChallenge() {
         </div>
       </div>
       <div>
-        {posts.map((post) => (
+        {/* all the post related to this challenge */}
+        {posts.map((post, index) => (
           <PostCard
-            key={post.id}
+            key={index}
             content={post.content}
             image={post.image}
             link={post.link}

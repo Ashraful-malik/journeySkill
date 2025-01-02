@@ -19,7 +19,6 @@ export async function POST(req, { params }) {
     if (bio) updateFields.bio = bio;
     if (dob) updateFields.dob = dob;
     if (location) updateFields.location = location;
-    if (fullName) updateFields.fullName = fullName;
     const user = await User.findByIdAndUpdate(
       userId,
       {

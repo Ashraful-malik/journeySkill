@@ -6,18 +6,21 @@ function ChallengeFeed() {
   const challengesCardContent = [
     {
       id: 1,
+      tags: ["#coding", "#art", "#react"],
       title: "The React Challenge: Build a SaaS in 30 days",
       description:
         "I am taking the challenge to build a full-stack SaaS application using React in just 30 days. I will be posting my progress, experiences and lessons learned here.",
     },
     {
       id: 2,
+      tags: ["#coding", "#art", "#challenge"],
       title: "The Nodejs Challenge: Build a scalable REST API in 30 days",
       description:
         "I am taking the challenge to build a scalable REST API using Nodejs in just 30 days. I will be posting my progress, experiences and lessons learned here.",
     },
     {
       id: 3,
+      tags: ["#coding", "#art", "#typescript"],
       title:
         "The Typescript Challenge: Migrate a large codebase to Typescript in 30 days",
       description:
@@ -33,6 +36,7 @@ function ChallengeFeed() {
             id={challenge.id}
             title={challenge.title}
             description={challenge.description}
+            tags={challenge.tags}
           />
         ))}
       </div>

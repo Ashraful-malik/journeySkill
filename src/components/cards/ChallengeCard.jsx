@@ -7,36 +7,63 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bookmark, Eye, Heart, MessageCircle, User } from "lucide-react";
+import {
+  Bookmark,
+  ChartColumnStacked,
+  Heart,
+  MessageCircle,
+  User,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { AvatarImage } from "@radix-ui/react-avatar";
 import Link from "next/link";
-const actionButtons = [
-  { name: "Like", icon: Heart, label: "Like this post" },
-  { name: "Comment", icon: MessageCircle, label: "Comment on this post" },
-  { name: "View", icon: Eye, label: "View post statistics", noPointer: true },
-];
+import CustomDropdownMenu from "../CustomDropdownMenu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
-function ChallengeCard({ id, description, title }) {
+function ChallengeCard({ id, description, title, tags }) {
+  const handleLike = () => {
+    console.log("liked");
+  };
+  const handleComment = () => {
+    console.log("commented");
+  };
   return (
     <Card className=" rounded-sm">
       {/* Header */}
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Avatar aria-label="User Avatar: Ashraful Malik">
-            <AvatarImage
-              src="https://github.com/shadcn.png"
-              alt="Ashraful Malik's avatar"
-            />
-            <AvatarFallback>
-              <User />
-            </AvatarFallback>
-          </Avatar>
+        <CardTitle className="flex items-center  justify-between">
+          {/* profile details */}
+
+          <div className="flex items-center space-x-2">
+            <Avatar aria-label="User Avatar: Ashraful Malik">
+              <AvatarImage
+                src="https://github.com/shadcn.png"
+                alt="Ashraful Malik's avatar"
+              />
+              <AvatarFallback>
+                <User />
+              </AvatarFallback>
+            </Avatar>
+            {/* user username and name */}
+            <div>
+              <Link href="/profile/1215">
+                <p id="author-name " className="hover:underline">
+                  Ashraful Malik
+                </p>
+              </Link>
+              <p className="text-sm text-muted-foreground" id="author-username">
+                @ashraful
+              </p>
+            </div>
+          </div>
+          {/* dropdown menu */}
           <div>
-            <p id="author-name">Ashraful Malik</p>
-            <p className="text-sm text-muted-foreground" id="author-username">
-              @ashraful
-            </p>
+            <CustomDropdownMenu />
           </div>
         </CardTitle>
         <CardDescription aria-labelledby="author-name">
@@ -45,48 +72,82 @@ function ChallengeCard({ id, description, title }) {
       </CardHeader>
 
       {/* Content */}
-      <CardContent>
-        <Link href={`/challenges/${id}`}>
+      {/* link to individual challenge */}
+      <Link href={`/challenges/${id}`}>
+        <CardContent className=" ">
           <div className="content">
             <h1 className="text-xl font-bold">{title}</h1>
             <p className="leading-7 [&:not(:first-child)]:mt-4 text-base">
               {description}
             </p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {tags.map((tag, idx) => (
+                <p
+                  key={idx}
+                  className="text-sm font-bold text-muted-foreground cursor-default"
+                >
+                  {tag}
+                </p>
+              ))}
+            </div>
           </div>
-        </Link>
-      </CardContent>
+        </CardContent>
+      </Link>
 
       {/* Footer */}
       <CardFooter>
         <div className="flex items-center justify-between w-full">
           {/* Left Actions */}
           <div className="flex items-center space-x-4 text-muted-foreground">
-            {actionButtons.map((item, idx) => (
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-2 cursor-pointer "
+              aria-label="Like this post"
+            >
+              <Heart size={20} className="hover:text-red-500" />
+              <span className="text-sm" aria-hidden="true">
+                100
+              </span>
+            </button>
+            <Link href="/comment/456?type=challenge">
               <button
-                key={idx}
-                className={`flex items-center gap-2 ${
-                  item.noPointer ? "cursor-default" : "cursor-pointer"
-                }`}
-                aria-label={item.label} // Accessible label for the action
+                onClick={handleComment}
+                className="flex items-center gap-2 cursor-pointer"
+                aria-label="Comment on this post"
               >
-                <item.icon size={20} />
+                <MessageCircle size={20} className="hover:text-primary" />
                 <span className="text-sm" aria-hidden="true">
-                  100
+                  200
                 </span>
               </button>
-            ))}
+            </Link>
           </div>
 
-          {/* Right Action */}
-          <button
-            className="flex items-center gap-2 cursor-pointer text-muted-foreground"
-            aria-label="Save this post"
-          >
-            <Bookmark size={20} />
-            <span className="text-sm " aria-hidden="true">
-              Save
-            </span>
-          </button>
+          {/* Right side Action */}
+          <div className="flex items-center space-x-4">
+            <button
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
+              aria-label="Save this post"
+            >
+              <Bookmark size={20} />
+              <span className="text-sm " aria-hidden="true">
+                Save
+              </span>
+            </button>
+
+            <TooltipProvider arial-label="challenge analytics">
+              <Tooltip>
+                <TooltipTrigger>
+                  <Link href={`/challenges/analytics/${id}`}>
+                    <ChartColumnStacked size={20} />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Challenge Analytics</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </CardFooter>
     </Card>

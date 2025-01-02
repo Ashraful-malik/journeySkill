@@ -1,15 +1,12 @@
 import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Image from "next/image";
-
 import ProfileTab from "./profileTab/ProfileTab";
-import { Button } from "../ui/button";
 import { gradientStyle } from "@/lib/utils/randomGradientGenerator";
 import Banner from "./ProfileBanner";
 import ProfileHeader from "./ProfileHeader";
 import Stats from "./UserStats";
 import Bio from "./ProfileBio";
 
+// All code in this file is from the profile page
 function ProfileDetails() {
   const [showMore, setShowMore] = useState(false);
   const bioText = `I am a student at University of Delhi and I am passionate about

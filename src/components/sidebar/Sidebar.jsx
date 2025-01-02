@@ -12,6 +12,7 @@ import {
   Bug,
   SunMoon,
   Bookmark,
+  MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import the hook for current pathname
@@ -22,6 +23,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../ui/dropdown-menu"; // Import ShadCN dropdown menu components
+import { UserButton } from "@clerk/nextjs";
 
 const Sidebar = () => {
   const pathname = usePathname(); // Get the current route
@@ -29,18 +31,18 @@ const Sidebar = () => {
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
-    { name: "Notifications", icon: Bell, link: "#notifications" },
-    { name: "Profile", icon: User, link: "/profile" },
+    // { name: "Notifications", icon: Bell, link: "#notifications" },
+    { name: "Profile", icon: User, link: "/profile/11111" },
     { name: "Create", icon: SquarePlus, link: "/create" },
     {
       name: "More",
       icon: SlidersHorizontal,
       link: "#more",
       subItems: [
-        { name: "Settings", link: "#settings", icon: Settings },
         { name: "Save", link: "#save", icon: Bookmark },
         { name: "Theme", link: "#theme", icon: SunMoon },
         { name: "Report Issue", link: "#report", icon: Bug },
+        { name: "Send Feedback", link: "#report", icon: MessageCircleMore },
         { name: "Logout", link: "#logout", icon: LogOut },
       ],
     },
@@ -57,14 +59,12 @@ const Sidebar = () => {
       </div>
 
       {/* User avatar */}
+
       <Avatar
-        className="w-12 h-12 cursor-pointer border-2"
+        className="w-12 h-12 cursor-pointer border-2 "
         aria-label="User avatar"
       >
-        <AvatarImage
-          src="https://avatars.githubusercontent.com/u/43632556?v=4"
-          alt="@shadcn"
-        />
+        <UserButton afterSignOutUrl="/" />
         <AvatarFallback>
           <User />
         </AvatarFallback>

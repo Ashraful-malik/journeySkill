@@ -4,7 +4,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import HomeNavbar from "@/components/navbar/HomeNavbar";
 import BottomNav from "../sidebar/BottomNav";
 
-const WrapperLayout = ({ children }) => {
+const WrapperLayout = ({ children, className }) => {
   const [isSidebarVisible, setSidebarVisible] = useState(false);
 
   const toggleSidebar = () => {
@@ -12,7 +12,9 @@ const WrapperLayout = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row max-w-5xl mx-auto ">
+    <div
+      className={`${className} flex flex-col lg:flex-row max-w-5xl mx-auto  mb-20`}
+    >
       {/* Sidebar for desktop */}
       <div className="hidden lg:block">
         <Sidebar />

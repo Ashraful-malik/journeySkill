@@ -1,11 +1,11 @@
-import { Home, Bell, Search, User } from "lucide-react";
+import { Home, User, Swords, SquarePlus } from "lucide-react";
 import Link from "next/link";
 
 const BottomNav = () => {
   const navItems = [
     { name: "Home", icon: Home, link: "/" },
-    { name: "Explore", icon: Search, link: "/explore" },
-    { name: "Notifications", icon: Bell, link: "/notifications" },
+    { name: "Challenges", icon: Swords, link: "/challenges" },
+    { name: "Create", icon: SquarePlus, link: "/create" },
     { name: "Profile", icon: User, link: "/profile" },
   ];
 

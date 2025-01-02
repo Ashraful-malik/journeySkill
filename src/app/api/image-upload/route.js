@@ -1,10 +1,14 @@
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import {
+  deleteFileOnCloudinary,
+  uploadImageToCloudinary,
+} from "@/lib/cloudinary";
 import { createResponse } from "@/lib/utils/response";
 import { createErrorResponse } from "@/lib/utils/error";
 import User from "@/models/user.model";
 import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 
+// upload image
 export async function POST(req) {
   const { userId, user } = auth();
   console.log("user", user);
@@ -116,6 +120,39 @@ export async function POST(req) {
       success: false,
       status: 500,
       message: error.message || "Internal server error",
+    });
+  }
+}
+
+// delete profile image from cloudinary and database
+export async function DELETE() {
+  try {
+    const { imagePublicId, userId } = await req.json();
+    const user = await User.findById(userId);
+    if (!user) {
+      return createErrorResponse({
+        status: 404,
+        message: "user not found",
+      });
+    }
+    if (user.profileImage.publicId) {
+      await deleteFileOnCloudinary(imagePublicId);
+    }
+    user.profileImage.ImageUrl = null;
+    user.profileImage.publicId = null;
+    await user.save();
+    return createResponse({
+      success: true,
+      status: 200,
+      message: "Image deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return createErrorResponse({
+      success: false,
+      status: 500,
+      message: "Internal server error",
+      errors: error.message,
     });
   }
 }

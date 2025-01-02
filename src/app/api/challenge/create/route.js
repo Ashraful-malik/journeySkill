@@ -68,6 +68,10 @@ export async function POST(req) {
 
     //calculating end date
     const endDate = await calculateEndDate(challengeDays);
+    // Consistency incentive is the number of days user should maintain consistency in completing the task
+    // It is calculated by dividing the total number of days in the challenge by the number of tasks required
+    // For example, if the challenge is 30 days and 15 tasks are required, then the consistency incentive is 2 days
+    // This means that the user should complete at least 1 task every 2 days to maintain consistency
     const consistencyIncentiveDays = Math.ceil(challengeDays / tasksRequired);
     try {
       const challenge = new Challenge({

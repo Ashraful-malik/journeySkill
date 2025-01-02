@@ -2,6 +2,8 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 
+import Link from "next/link";
+
 // Profile Header
 const ProfileHeader = () => (
   <div className="profile-image -mt-12 flex items-baseline justify-between">
@@ -15,7 +17,7 @@ const ProfileHeader = () => (
     </div>
     <div className="flex items-center gap-2">
       <Button size="sm" variant="secondary">
-        Edit Profile
+        <Link href="/profile/edit/ash202">Edit Profile</Link>
       </Button>
       <Button size="sm">Follow</Button>
     </div>
