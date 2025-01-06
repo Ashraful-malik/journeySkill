@@ -97,3 +97,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 3rem;
   height: 3rem;
 }
+
+/* clerk signin form customization */
+
+.cl-signIn-start,
+.cl-signUp-start {
+  @apply bg-background text-foreground shadow-none;
+}
+.cl-socialButtonsBlockButton__google {
+  @apply h-9;
+}
+
+.cl-formButtonPrimary {
+  @apply h-9;
+}
+.cl-footer {
+  background: transparent;
+}
+
+.cl-formFieldInput {
+  @apply bg-input text-foreground h-9;
+}

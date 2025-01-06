@@ -7,16 +7,13 @@ import {
   Swords,
   SquarePlus,
   SlidersHorizontal,
-  Settings,
-  LogOut,
   Bug,
   SunMoon,
-  Bookmark,
   MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import the hook for current pathname
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -24,6 +21,7 @@ import {
   DropdownMenuItem,
 } from "../ui/dropdown-menu"; // Import ShadCN dropdown menu components
 import { UserButton } from "@clerk/nextjs";
+import ThemeSwitcher from "../ThemeSwitcher";
 
 const Sidebar = () => {
   const pathname = usePathname(); // Get the current route
@@ -31,7 +29,6 @@ const Sidebar = () => {
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
-    // { name: "Notifications", icon: Bell, link: "#notifications" },
     { name: "Profile", icon: User, link: "/profile/11111" },
     { name: "Create", icon: SquarePlus, link: "/create" },
     {
@@ -39,11 +36,8 @@ const Sidebar = () => {
       icon: SlidersHorizontal,
       link: "#more",
       subItems: [
-        { name: "Save", link: "#save", icon: Bookmark },
-        { name: "Theme", link: "#theme", icon: SunMoon },
         { name: "Report Issue", link: "#report", icon: Bug },
-        { name: "Send Feedback", link: "#report", icon: MessageCircleMore },
-        { name: "Logout", link: "#logout", icon: LogOut },
+        { name: "Send Feedback", link: "#feedback", icon: MessageCircleMore },
       ],
     },
   ];
@@ -59,9 +53,8 @@ const Sidebar = () => {
       </div>
 
       {/* User avatar */}
-
       <Avatar
-        className="w-12 h-12 cursor-pointer border-2 "
+        className="w-12 h-12 cursor-pointer border-2"
         aria-label="User avatar"
       >
         <UserButton afterSignOutUrl="/" />
@@ -71,7 +64,7 @@ const Sidebar = () => {
       </Avatar>
 
       {/* Navigation */}
-      <nav className="space-y-4 py-4" aria-label="Main Navigation">
+      <nav className="space-y-4 py-4 " aria-label="Main Navigation">
         {navItems.map((item, idx) =>
           item.subItems ? (
             <DropdownMenu key={idx}>
@@ -79,7 +72,7 @@ const Sidebar = () => {
                 <button
                   className={`flex items-center gap-3 p-2 rounded-lg w-full ${
                     pathname === item.link
-                      ? "bg-accent text-white"
+                      ? "bg-accent text-primary-foreground"
                       : "hover:bg-accent focus:bg-accent"
                   }`}
                   aria-label={item.name}
@@ -101,6 +94,10 @@ const Sidebar = () => {
                     </Link>
                   </DropdownMenuItem>
                 ))}
+                {/* Add ThemeSwitcher */}
+                <DropdownMenuItem>
+                  <ThemeSwitcher />
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

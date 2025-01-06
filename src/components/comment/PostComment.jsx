@@ -38,7 +38,7 @@ function PostComment() {
           <Comment
             profileImage="https://avatars.githubusercontent.com/u/43632556?v=4"
             name="Steve"
-            comment="Nice picture where did you click this from "
+            comment="This is an extremely long comment meant to test how the UI handles text overflow. The comment should ideally be truncated or wrapped properly to ensure that the layout remains consistent and visually appealing across different devices and screen sizes. Proper handling of long text is crucial for maintaining a good user experience, especially when dealing with user-generated content that can vary greatly in length and format. Let's see how this works out!"
           />
         </div>
       </section>

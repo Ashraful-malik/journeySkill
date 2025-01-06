@@ -1,8 +1,10 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
 function Comment({ profileImage, name, comment }) {
+  const [showMore, setShowMore] = useState(false);
   return (
     <div className="flex items-start gap-3 mb-4 ">
       <Avatar
@@ -16,7 +18,21 @@ function Comment({ profileImage, name, comment }) {
       </Avatar>
       <div className="flex-1">
         <h3 className="text-sm font-semibold">{name}</h3>
-        <p className=" text-muted-foreground">{comment}</p>
+        <p
+          className={`text-muted-foreground max-w-[65ch] ${
+            showMore ? "line-clamp-none" : "line-clamp-2"
+          }`}
+        >
+          {comment}
+        </p>
+        {comment.length > 100 && (
+          <button
+            className="text-sm font-bold cursor-pointer"
+            onClick={() => setShowMore(!showMore)}
+          >
+            {showMore ? "Show less" : "Show more"}
+          </button>
+        )}
       </div>
     </div>
   );

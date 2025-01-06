@@ -81,7 +81,7 @@ function ChallengeCard({ id, description, title, tags }) {
               {description}
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
-              {tags.map((tag, idx) => (
+              {tags?.map((tag, idx) => (
                 <p
                   key={idx}
                   className="text-sm font-bold text-muted-foreground cursor-default"
