@@ -7,13 +7,8 @@ import Stats from "./UserStats";
 import Bio from "./ProfileBio";
 
 // All code in this file is from the profile page
-function ProfileDetails() {
+function ProfileDetails({ userData }) {
   const [showMore, setShowMore] = useState(false);
-  const bioText = `I am a student at University of Delhi and I am passionate about
-            technology. I love to explore new technologies and I am always
-            learning new things. I am a student at University of Delhi and I am
-            passionate about technology. I love to explore new technologies and
-            I am always learning new things.`;
 
   const handleShowMore = () => {
     setShowMore(!showMore);
@@ -22,10 +17,18 @@ function ProfileDetails() {
   return (
     <section className="mt-5 px-2 lg:px-0">
       <Banner />
-      <ProfileHeader />
-      <Stats />
+      <ProfileHeader
+        username={userData?.username}
+        fullName={userData?.fullName}
+        profileImage={userData?.profileImage}
+      />
+      <Stats
+        followerCount={userData?.followerCount}
+        followingCount={userData?.followingCount}
+      />
       <Bio
-        bioText={bioText}
+        bioText={userData?.bio}
+        location={userData?.location}
         showMore={showMore}
         toggleShowMore={handleShowMore}
       />

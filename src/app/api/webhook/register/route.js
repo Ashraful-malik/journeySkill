@@ -130,7 +130,9 @@ export async function POST(req) {
           email: primaryEmail.email_address,
           clerkId: id,
           username: username,
-          profileImage: image_url,
+          profileImage: {
+            clerkImage: image_url,
+          },
           firstName: first_name,
           lastName: last_name,
           fullName: fullName,

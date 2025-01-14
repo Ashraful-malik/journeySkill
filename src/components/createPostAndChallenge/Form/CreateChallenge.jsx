@@ -21,21 +21,45 @@ import { useUser } from "@clerk/nextjs";
 import challengeSchema from "@/schema/challengeSchema";
 import { addDays, format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import axiosInstance from "@/lib/axios";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import TagInput from "@/components/ui/tag-input";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import Link from "next/link";
+const createChallenge = async (challengeData) => {
+  const response = await axiosInstance.post("/challenges", challengeData);
+  return response.data; // Axios automatically parses JSON responses
+};
 function CreateChallenge() {
+  const queryClient = useQueryClient();
   const navigate = useRouter();
   const { toast } = useToast();
 
+  // Define the mutation
+  const mutation = useMutation({
+    mutationFn: async (formData) => createChallenge(formData),
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Challenge created successfully!",
+      });
+      queryClient.invalidateQueries(["challenges"]); // Invalidate queries to refresh data
+      router.push("/challenges"); // Redirect after success
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "An error occurred.",
+        variant: "destructive",
+      });
+    },
+  });
   const form = useForm({
     resolver: zodResolver(challengeSchema),
     defaultValues: {
@@ -64,12 +88,9 @@ function CreateChallenge() {
 
   // handle file submit
   const onSubmit = async (data) => {
-    console.log(data);
-    toast({
-      title: "Challenge created",
-      description: "Challenge created successfully",
-    });
+    mutation.mutate(data);
   };
+
   // Access errors specifically for days
   const daysError = form.formState.errors.days;
   return (

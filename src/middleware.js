@@ -13,6 +13,7 @@ const isPublicApiRoute = createRouteMatcher([
 export default clerkMiddleware(async (authFn, req) => {
   const auth = await authFn();
   const { userId } = auth; // Clerk provides `userId` if authenticated
+
   const currentUrl = new URL(req.url);
   const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
 
@@ -31,8 +32,6 @@ export default clerkMiddleware(async (authFn, req) => {
   }
 
   // 3. **Authenticated user logic**
-  console.log("userId", userId);
-
   if (userId) {
     if (isPublicRoute(req) && currentUrl.pathname !== "/") {
       // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`

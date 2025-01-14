@@ -1,16 +1,23 @@
+"use client";
 import React from "react";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import EditProfileDetails from "@/components/profile/EditProfileDetails";
 import BackButton from "@/components/BackButton";
+import { useUserQuery } from "@/hooks/queries/useUserQuery";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function EditProfile({ params }) {
-  const { username } = await params;
+function page() {
+  const { data: userData, isLoading, error } = useUserQuery();
+  if (isLoading) {
+    <Skeleton className="w-[100px] h-[20px] rounded-full" />;
+  }
   return (
     <>
       <WrapperLayout>
         <BackButton />
-        <EditProfileDetails />
+        <EditProfileDetails userData={userData?.data} />
       </WrapperLayout>
     </>
   );
 }
+export default page;

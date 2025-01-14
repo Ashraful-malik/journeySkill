@@ -7,14 +7,13 @@ import User from "@/models/user.model";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-
     const { username } = await params;
     console.log(username);
     if (!username) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "Username is required or invalid",
+        message: "userId is required or invalid",
       });
     }
     const user = await User.findOne({ username: username })

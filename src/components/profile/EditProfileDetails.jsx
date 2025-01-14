@@ -1,11 +1,15 @@
 import React from "react";
 import { gradientStyle } from "@/lib/utils/randomGradientGenerator";
 import { Button } from "../ui/button";
-import { Camera } from "lucide-react";
+import { Camera, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import EditUserUserData from "./Edit/EditUserData";
-function EditProfileDetails() {
+import UpdateProfileImage from "../fileUpload/UpdateProfileImage";
+function EditProfileDetails({ userData }) {
   const imageUrl = "";
+  const updateProfileImage = () => {
+    console.log("update profile image");
+  };
   return (
     <>
       <div className="mt-4 p-2 lg:p-0">
@@ -21,7 +25,7 @@ function EditProfileDetails() {
             </Button>
           </div>
 
-          {imageUrl ? (
+          {userData?.bannerImage ? (
             <Image
               src={imageUrl}
               alt="banner image"
@@ -37,17 +41,7 @@ function EditProfileDetails() {
         </section>
         {/* edit profile Image */}
         <section className="-mt-12 relative">
-          <Avatar className="w-20 h-20 ">
-            {/* avatar edit overlays */}
-            <div className="absolute top-0 right-0 bg-black/30 w-full h-full"></div>
-            <div className=" absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <Button variant="icon" size="lg">
-                <Camera />
-              </Button>
-            </div>
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback aria-label="User's initials">SM</AvatarFallback>
-          </Avatar>
+          <UpdateProfileImage userData={userData} />
         </section>
 
         {/* Edit user data form (ex: name, bio) */}

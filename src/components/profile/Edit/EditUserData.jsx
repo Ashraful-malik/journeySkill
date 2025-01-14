@@ -4,7 +4,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,25 +16,44 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useUserQuery } from "@/hooks/queries/useUserQuery";
+import { useEditUserMutation } from "@/hooks/mutations/useEditUserMutation";
+import { Loader } from "lucide-react";
 
 function EditUserData() {
+  const { data: userData, isLoading, isError, error } = useUserQuery();
+  const { mutate: editUser, status } = useEditUserMutation();
   const { toast } = useToast();
   const route = useRouter();
+
   const form = useForm({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
       username: "",
-      name: "",
+      fullName: "",
       bio: "",
       location: "",
       dob: "",
     },
   });
+  const { reset, watch } = form;
+
+  useEffect(() => {
+    if (userData?.data) {
+      reset({
+        username: userData.data.username || "",
+        fullName: userData.data.fullName || "",
+        bio: userData.data.bio || "",
+        location: userData.data.location || "",
+        dob: userData.data.dob || "",
+      });
+    }
+  }, [userData?.data, reset]); // Only trigger when `userData.data` changes
 
   // Watch form values for changes
-  const watchedValues = form.watch();
+  const watchedValues = watch();
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  // Check if values have changed from defaultValues
+
   useEffect(() => {
     const defaultValues = form.formState.defaultValues;
     const isChanged = Object.keys(defaultValues).some(
@@ -47,12 +65,44 @@ function EditUserData() {
 
   // back button
   const backButton = () => {
-    form.reset();
+    // form.reset();
     route.back();
   };
+
   const onSubmit = (data) => {
-    console.log(data);
+    editUser(
+      {
+        userId: userData?.data._id,
+        updatedData: data,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            description: "Profile updated successfully!",
+          });
+          route.push(`/profile/${userData?.data.username}`);
+        },
+        onError: (error) => {
+          console.error("Error in form submission:", error);
+          // console.log(error.response);
+          toast({
+            title: "Error",
+            description: error.message || "An error occurred.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
+  // Loading state check, don't render the form until data is fetched
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error: {error?.message}</div>;
+  }
   return (
     <div>
       <Form {...form}>
@@ -60,6 +110,31 @@ function EditUserData() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-4 max-w-2xl p-2 lg:p-0"
         >
+          {/* username */}
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="username" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Input placeholder="fullName" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* bio */}
           <FormField
             control={form.control}
@@ -104,7 +179,7 @@ function EditUserData() {
                     }
                     onChange={(e) => {
                       const value = e.target.value;
-                      field.onChange(value ? value : undefined); // Pass raw string to z.preprocess
+                      field.onChange(value ? value : undefined); // Handle raw strings
                     }}
                   />
                 </FormControl>
@@ -112,6 +187,7 @@ function EditUserData() {
               </FormItem>
             )}
           />
+
           {/* Back button */}
           <div className="flex justify-end gap-2">
             <Button
@@ -123,8 +199,16 @@ function EditUserData() {
               Cancel
             </Button>
             {/* submit form */}
-            <Button type="submit" size="lg" disabled={isButtonDisabled}>
-              Submit
+            <Button
+              type="submit"
+              size="lg"
+              disabled={isButtonDisabled || status === "pending"}
+            >
+              {status === "pending" ? (
+                <Loader size={20} className="animate-spin" />
+              ) : (
+                "Update profile"
+              )}
             </Button>
           </div>
         </form>

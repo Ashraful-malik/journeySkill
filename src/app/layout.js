@@ -1,4 +1,3 @@
-import Navbar from "@/components/navbar/Navbar";
 import "./globals.css";
 import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
@@ -6,6 +5,11 @@ import { Inter } from "next/font/google";
 import NavbarWrapper from "@/components/navbar/NavbarWrapper";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import QueryProvider from "../lib/QueryProvider";
+import { UserProvider } from "@/context/userContent";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { auth } from "@clerk/nextjs/server";
+import { fetchUser } from "@/lib/api/user";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,31 +55,45 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const queryClient = new QueryClient();
+  // clerk mongodb id from the session
+  const session = await auth();
+  const userId = await session?.sessionClaims?.user_Id;
+  if (userId) {
+    await queryClient.prefetchQuery({
+      queryKey: ["user", userId],
+      queryFn: () => fetchUser(userId),
+    });
+  }
+  const dehydratedState = dehydrate(queryClient);
   return (
     <ClerkProvider
       appearance={{
         baseTheme: dark,
       }}
     >
-      <html lang="en" className={`${inter.className}`}>
-        <body className="antialiased">
-          <ClerkLoading>
-            loading
-            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-              <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
-            </div>
-          </ClerkLoading>
-          <ClerkLoaded>
+      <UserProvider>
+        <html lang="en" className={`${inter.className}`}>
+          <body className="antialiased">
+            {/* <ClerkLoading>
+              loading
+              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
+              </div>
+            </ClerkLoading> */}
+            {/* <ClerkLoaded> */}
             <NavbarWrapper />
             <ThemeProvider attribute="class" defaultTheme="dark">
-              {children}
+              <QueryProvider dehydratedState={dehydratedState}>
+                {children}
+                <Toaster />
+              </QueryProvider>
             </ThemeProvider>
-
-            <Toaster />
-          </ClerkLoaded>
-        </body>
-      </html>
+            {/* </ClerkLoaded> */}
+          </body>
+        </html>
+      </UserProvider>
     </ClerkProvider>
   );
 }

@@ -8,7 +8,7 @@ export const editProfileSchema = z.object({
     .optional()
     .or(z.literal("").transform(() => undefined)), // Allows empty strings
 
-  name: z
+  fullName: z
     .string()
     .min(3, "Name must be at least 3 characters.")
     .max(20, "Name must be at most 20 characters.")
@@ -18,7 +18,7 @@ export const editProfileSchema = z.object({
   bio: z
     .string()
     .min(3, "Bio must be at least 3 characters.")
-    .max(100, "Bio must be at most 100 characters.")
+    .max(500, "Bio must be at most 100 characters.")
     .optional()
     .or(z.literal("").transform(() => undefined)),
 

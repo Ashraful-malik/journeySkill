@@ -152,7 +152,7 @@ const PostImageUpload = () => {
         <input
           id="file-upload"
           type="file"
-          // accept="image/*"
+          accept="image/*"
           onChange={handleFileChange}
           className="hidden"
         />
@@ -195,14 +195,3 @@ const PostImageUpload = () => {
 };
 
 export default PostImageUpload;
-// <form onSubmit={handleSubmit}>
-//   <p className="text-red-500">{error}</p>
-//   <input type="file" accept="image/*" onChange={handleFileChange} />
-//   {progress > 0 && <p>Uploading... {progress}%</p>}
-//   {imageUrl && (
-//     <div>
-//       <h3>Uploaded Image:</h3>
-//       <img src={imageUrl} alt="Uploaded" width="300" />
-//     </div>
-//   )}
-// </form>

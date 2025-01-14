@@ -22,14 +22,19 @@ import {
 } from "../ui/dropdown-menu"; // Import ShadCN dropdown menu components
 import { UserButton } from "@clerk/nextjs";
 import ThemeSwitcher from "../ThemeSwitcher";
+import { useGlobalUser } from "@/context/userContent";
+import { useState } from "react";
 
 const Sidebar = () => {
-  const pathname = usePathname(); // Get the current route
+  // Get the current user from the context
+  const user = useGlobalUser();
+  const username = user?.user?.username;
 
+  const pathname = usePathname(); // Get the current route
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
-    { name: "Profile", icon: User, link: "/profile/11111" },
+    { name: "Profile", icon: User, link: `/profile/${username}` },
     { name: "Create", icon: SquarePlus, link: "/create" },
     {
       name: "More",

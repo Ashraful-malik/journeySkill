@@ -20,6 +20,7 @@ const userSchema = new Schema(
     profileImage: {
       imageUrl: { type: String },
       publicId: { type: String },
+      clerkImage: { type: String },
     },
     bannerImage: {
       ImageUrl: { type: String },
