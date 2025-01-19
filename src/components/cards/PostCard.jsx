@@ -13,8 +13,24 @@ import Image from "next/image";
 import { Bookmark, Eye, Heart, MessageCircle, User } from "lucide-react";
 import Link from "next/link";
 import CustomDropdownMenu from "../CustomDropdownMenu";
+import { Badge } from "../ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
-function PostCard({ content, image, link, className }) {
+function PostCard({
+  content,
+  image,
+  linkUrl,
+  className,
+  createdAt,
+  owner,
+  challenge,
+}) {
+  const postCreatedAt = new Date(createdAt).toDateString();
   const handleLike = () => {
     console.log("liked");
   };
@@ -22,7 +38,7 @@ function PostCard({ content, image, link, className }) {
     console.log("commented");
   };
   return (
-    <Card className={`border border-b-0 rounded-none ${className}`}>
+    <Card className={`border  rounded-none ${className}`}>
       {/* Header */}
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
@@ -30,8 +46,8 @@ function PostCard({ content, image, link, className }) {
           <div className="flex items-center space-x-2">
             <Avatar aria-label="User Avatar: Ashraful Malik">
               <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="Ashraful Malik's avatar"
+                src={owner?.profileImage?.imageUrl}
+                alt={owner?.username}
               />
               <AvatarFallback>
                 <User />
@@ -39,13 +55,13 @@ function PostCard({ content, image, link, className }) {
             </Avatar>
             {/* user username and name */}
             <div>
-              <Link href="/profile/1215">
+              <Link href={`/profile/${owner?.username}`}>
                 <p id="author-name " className="hover:underline">
-                  Ashraful Malik
+                  {owner?.fullName}
                 </p>
               </Link>
               <p className="text-sm text-muted-foreground" id="author-username">
-                @ashraful
+                @{owner?.username}
               </p>
             </div>
           </div>
@@ -54,30 +70,47 @@ function PostCard({ content, image, link, className }) {
             <CustomDropdownMenu />
           </div>
         </CardTitle>
-        <CardDescription aria-labelledby="author-name">
-          2 days ago
+        <CardDescription
+          aria-labelledby="author-name"
+          className="flex flex-col"
+        >
+          {postCreatedAt}
+          <Link href={`/challenges/${challenge?._id}`}>
+            <Badge variant="secondary" className="w-fit max-w-xs line-clamp-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>{challenge?.challengeName}</TooltipTrigger>
+                  <TooltipContent>View challenge details</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Badge>
+          </Link>
         </CardDescription>
       </CardHeader>
 
       {/* Content */}
       <CardContent>
-        <Image
-          src={`${image}`}
-          className="w-full h-auto object-cover rounded-md"
-          height={500}
-          width={500}
-          loading="lazy"
-          alt="Painting of a majestic castle"
-        />
-        <div className="content">
-          <p className="leading-7 mt-4 text-base">{content}</p>
-          <Link
-            href={link}
-            target="_blank"
-            className="text-sm hover:underline text-blue-500 visited:text-purple-600"
-          >
-            {link}
-          </Link>
+        {image && (
+          <Image
+            src={`${image}`}
+            className="w-full h-auto object-cover rounded-md"
+            height={500}
+            width={500}
+            loading="lazy"
+            alt="Painting of a majestic castle"
+          />
+        )}
+        <div className={`content ${image && "mt-4"}`}>
+          <p className="leading-7 text-base">{content}</p>
+          {linkUrl && (
+            <Link
+              href={linkUrl}
+              target="_blank"
+              className="text-sm hover:underline text-blue-500 visited:text-purple-600"
+            >
+              {linkUrl}
+            </Link>
+          )}
         </div>
       </CardContent>
 

@@ -24,12 +24,11 @@ import { UserButton } from "@clerk/nextjs";
 import ThemeSwitcher from "../ThemeSwitcher";
 import { useGlobalUser } from "@/context/userContent";
 import { useState } from "react";
+import { useUserQuery } from "@/hooks/queries/useUserQuery";
 
 const Sidebar = () => {
-  // Get the current user from the context
-  const user = useGlobalUser();
-  const username = user?.user?.username;
-
+  const { data: userData } = useUserQuery();
+  const username = userData?.username;
   const pathname = usePathname(); // Get the current route
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },

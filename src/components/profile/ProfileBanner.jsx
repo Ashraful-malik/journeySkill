@@ -2,17 +2,21 @@ import React from "react";
 import Image from "next/image";
 import { gradientStyle } from "@/lib/utils/randomGradientGenerator";
 
-const Banner = () => {
-  const imageUrl = ""; // Replace with actual URL or state check.
-
+const Banner = ({ userData }) => {
   return (
     <header className="banner">
-      {imageUrl ? (
+      {userData?.bannerImage ? (
         <Image
-          src={imageUrl}
+          src={
+            userData?.tempBannerImage
+              ? userData?.tempBannerImage
+              : userData?.bannerImage?.imageUrl
+          }
           alt="banner image"
           className="w-full h-[150px] object-cover rounded-t-lg"
           loading="lazy"
+          width={800}
+          height={150}
         />
       ) : (
         <div

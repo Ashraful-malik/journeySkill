@@ -24,11 +24,11 @@ export async function GET(req, { params }) {
     //connecting database
     await dbConnect();
     const posts = await Post.find({ owner: userId })
-      .select("-imagePublicId")
+
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate("owner", "firstName lastName username profileImage")
+      .populate("owner", "fullName username profileImage.imageUrl")
       .populate("challengeId", "challengeName");
 
     if (!posts) {

@@ -39,16 +39,16 @@ function EditUserData() {
   const { reset, watch } = form;
 
   useEffect(() => {
-    if (userData?.data) {
+    if (userData) {
       reset({
-        username: userData.data.username || "",
-        fullName: userData.data.fullName || "",
-        bio: userData.data.bio || "",
-        location: userData.data.location || "",
-        dob: userData.data.dob || "",
+        username: userData?.username || "",
+        fullName: userData?.fullName || "",
+        bio: userData?.bio || "",
+        location: userData?.location || "",
+        dob: userData?.dob || "",
       });
     }
-  }, [userData?.data, reset]); // Only trigger when `userData.data` changes
+  }, [userData, reset]); // Only trigger when `userData.data` changes
 
   // Watch form values for changes
   const watchedValues = watch();
@@ -72,7 +72,7 @@ function EditUserData() {
   const onSubmit = (data) => {
     editUser(
       {
-        userId: userData?.data._id,
+        userId: userData?._id,
         updatedData: data,
       },
       {
@@ -81,7 +81,7 @@ function EditUserData() {
             title: "Success",
             description: "Profile updated successfully!",
           });
-          route.push(`/profile/${userData?.data.username}`);
+          route.push(`/profile/${userData?.username}`);
         },
         onError: (error) => {
           console.error("Error in form submission:", error);

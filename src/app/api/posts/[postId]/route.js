@@ -7,7 +7,6 @@ import { createResponse } from "@/lib/utils/response";
 // update post
 export async function PATCH(req, { params }) {
   try {
-    await dbConnect();
     const { text, link, imageUrl, imagePublicId } = await req.json();
     const { postId } = await params;
     if (!postId) {
@@ -24,6 +23,7 @@ export async function PATCH(req, { params }) {
         message: "text, link or image is required",
       });
     }
+    await dbConnect();
     const post = await Post.findById(postId);
 
     if (!post) {

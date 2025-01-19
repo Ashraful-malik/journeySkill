@@ -23,6 +23,7 @@ const postSchema = new Schema(
 
     imagePublicId: {
       type: String, //cloudinary public id
+      unique: true,
     },
 
     viewCount: {

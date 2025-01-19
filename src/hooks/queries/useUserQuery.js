@@ -8,8 +8,7 @@ export const useUserQuery = () => {
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => fetchUser(userId),
-    staleTime: 10000, // 10 seconds
+    staleTime: 60 * 60 * 1000, // 1 hour
     refetchOnMount: false, // Prevent redundant refetching
-    // enabled: !!userId,
   });
 };

@@ -5,6 +5,7 @@ import User from "@/models/user.model";
 import { clerkClient } from "@clerk/express";
 import { auth } from "@clerk/nextjs/server";
 import { create } from "axios";
+
 // update user details
 export async function PUT(req, { params }) {
   try {

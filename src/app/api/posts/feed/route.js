@@ -3,8 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Post } from "@/models/post.model";
-import User from "@/models/user.model";
 
+// get all public posts
 export async function GET(req) {
   const { searchParams } = req.nextUrl;
   const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
@@ -18,7 +18,10 @@ export async function GET(req) {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })
-      .populate("owner", "firstName lastName username profileImage")
+      .populate(
+        "owner",
+        "firstName lastName username profileImage.imageUrl fullName"
+      )
       .populate("challengeId", "challengeName");
 
     if (!posts) {

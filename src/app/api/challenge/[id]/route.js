@@ -8,7 +8,7 @@ import {
   removeUnlinkedTags,
 } from "@/lib/utils/utilsForChallenge";
 
-//get challenge by id
+//get challenge by Challenge id
 export async function GET(req, { params }) {
   try {
     await dbConnect();
@@ -20,7 +20,9 @@ export async function GET(req, { params }) {
         message: "Challenge ID is required or invalid",
       });
     }
-    const challenge = await Challenge.findById(id);
+    const challenge = await Challenge.findById(id)
+      .populate("challengeOwner", "fullName username profileImage")
+      .populate("tags", "tag");
     if (!challenge) {
       return createErrorResponse({
         success: false,
@@ -28,6 +30,7 @@ export async function GET(req, { params }) {
         message: "Challenge not found",
       });
     }
+
     return createResponse({ data: challenge, message: "success", status: 200 });
   } catch (error) {
     return createResponse({

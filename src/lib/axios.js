@@ -4,8 +4,5 @@ import axios from "axios";
 // and the Content-Type header set to "application/json"
 const axiosInstance = axios.create({
   baseURL: "/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 export default axiosInstance;

@@ -2,41 +2,21 @@ import React from "react";
 import ChallengeCard from "../cards/ChallengeCard";
 import PostCard from "../cards/PostCard";
 
-function ChallengeFeed() {
-  const challengesCardContent = [
-    {
-      id: 1,
-      tags: ["#coding", "#art", "#react"],
-      title: "The React Challenge: Build a SaaS in 30 days",
-      description:
-        "I am taking the challenge to build a full-stack SaaS application using React in just 30 days. I will be posting my progress, experiences and lessons learned here.",
-    },
-    {
-      id: 2,
-      tags: ["#coding", "#art", "#challenge"],
-      title: "The Nodejs Challenge: Build a scalable REST API in 30 days",
-      description:
-        "I am taking the challenge to build a scalable REST API using Nodejs in just 30 days. I will be posting my progress, experiences and lessons learned here.",
-    },
-    {
-      id: 3,
-      tags: ["#coding", "#art", "#typescript"],
-      title:
-        "The Typescript Challenge: Migrate a large codebase to Typescript in 30 days",
-      description:
-        "I am taking the challenge to migrate a large codebase to Typescript in just 30 days. I will be posting my progress, experiences and lessons learned here.",
-    },
-  ];
+function ChallengeFeed({ challenges }) {
+  console.log("challenges", challenges);
   return (
     <div className="flex-1 mx-auto py-4 ">
       <div className="flex flex-col gap-4">
-        {challengesCardContent.map((challenge) => (
+        {challenges?.allChallenges.map((challenge) => (
           <ChallengeCard
-            key={challenge.id}
-            id={challenge.id}
-            title={challenge.title}
-            description={challenge.description}
-            tags={challenge.tags}
+            key={challenge?._id}
+            id={challenge?._id}
+            title={challenge?.challengeName}
+            description={challenge?.description}
+            tags={challenge?.challengeTags}
+            challengeDays={challenge?.challengeDays}
+            challengeOwner={challenge?.owner}
+            createdAt={challenge?.createdAt}
           />
         ))}
       </div>

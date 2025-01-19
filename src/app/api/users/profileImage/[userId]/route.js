@@ -3,6 +3,7 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import User from "@/models/user.model";
 
+// update user profile image
 export async function POST(req, { params }) {
   try {
     const { userId } = await params;

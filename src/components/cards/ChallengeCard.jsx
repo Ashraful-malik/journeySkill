@@ -24,8 +24,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-
-function ChallengeCard({ id, description, title, tags }) {
+import PropTypes from "prop-types";
+function ChallengeCard({
+  id,
+  description,
+  title,
+  tags,
+  challengeDays,
+  challengeOwner,
+  createdAt,
+}) {
+  const challengeCreatedAt = new Date(createdAt).toDateString();
   const handleLike = () => {
     console.log("liked");
   };
@@ -42,8 +51,8 @@ function ChallengeCard({ id, description, title, tags }) {
           <div className="flex items-center space-x-2">
             <Avatar aria-label="User Avatar: Ashraful Malik">
               <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="Ashraful Malik's avatar"
+                src={challengeOwner?.profileImage?.imageUrl}
+                alt={challengeOwner?.username}
               />
               <AvatarFallback>
                 <User />
@@ -51,13 +60,13 @@ function ChallengeCard({ id, description, title, tags }) {
             </Avatar>
             {/* user username and name */}
             <div>
-              <Link href="/profile/1215">
+              <Link href={`/profile/${challengeOwner?.username}`}>
                 <p id="author-name " className="hover:underline">
-                  Ashraful Malik
+                  {challengeOwner?.fullName}
                 </p>
               </Link>
               <p className="text-sm text-muted-foreground" id="author-username">
-                @ashraful
+                {challengeOwner?.username}
               </p>
             </div>
           </div>
@@ -67,7 +76,7 @@ function ChallengeCard({ id, description, title, tags }) {
           </div>
         </CardTitle>
         <CardDescription aria-labelledby="author-name">
-          2 days ago
+          {challengeCreatedAt}
         </CardDescription>
       </CardHeader>
 
@@ -81,12 +90,12 @@ function ChallengeCard({ id, description, title, tags }) {
               {description}
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
-              {tags?.map((tag, idx) => (
+              {tags?.map((hashtags, idx) => (
                 <p
                   key={idx}
                   className="text-sm font-bold text-muted-foreground cursor-default"
                 >
-                  {tag}
+                  {hashtags.tag}
                 </p>
               ))}
             </div>
@@ -155,3 +164,12 @@ function ChallengeCard({ id, description, title, tags }) {
 }
 
 export default ChallengeCard;
+ChallengeCard.prototype = {
+  id: PropTypes.string,
+  description: PropTypes.string,
+  title: PropTypes.string,
+  tags: PropTypes.array,
+  challengeDays: PropTypes.number,
+  challengeOwner: PropTypes.object,
+  createdAt: PropTypes.string,
+};

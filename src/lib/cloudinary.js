@@ -1,5 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { createErrorResponse } from "./utils/error";
+import { createResponse } from "./utils/response";
+import { UploadedImage } from "@/models/uploadedImage.model";
 
 // Cloudinary configuration
 cloudinary.config({
@@ -33,10 +35,8 @@ export const uploadImageToCloudinary = async (
           resolve(result);
         }
       );
-
       uploadStream.end(buffer);
     });
-
     return result;
   } catch (error) {
     throw new Error("Error uploading image to Cloudinary: " + error.message);

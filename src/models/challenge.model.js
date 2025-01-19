@@ -3,7 +3,7 @@ import User from "./user.model";
 import { Tag } from "./tag.model";
 const TaskLogSchema = new mongoose.Schema({
   taskId: { type: String, required: true },
-  completionDate: { type: Date, required: true },
+  taskCompletionDate: { type: Date, required: true },
 });
 
 const challengeSchema = new Schema(
@@ -61,6 +61,10 @@ const challengeSchema = new Schema(
     isCompleted: {
       type: Boolean,
       default: false,
+    },
+    completionDate: {
+      type: Date,
+      default: null,
     },
 
     isPublic: {

@@ -1,10 +1,25 @@
 import { z } from "zod";
 
-export const postSchema = z.object({
-  text: z.string().min(10, "Post must be at least 10 characters long"),
-  selectChallenge: z.string().min(1, "You must select a challenge."),
-  url: z.optional(z.string()),
-  isPublic: z.boolean(),
-  image: z.string().optional(),
-});
-// challengeId: z.string().uuid().optional(),
+export const postSchema = z
+  .object({
+    challengeId: z.string().nonempty("Please select a challenge"),
+    text: z
+      .string()
+      .min(10, "Post must be at least 10 characters long")
+      .optional()
+      .or(z.literal("")),
+    link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+    isPublic: z.boolean(),
+    imageUrl: z
+      .string()
+      .url("Must be a valid URL")
+      .optional()
+      .or(z.literal("")),
+  })
+  .refine(
+    (data) => data.text?.trim() || data.link?.trim() || data.imageUrl?.trim(),
+    {
+      message: "At least one of Text, Image, or Link is required.",
+      path: ["text"], // The field to display the error message
+    }
+  );

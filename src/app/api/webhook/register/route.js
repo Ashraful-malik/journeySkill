@@ -131,7 +131,7 @@ export async function POST(req) {
           clerkId: id,
           username: username,
           profileImage: {
-            clerkImage: image_url,
+            imageUrl: image_url,
           },
           firstName: first_name,
           lastName: last_name,

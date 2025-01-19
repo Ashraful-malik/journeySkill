@@ -5,22 +5,14 @@ import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import React, { useEffect, useState } from "react";
 
 function page({ params }) {
-  // username from params
-  const [username, setUsername] = useState(null);
   const { data: userData, isLoading, error } = useUserQuery();
   // Fetch user data based on the username
-  useEffect(() => {
-    const getId = async () => {
-      const { username } = await params;
-      setUsername(username);
-    };
-    getId();
-  }, [params]);
+
   return (
     <WrapperLayout>
       {isLoading && <div>Loading...</div>}
       {error && <div>Error: {error.message}</div>}
-      <ProfileDetails userData={userData?.data} />
+      <ProfileDetails userData={userData} />
     </WrapperLayout>
   );
 }

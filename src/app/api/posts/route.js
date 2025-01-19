@@ -7,16 +7,16 @@ import {
   startSession,
 } from "@/lib/utils/mongodbSession";
 import { createResponse } from "@/lib/utils/response";
-import { Badge } from "@/models/badge.model";
+import Badge from "@/models/badge.model";
 import { Challenge } from "@/models/challenge.model";
 import { Post } from "@/models/post.model";
+import { UploadedImage } from "@/models/uploadedImage.model";
 import User from "@/models/user.model";
 
 //create new post
 export async function POST(req) {
   const session = await startSession();
   try {
-    await dbConnect();
     const {
       userId,
       challengeId,
@@ -31,7 +31,7 @@ export async function POST(req) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "user id or challenge id is required or invalid",
+        message: "user id and challenge id is required or invalid",
       });
     }
     if (!text && !link && !imageUrl) {
@@ -40,6 +40,17 @@ export async function POST(req) {
         status: 400,
         message: "At least one of text, link, or image is required",
       });
+    }
+    await dbConnect(); // Ensure the database is connected before proceeding
+
+    if (imagePublicId) {
+      await UploadedImage.updateOne(
+        { publicId: imagePublicId },
+        { status: "used" },
+        {
+          session,
+        }
+      );
     }
 
     const userPromise = User.findById(userId).session(session);

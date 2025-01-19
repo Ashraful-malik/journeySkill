@@ -6,15 +6,16 @@ import { Challenge } from "@/models/challenge.model";
 // get all user challenges
 export async function GET(req, { params }) {
   try {
-    await dbConnect();
     const { userId } = await params;
+
     if (!userId) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "User ID not Found or Invalid",
+        message: "User ID is required or invalid",
       });
     }
+    await dbConnect();
     // Extract pagination parameters from query
     const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get("page") || "1"); // Default page: 1

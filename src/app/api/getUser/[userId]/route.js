@@ -8,8 +8,10 @@ export async function POST(req, { params }) {
   try {
     const { userId } = await params;
     if (!userId) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "User ID is required or invalid",
       });
     }
 

@@ -26,10 +26,10 @@ export async function GET(req) {
 
       {
         $lookup: {
-          from: "Tag",
+          from: "tags",
           localField: "tags",
           foreignField: "_id",
-          as: "allChallengeHashtags",
+          as: "challengeTags",
         },
       },
       {
@@ -43,7 +43,7 @@ export async function GET(req) {
           hashtags: 1,
           createdAt: 1,
           endDate: 1,
-          "allChallengeHashtags.tag": 1,
+          "challengeTags.tag": 1,
         },
       },
 
@@ -53,7 +53,7 @@ export async function GET(req) {
           // It returns an object with a single field for each group, where the value of the field is an array of documents that belong to that group
           // In this case, we are grouping by the "allHashtags" field and returning an array of all the tags associated with each challenge
           challenges: [
-            { $sort: { createdAt: 1 } },
+            { $sort: { createdAt: -1 } },
             { $skip: skip },
             { $limit: limit },
           ],

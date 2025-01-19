@@ -9,19 +9,13 @@ import Bio from "./ProfileBio";
 // All code in this file is from the profile page
 function ProfileDetails({ userData }) {
   const [showMore, setShowMore] = useState(false);
-
   const handleShowMore = () => {
     setShowMore(!showMore);
-    console.log(gradientStyle);
   };
   return (
     <section className="mt-5 px-2 lg:px-0">
-      <Banner />
-      <ProfileHeader
-        username={userData?.username}
-        fullName={userData?.fullName}
-        profileImage={userData?.profileImage}
-      />
+      <Banner userData={userData} />
+      <ProfileHeader userData={userData} />
       <Stats
         followerCount={userData?.followerCount}
         followingCount={userData?.followingCount}
@@ -33,7 +27,7 @@ function ProfileDetails({ userData }) {
         toggleShowMore={handleShowMore}
       />
       <div className="mt-8">
-        <ProfileTab />
+        <ProfileTab userData={userData} />
       </div>
     </section>
   );

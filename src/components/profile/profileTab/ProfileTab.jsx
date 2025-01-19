@@ -2,8 +2,16 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PostCard from "@/components/cards/PostCard";
 import ChallengeCard from "@/components/cards/ChallengeCard";
+import { useUserChallengesQuery } from "@/hooks/queries/useChallengeQuery";
+import { useFetchUserPostsQuery } from "@/hooks/queries/usePostQuery";
 
-function ProfileTab() {
+function ProfileTab({ userData }) {
+  const { data: userChallenges, isLoading } = useUserChallengesQuery(
+    userData?._id
+  );
+  const { data: userPosts, isLoading: postLoading } = useFetchUserPostsQuery(
+    userData?._id
+  );
   return (
     <Tabs defaultValue="posts">
       <TabsList className="w-full rounded-none h-12 bg-background border-b">
@@ -12,45 +20,34 @@ function ProfileTab() {
       </TabsList>
       <TabsContent value="posts">
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 ">
+          {postLoading && <div>Loading...</div>}
           {/* all posts of user */}
-          <PostCard
-            content="hello world this is content of post more content here i am typing this is me and i am playing with it"
-            image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-            link="https://google.com"
-            className="border"
-          />
-          <PostCard
-            content="hello world this is content of post more content here i am typing this is me and i am playing with it"
-            image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-            link="https://google.com"
-            className="border"
-          />
-          <PostCard
-            content="hello world this is content of post more content here i am typing this is me and i am playing with it"
-            image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-            link="https://google.com"
-            className="border"
-          />
-          <PostCard
-            content="hello world this is content of post more content here i am typing this is me and i am playing with it"
-            image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-            link="https://google.com"
-            className="border"
-          />
-          <PostCard
-            content="hello world this is content of post more content here i am typing this is me and i am playing with it"
-            image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-            link="https://google.com"
-            className="border"
-          />
+          {userPosts?.posts.map((post) => (
+            <PostCard
+              key={post._id}
+              content={post?.text}
+              image={post?.image}
+              linkUrl={post?.link}
+              owner={post?.owner}
+              createdAt={post?.createdAt}
+              challenge={post?.challengeId}
+            />
+          ))}
         </div>
       </TabsContent>
       <TabsContent value="challenges">
+        {isLoading && <div>Loading...</div>}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          <ChallengeCard
-            challengeName="30 days coding challenge"
-            description="I am taking the challenge to build a full-stack SaaS application using React in just 30 days. I will be posting my progress, experiences and lessons learned here."
-          />
+          {userChallenges?.challenges.map((challenge) => (
+            <ChallengeCard
+              key={challenge?._id}
+              title={challenge?.challengeName}
+              description={challenge?.description}
+              id={challenge?._id}
+              createdAt={challenge?.createdAt}
+              challengeOwner={userData}
+            />
+          ))}
         </div>
       </TabsContent>
     </Tabs>

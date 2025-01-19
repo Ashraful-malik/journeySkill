@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@clerk/nextjs";
 import challengeSchema from "@/schema/challengeSchema";
 import { addDays, format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader, SplineIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import axiosInstance from "@/lib/axios";
@@ -30,36 +30,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import TagInput from "@/components/ui/tag-input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCreateChallengeMutation } from "@/hooks/mutations/useCreateChallengeMutation";
 
-const createChallenge = async (challengeData) => {
-  const response = await axiosInstance.post("/challenges", challengeData);
-  return response.data; // Axios automatically parses JSON responses
-};
 function CreateChallenge() {
-  const queryClient = useQueryClient();
-  const navigate = useRouter();
+  const { mutate: createChallenge, isPending } = useCreateChallengeMutation();
+  const router = useRouter();
   const { toast } = useToast();
 
   // Define the mutation
-  const mutation = useMutation({
-    mutationFn: async (formData) => createChallenge(formData),
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Challenge created successfully!",
-      });
-      queryClient.invalidateQueries(["challenges"]); // Invalidate queries to refresh data
-      router.push("/challenges"); // Redirect after success
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.response?.data?.message || "An error occurred.",
-        variant: "destructive",
-      });
-    },
-  });
+
   const form = useForm({
     resolver: zodResolver(challengeSchema),
     defaultValues: {
@@ -73,7 +52,6 @@ function CreateChallenge() {
   });
 
   const [date, setDate] = useState(form.getValues("dateRange"));
-
   const selectedDays =
     date.from && date.to
       ? Math.ceil(
@@ -87,8 +65,28 @@ function CreateChallenge() {
   }, [selectedDays, form]);
 
   // handle file submit
-  const onSubmit = async (data) => {
-    mutation.mutate(data);
+  const onSubmit = async (challengeData) => {
+    createChallenge(
+      { challengeData },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Challenge created successfully",
+            description: "Challenge created successfully",
+          });
+          router.push("/challenges");
+        },
+        onError: (error) => {
+          console.error("Error in form submission:", error);
+          // console.log(error.response);
+          toast({
+            title: "Error",
+            description: error.message || "An error occurred.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   // Access errors specifically for days
@@ -134,7 +132,7 @@ function CreateChallenge() {
           name="dateRange" // Bind the date range to the form state
           render={({ field }) => (
             <FormItem>
-              <FormLabel>No of days</FormLabel>
+              <FormLabel htmlFor="dateRange">No of days</FormLabel>
               <FormDescription>Choose no of days for challenge</FormDescription>
               <FormControl>
                 <div>
@@ -234,7 +232,15 @@ function CreateChallenge() {
 
         {/* submit button */}
         <div className="flex justify-end">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? (
+              <span className="flex gap-2 items-center">
+                <Loader className="animate-spin" size={20} /> Creating...
+              </span>
+            ) : (
+              "Create Challenge"
+            )}
+          </Button>
         </div>
       </form>
     </Form>

@@ -23,7 +23,7 @@ const userSchema = new Schema(
       clerkImage: { type: String },
     },
     bannerImage: {
-      ImageUrl: { type: String },
+      imageUrl: { type: String },
       publicId: { type: String },
     },
 

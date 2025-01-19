@@ -19,11 +19,9 @@ function calculatePostsRequired(durationInDays, postsPerInterval) {
 export async function POST(req) {
   try {
     await dbConnect();
-    const { sessionClaims } = await auth();
-    console.log(sessionClaims);
-    const mongoUserId = sessionClaims.user_id;
-
-    if (!mongoUserId) {
+    const session = await auth();
+    const userId = await session?.sessionClaims?.user_Id;
+    if (!userId) {
       return createErrorResponse({
         success: false,
         status: 401,
@@ -31,19 +29,24 @@ export async function POST(req) {
       });
     }
 
-    const {
+    const { challengeName, challengeDescription, tags, days, isPublic } =
+      await req.json();
+    console.log(
+      "challengeName",
       challengeName,
+      "challengeDescription",
       challengeDescription,
+      "tags",
       tags,
-      challengeDays,
-      isPublic,
-    } = await req.json();
+      "days",
+      days
+    );
 
     if (
       !challengeName ||
       !challengeDescription ||
       !Array.isArray(tags) ||
-      !challengeDays
+      !days
     ) {
       return createErrorResponse({
         success: false,
@@ -52,7 +55,7 @@ export async function POST(req) {
       });
     }
 
-    if (challengeDays <= 0) {
+    if (days <= 0) {
       return createErrorResponse({
         success: false,
         status: 400,
@@ -61,24 +64,21 @@ export async function POST(req) {
       });
     }
     // Calculate tasks required
-    const tasksRequired = calculatePostsRequired(
-      challengeDays,
-      POST_PER_INTERVAL
-    ); // Automatically calculated
+    const tasksRequired = calculatePostsRequired(days, POST_PER_INTERVAL); // Automatically calculated
 
     //calculating end date
-    const endDate = await calculateEndDate(challengeDays);
+    const endDate = await calculateEndDate(days);
     // Consistency incentive is the number of days user should maintain consistency in completing the task
     // It is calculated by dividing the total number of days in the challenge by the number of tasks required
     // For example, if the challenge is 30 days and 15 tasks are required, then the consistency incentive is 2 days
     // This means that the user should complete at least 1 task every 2 days to maintain consistency
-    const consistencyIncentiveDays = Math.ceil(challengeDays / tasksRequired);
+    const consistencyIncentiveDays = Math.ceil(days / tasksRequired);
     try {
       const challenge = new Challenge({
-        challengeOwner: mongoUserId,
+        challengeOwner: userId,
         challengeName,
         description: challengeDescription,
-        days: challengeDays,
+        days: days,
         tasksRequired,
         endDate,
         consistencyIncentiveDays,
