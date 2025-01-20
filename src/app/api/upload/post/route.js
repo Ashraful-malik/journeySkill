@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import dbConnect from "@/lib/dbConnect";
 import { UploadedImage } from "@/models/uploadedImage.model";
 
+// upload post image
 export async function POST(req) {
   try {
     const session = await auth();
