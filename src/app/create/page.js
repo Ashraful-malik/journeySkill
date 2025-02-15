@@ -8,9 +8,7 @@ import { useGlobalUser } from "@/context/userContent";
 function page() {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-
   const { data: userChallenges } = useUserChallengesQuery(userId);
-
   return (
     <WrapperLayout>
       <PostsTab userChallenges={userChallenges} />

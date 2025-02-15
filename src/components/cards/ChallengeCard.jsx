@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,8 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Bookmark,
   ChartColumnStacked,
+  Eye,
   Heart,
   MessageCircle,
   User,
@@ -33,14 +33,32 @@ function ChallengeCard({
   challengeDays,
   challengeOwner,
   createdAt,
+  viewsCount,
+  likesCount: initialLikesCount,
+  isLiked: initialIsLiked,
+  onLike,
+  onUnlike,
+  commentCount,
 }) {
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [likesCount, setLikesCount] = useState(initialLikesCount);
   const challengeCreatedAt = new Date(createdAt).toDateString();
-  const handleLike = () => {
-    console.log("liked");
+
+  useEffect(() => {
+    setIsLiked(initialIsLiked);
+    setLikesCount(initialLikesCount);
+  }, [initialIsLiked, initialLikesCount]);
+  const handleToggle = () => {
+    if (isLiked) {
+      onUnlike(); // Call the parent-provided function for unlike
+      setLikesCount((prev) => Math.max(prev - 1, 0));
+    } else {
+      onLike(); // Call the parent-provided function for like
+      setLikesCount((prev) => prev + 1);
+    }
+    setIsLiked(!isLiked); // Optimistic update for immediate UI feedback
   };
-  const handleComment = () => {
-    console.log("commented");
-  };
+
   return (
     <Card className=" rounded-sm">
       {/* Header */}
@@ -109,41 +127,46 @@ function ChallengeCard({
           {/* Left Actions */}
           <div className="flex items-center space-x-4 text-muted-foreground">
             <button
-              onClick={handleLike}
               className="flex items-center gap-2 cursor-pointer "
               aria-label="Like this post"
+              onClick={handleToggle}
             >
-              <Heart size={20} className="hover:text-red-500" />
+              <Heart
+                size={20}
+                className={
+                  isLiked ? "text-red-500 fill-current" : "text-gray-500"
+                }
+              />
               <span className="text-sm" aria-hidden="true">
-                100
+                {likesCount}
               </span>
             </button>
-            <Link href="/comment/456?type=challenge">
+            {/* comment */}
+            <Link href={`comment/${id}/?type=challenge`}>
               <button
-                onClick={handleComment}
                 className="flex items-center gap-2 cursor-pointer"
                 aria-label="Comment on this post"
               >
                 <MessageCircle size={20} className="hover:text-primary" />
                 <span className="text-sm" aria-hidden="true">
-                  200
+                  {commentCount}
                 </span>
               </button>
             </Link>
+            {/* views */}
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              aria-label="View this post"
+            >
+              <Eye size={20} />
+              <span className="text-sm" aria-hidden="true">
+                {viewsCount}
+              </span>
+            </div>
           </div>
 
           {/* Right side Action */}
           <div className="flex items-center space-x-4">
-            <button
-              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
-              aria-label="Save this post"
-            >
-              <Bookmark size={20} />
-              <span className="text-sm " aria-hidden="true">
-                Save
-              </span>
-            </button>
-
             <TooltipProvider arial-label="challenge analytics">
               <Tooltip>
                 <TooltipTrigger>
@@ -164,12 +187,3 @@ function ChallengeCard({
 }
 
 export default ChallengeCard;
-ChallengeCard.prototype = {
-  id: PropTypes.string,
-  description: PropTypes.string,
-  title: PropTypes.string,
-  tags: PropTypes.array,
-  challengeDays: PropTypes.number,
-  challengeOwner: PropTypes.object,
-  createdAt: PropTypes.string,
-};

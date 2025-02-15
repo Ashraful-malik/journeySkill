@@ -11,10 +11,19 @@ const tooltipStyles = {
   },
 };
 const BarChart = ({ dailyProgress }) => {
+  if (!dailyProgress) {
+    return <>Loading....</>;
+  }
+  const formattedData = dailyProgress?.map((item) => ({
+    day: `Day ${item.day}`, // Convert the day to a string if needed
+    tasks: item.tasks, // Keep the tasks count as is
+  }));
+
+  console.log(formattedData);
   return (
     <div style={{ height: 400 }}>
       <ResponsiveBar
-        data={dailyProgress}
+        data={formattedData}
         keys={["tasks"]}
         indexBy="day"
         margin={{ top: 50, right: 50, bottom: 50, left: 60 }}

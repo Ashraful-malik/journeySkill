@@ -2,10 +2,10 @@ import axiosInstance from "../axios";
 import { handleApiError } from "../utils/errorHandler";
 
 // fetch  all post as feed
-export const fetchPosts = async () => {
+export const fetchPosts = async ({ pageParams }) => {
   try {
-    const response = await axiosInstance.get("/posts/feed");
-
+    const response = await axiosInstance.get(`/posts/feed/?page=${pageParams}`);
+    console.log(response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -27,8 +27,6 @@ export const createPostApi = async (postData) => {
 
 // upload post Image
 export const uploadPostImage = async ({ file, userId }) => {
-  console.log("file from api", file);
-  console.log("userId from api", userId);
   const allowedImageTypes = [
     "image/jpeg",
     "image/jpg",
@@ -59,6 +57,29 @@ export const uploadPostImage = async ({ file, userId }) => {
 export const fetchUserPosts = async (userId) => {
   try {
     const response = await axiosInstance.get(`/posts/user/${userId}`);
+    return response.data.data;
+  } catch (error) {
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+// fetch post by id
+export const fetchPostById = async (postId) => {
+  try {
+    const response = await axiosInstance.get(`/posts/${postId}`);
+    return response.data.data;
+  } catch (error) {
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+
+// fetch all post of challenge
+export const fetchChallengePosts = async (challengeId) => {
+  try {
+    const response = await axiosInstance.get(
+      `/posts/challengePosts/${challengeId}`
+    );
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

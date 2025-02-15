@@ -1,5 +1,4 @@
-"use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -26,25 +25,42 @@ function PostCard({
   image,
   linkUrl,
   className,
+  postId,
   createdAt,
   owner,
   challenge,
+  viewCount,
+  likesCount: initialLikesCount,
+  isLiked: initialIsLiked,
+  onLike,
+  onUnlike,
+  commentCount,
 }) {
-  const postCreatedAt = new Date(createdAt).toDateString();
-  const handleLike = () => {
-    console.log("liked");
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [likesCount, setLikesCount] = useState(initialLikesCount);
+
+  useEffect(() => {
+    setIsLiked(initialIsLiked);
+    setLikesCount(initialLikesCount);
+  }, [initialIsLiked, initialLikesCount]);
+
+  const handleToggleLike = () => {
+    if (isLiked) {
+      onUnlike(); // Call the parent-provided function for unlike
+      setLikesCount((prev) => Math.max(prev - 1, 0));
+    } else {
+      onLike(); // Call the parent-provided function for like
+      setLikesCount((prev) => prev + 1);
+    }
+    setIsLiked(!isLiked); // Optimistic update for immediate UI feedback
   };
-  const handleComment = () => {
-    console.log("commented");
-  };
+
   return (
-    <Card className={`border  rounded-none ${className}`}>
-      {/* Header */}
+    <Card className={`border rounded-none ${className}`} data-post-id={postId}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          {/* profile details */}
           <div className="flex items-center space-x-2">
-            <Avatar aria-label="User Avatar: Ashraful Malik">
+            <Avatar aria-label={`User Avatar: ${owner?.fullName}`}>
               <AvatarImage
                 src={owner?.profileImage?.imageUrl}
                 alt={owner?.username}
@@ -53,29 +69,20 @@ function PostCard({
                 <User />
               </AvatarFallback>
             </Avatar>
-            {/* user username and name */}
             <div>
               <Link href={`/profile/${owner?.username}`}>
-                <p id="author-name " className="hover:underline">
-                  {owner?.fullName}
-                </p>
+                <p className="hover:underline">{owner?.fullName}</p>
               </Link>
-              <p className="text-sm text-muted-foreground" id="author-username">
+              <p className="text-sm text-muted-foreground">
                 @{owner?.username}
               </p>
             </div>
           </div>
-          {/* dropdown menu */}
-          <div>
-            <CustomDropdownMenu />
-          </div>
+          <CustomDropdownMenu />
         </CardTitle>
-        <CardDescription
-          aria-labelledby="author-name"
-          className="flex flex-col"
-        >
-          {postCreatedAt}
-          <Link href={`/challenges/${challenge?._id}`}>
+        <CardDescription>
+          {new Date(createdAt).toDateString()}
+          <Link href={`/challenges/${challenge?._id}`} className="w-fit">
             <Badge variant="secondary" className="w-fit max-w-xs line-clamp-1">
               <TooltipProvider>
                 <Tooltip>
@@ -88,16 +95,15 @@ function PostCard({
         </CardDescription>
       </CardHeader>
 
-      {/* Content */}
       <CardContent>
         {image && (
           <Image
-            src={`${image}`}
+            src={image}
             className="w-full h-auto object-cover rounded-md"
             height={500}
             width={500}
             loading="lazy"
-            alt="Painting of a majestic castle"
+            alt="Post content image"
           />
         )}
         <div className={`content ${image && "mt-4"}`}>
@@ -106,7 +112,7 @@ function PostCard({
             <Link
               href={linkUrl}
               target="_blank"
-              className="text-sm hover:underline text-blue-500 visited:text-purple-600"
+              className="text-sm hover:underline text-blue-500"
             >
               {linkUrl}
             </Link>
@@ -114,45 +120,35 @@ function PostCard({
         </div>
       </CardContent>
 
-      {/* Footer */}
       <CardFooter>
         <div className="flex items-center justify-between w-full">
-          {/* Left Actions */}
           <div className="flex items-center space-x-4 text-muted-foreground">
+            {/* Toggle Like Button */}
             <button
-              onClick={handleLike}
-              className="flex items-center gap-2 cursor-pointer "
-              aria-label="Like this post"
+              onClick={handleToggleLike}
+              className="flex items-center gap-2 cursor-pointer"
             >
-              <Heart size={20} className="hover:text-red-500" />
-              <span className="text-sm" aria-hidden="true">
-                100
-              </span>
+              <Heart
+                size={20}
+                className={
+                  isLiked ? "text-red-500 fill-current" : "text-gray-500"
+                }
+              />
+              <span className="text-sm">{likesCount}</span>
             </button>
-            <Link href="/comment/456?type=post">
-              <button
-                onClick={handleComment}
-                className="flex items-center gap-2 cursor-pointer"
-                aria-label="Comment on this post"
-              >
+
+            <Link href={`comment/${postId}/?type=post`}>
+              <button className="flex items-center gap-2 cursor-pointer">
                 <MessageCircle size={20} className="hover:text-primary" />
-                <span className="text-sm" aria-hidden="true">
-                  200
-                </span>
+                <span className="text-sm">{commentCount}</span>
               </button>
             </Link>
-          </div>
 
-          {/* Right side Action */}
-          <button
-            className="flex items-center gap-2 cursor-pointer text-muted-foreground"
-            aria-label="Save this post"
-          >
-            <Bookmark size={20} />
-            <span className="text-sm " aria-hidden="true">
-              Save
-            </span>
-          </button>
+            <div className="flex items-center gap-2 cursor-pointer">
+              <Eye size={20} className="hover:text-primary" />
+              <span className="text-sm">{viewCount}</span>
+            </div>
+          </div>
         </div>
       </CardFooter>
     </Card>

@@ -60,12 +60,13 @@ export default async function RootLayout({ children }) {
   // clerk mongodb id from the session
   const session = await auth();
   const userId = await session?.sessionClaims?.user_Id;
-  if (userId) {
-    await queryClient.prefetchQuery({
-      queryKey: ["user", userId],
-      queryFn: () => fetchUser(userId),
-    });
-  }
+  // if (userId) {
+  //   await queryClient.prefetchQuery({
+  //     queryKey: ["user", userId],
+  //     queryFn: () => fetchUser(userId),
+  //     staleTime: 60 * 60 * 1000, //1 hour
+  //   });
+  // }
   const dehydratedState = dehydrate(queryClient);
   return (
     <ClerkProvider

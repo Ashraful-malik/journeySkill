@@ -8,7 +8,8 @@ export const useUserQuery = () => {
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => fetchUser(userId),
-    staleTime: 60 * 60 * 1000, // 1 hour
-    refetchOnMount: false, // Prevent redundant refetching
+    staleTime: 60 * 60 * 1000, //1 hour
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };

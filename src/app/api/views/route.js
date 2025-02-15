@@ -4,63 +4,52 @@ import { View } from "@/models/views.model";
 import dbConnect from "@/lib/dbConnect";
 import { Post } from "@/models/post.model";
 import { Challenge } from "@/models/challenge.model";
+import mongoose from "mongoose";
 
 // get all  views count
 export async function POST(req) {
   try {
     await dbConnect();
-    const { contentType, postId } = await req.json();
+    const { contentType, postIds } = await req.json();
     // postId here is the id of the challenge or post for which we want to record a view.
-    if (!postId) {
+
+    if (!postIds || !Array.isArray(postIds) || postIds.length === 0) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "Post id is required",
-      });
-    }
-    if (!contentType) {
-      return createErrorResponse({
-        success: false,
-        status: 400,
-        message: "Content type or post postId is required",
+        message: "Post IDs are required and must be an array",
       });
     }
 
-    let viewCount;
-    if (contentType === "Post") {
-      const postViews = await Post.findById(postId).select("viewCount");
-      if (!postViews) {
-        return createErrorResponse({
-          success: false,
-          status: 404,
-          message: "Post views not  found",
-        });
-      }
-      viewCount = postViews.viewCount;
-    } else if (contentType === "Challenge") {
-      const challengeViews = await Challenge.findById(postId).select(
-        "viewCount"
-      );
-      if (!challengeViews) {
-        return createErrorResponse({
-          success: false,
-          status: 404,
-          message: "Challenge not views found",
-        });
-      }
-      viewCount = challengeViews.viewCount;
-    } else {
+    if (!contentType || !["Post", "Challenge"].includes(contentType)) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "Invalid content type",
+        message: "Invalid or missing content type",
       });
     }
+    // Map content types to corresponding models
+    const modelMap = {
+      Post: Post,
+      Challenge: Challenge,
+    };
+    const Model = modelMap[contentType];
+    // Fetch all view counts for the provided IDs
+    const views = await Model.find({ _id: { $in: postIds } }).select(
+      "_id viewCount"
+    );
+    // Create a map of postId -> viewCount
+    const viewsMap = postIds.reduce((acc, id) => {
+      const view = views.find((v) => v._id.toString() === id);
+      acc[id] = view?.viewCount || 0; // Default to 0 if not found
+      return acc;
+    }, {});
+
     return createResponse({
       success: true,
       status: 200,
       message: "Views fetched successfully",
-      data: { viewCount },
+      data: viewsMap,
     });
   } catch (error) {
     console.log(error);

@@ -2,7 +2,19 @@
 
 import { ResponsiveCalendar } from "@nivo/calendar";
 
-export const CalendarChart = ({ data }) => {
+export const CalendarChart = ({ dailyProgress, from, to }) => {
+  if (!dailyProgress) {
+    return null;
+  }
+
+  // data for the calendar
+  const data = dailyProgress?.map((item) => ({
+    day: new Date(item.taskDate[0]).toISOString().split("T")[0], // Convert to YYYY-MM-DD
+    value: item.tasks, // Keep the tasks count as is
+  }));
+  const startingFrom = new Date(from).toISOString().split("T")[0];
+  const endingTo = new Date(to).toISOString().split("T")[0];
+
   const isDarkMode =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -23,8 +35,8 @@ export const CalendarChart = ({ data }) => {
     <div className="h-56 w-full ">
       <ResponsiveCalendar
         data={data}
-        from="2024-12-01"
-        to="2024-12-31"
+        from={startingFrom}
+        to={endingTo}
         emptyColor={isDarkMode ? "#0a0a0a" : "#F3F4F6"}
         colors={["#d6e685", "#8cc665", "#44a340", "#1e6823"]}
         margin={{ top: 40, right: 40, bottom: 20, left: 40 }}

@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 
 function page({ params }) {
   const [commentId, setCommentId] = useState(null);
+
   const posteType = useSearchParams();
   const type = posteType.get("type");
 
@@ -20,9 +21,9 @@ function page({ params }) {
   return (
     <WrapperLayout>
       {type === "post" ? (
-        <PostComment id={commentId} />
+        <PostComment id={commentId} key={commentId} />
       ) : (
-        <ChallengeComment id={commentId} />
+        <ChallengeComment id={commentId} key={commentId} />
       )}
     </WrapperLayout>
   );

@@ -12,9 +12,9 @@ export async function GET(req, { params }) {
   const skip = (page - 1) * limit;
   const { challengeId } = await params;
   console.log("challengeId", challengeId);
-
+  const notObjectId = new mongoose.Types.ObjectId(challengeId);
   // Validate challengeId
-  if (!challengeId || !mongoose.Types.ObjectId.isValid(challengeId)) {
+  if (!challengeId) {
     return createErrorResponse({
       success: false,
       status: 400,
@@ -30,22 +30,22 @@ export async function GET(req, { params }) {
       .limit(limit)
       .where({ isPublic: true })
       .sort({ createdAt: -1 })
-      .populate(
-        "owner",
-        "firstName lastName username profileImage.imageUrl fullName"
-      )
+      .populate("owner", "username profileImage.imageUrl fullName")
       .populate("challengeId", "challengeName");
 
     if (!posts.length) {
       // Check for an empty posts array
-      return createErrorResponse({
+      return createResponse({
         status: 404,
         success: false,
-        message: "Posts not found",
+        message: "post not crated yet",
       });
     }
 
-    const totalPost = await Post.countDocuments({ isPublic: true });
+    const totalPost = await Post.countDocuments({
+      challengeId,
+      isPublic: true,
+    });
     const totalPage = Math.ceil(totalPost / limit);
 
     return createResponse({

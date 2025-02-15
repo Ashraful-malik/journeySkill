@@ -19,7 +19,7 @@ function ProfileTab({ userData }) {
         <TabsTrigger value="challenges">Challenges</TabsTrigger>
       </TabsList>
       <TabsContent value="posts">
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 ">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 place-items-center">
           {postLoading && <div>Loading...</div>}
           {/* all posts of user */}
           {userPosts?.posts.map((post) => (
@@ -31,13 +31,14 @@ function ProfileTab({ userData }) {
               owner={post?.owner}
               createdAt={post?.createdAt}
               challenge={post?.challengeId}
+              className="max-w-sm w-full self-start"
             />
           ))}
         </div>
       </TabsContent>
       <TabsContent value="challenges">
         {isLoading && <div>Loading...</div>}
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 ">
           {userChallenges?.challenges.map((challenge) => (
             <ChallengeCard
               key={challenge?._id}
@@ -46,6 +47,7 @@ function ProfileTab({ userData }) {
               id={challenge?._id}
               createdAt={challenge?.createdAt}
               challengeOwner={userData}
+              className="max-w-sm w-full "
             />
           ))}
         </div>

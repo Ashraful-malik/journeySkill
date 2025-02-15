@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 
 function page({ params }) {
   const [challengeId, setChallengeId] = useState(null);
+
   useEffect(() => {
     const getId = async () => {
       const { id } = await params;
@@ -14,7 +15,7 @@ function page({ params }) {
   }, [params]);
   return (
     <WrapperLayout>
-      <IndividualChallenge challengeId={challengeId} />
+      <IndividualChallenge challengeId={challengeId} key={challengeId} />
     </WrapperLayout>
   );
 }

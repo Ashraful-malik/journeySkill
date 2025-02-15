@@ -6,95 +6,140 @@ import { Like } from "@/models/like.model";
 import { Post } from "@/models/post.model";
 import mongoose from "mongoose";
 
+// create like
 export async function POST(req) {
-  let session = null; // Declare session outside the try block
+  let session = null;
+
   try {
-    // Extract request body
-    const { targetId, targetType, userId } = await req.json();
-
-    // Input validation
-    if (!targetId || !targetType) {
+    const { batchActions } = await req.json();
+    // Validate batch actions
+    if (!Array.isArray(batchActions) || batchActions.length === 0) {
       return createErrorResponse({
-        success: false,
         status: 400,
-        message: "targetId and targetType are required",
+        message: "batchActions must be a non-empty array",
       });
     }
-    if (!userId) {
+    if (
+      !batchActions.every((action) => {
+        return (
+          action.targetType === "Post" || action.targetType === "Challenge"
+        );
+      })
+    ) {
       return createErrorResponse({
-        success: false,
         status: 400,
-        message: "User ID is required",
+        message: "Invalid targetType",
+      });
+    }
+    if (
+      !batchActions.every((action) => {
+        return action.operation === "like" || action.operation === "unlike";
+      })
+    ) {
+      return createErrorResponse({
+        status: 400,
+        message: "Invalid operation",
       });
     }
 
-    // Connect to the database
     await dbConnect();
-
-    // Determine the target model
-    const Model = targetType === "Post" ? Post : Challenge;
-
-    // Start a MongoDB session
     session = await mongoose.startSession();
     session.startTransaction();
 
-    // Check for existing like
-    const existingLike = await Like.findOne({
-      userId,
-      targetId,
-      targetType,
-    }).session(session);
+    // Deduplicate actions by (userId, targetId, targetType)
+    const actionMap = new Map();
+    batchActions.forEach((action) => {
+      const key = `${action.userId}-${action.targetId}-${action.targetType}`;
+      actionMap.set(key, action);
+    });
 
-    if (existingLike) {
-      // If a like exists, remove it
-      await Like.findOneAndDelete({ _id: existingLike._id }, { session });
-      await Model.findByIdAndUpdate(
-        targetId,
-        { $inc: { likeCount: -1 } },
-        { session }
+    const uniqueActions = Array.from(actionMap.values());
+
+    const targetIdsByType = uniqueActions.reduce((acc, action) => {
+      if (!acc[action.targetType]) acc[action.targetType] = [];
+      acc[action.targetType].push(new mongoose.Types.ObjectId(action.targetId));
+      return acc;
+    }, {});
+    // Perform batched existence checks
+    const validActions = [];
+
+    for (const [type, ids] of Object.entries(targetIdsByType)) {
+      const Model = type === "Post" ? Post : Challenge;
+      const existingTargets = await Model.find({ _id: { $in: ids } }).session(
+        session
       );
-      // Commit the transaction
-      await session.commitTransaction();
-      return createResponse({
-        success: true,
-        status: 200,
-        message: "Unliked",
-      });
-    } else {
-      // Otherwise, create a new like
-      const newLike = new Like({ userId, targetId, targetType });
-      await newLike.save({ session });
-      await Model.findByIdAndUpdate(
-        targetId,
-        { $inc: { likeCount: 1 } },
-        { session }
+      const existingIds = new Set(
+        existingTargets.map((doc) => doc._id.toString())
       );
 
-      // Commit the transaction
-      await session.commitTransaction();
-
-      return createResponse({
-        success: true,
-        status: 200,
-        message: "Liked",
-      });
+      // Filter valid actions
+      validActions.push(
+        ...uniqueActions.filter(
+          (action) =>
+            action.targetType !== type || existingIds.has(action.targetId)
+        )
+      );
     }
+
+    const likeOperations = [];
+    for (const action of validActions) {
+      const { targetId, targetType, operation, userId } = action;
+
+      if (operation === "like") {
+        likeOperations.push({
+          updateOne: {
+            filter: {
+              userId: new mongoose.Types.ObjectId(userId),
+              targetId: new mongoose.Types.ObjectId(targetId),
+              targetType,
+            },
+            update: {
+              $set: {
+                userId: new mongoose.Types.ObjectId(userId),
+                targetId: new mongoose.Types.ObjectId(targetId),
+                targetType,
+                createdAt: new Date(),
+              },
+            },
+            upsert: true,
+          },
+        });
+      } else {
+        likeOperations.push({
+          deleteOne: {
+            filter: {
+              userId: new mongoose.Types.ObjectId(userId),
+              targetId: new mongoose.Types.ObjectId(targetId),
+              targetType,
+            },
+          },
+        });
+      }
+    }
+    // Execute like operations if any
+    if (likeOperations.length > 0) {
+      await Like.bulkWrite(likeOperations, { session, ordered: false });
+    }
+    await session.commitTransaction();
+
+    return createResponse({
+      status: 200,
+      message: "success",
+      data: {
+        liked: likeOperations.filter((op) => op.updateOne).length,
+        unliked: likeOperations.filter((op) => op.deleteOne).length,
+      },
+    });
   } catch (error) {
-    // Rollback transaction on error
-    if (session) {
-      await session.abortTransaction();
-    }
-    console.error("Error in like API:", error);
+    if (session) await session.abortTransaction();
+    console.error("Batch like error:", error);
+
     return createErrorResponse({
-      success: false,
       status: 500,
       message: "Internal server error",
-      errors: error.message,
+      error: error.message,
     });
   } finally {
-    // Ensure session is ended
-    if (session) {
-      session.endSession();
-    }
+    if (session) session.endSession();
   }
 }

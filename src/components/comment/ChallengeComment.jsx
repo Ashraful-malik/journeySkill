@@ -1,44 +1,174 @@
-import React from "react";
+"use client";
+import React, { useEffect, useRef } from "react";
+import PostCard from "../cards/PostCard";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Comment from "./view/Comment";
+import { useForm } from "react-hook-form";
+import { commentSchema } from "@/schema/commentSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
+import { useCreateCommentMutation } from "@/hooks/mutations/useCommentMutation";
+import { useGlobalUser } from "@/context/userContent";
+import { useToast } from "@/hooks/use-toast";
+import { useCommentByIdQuery } from "@/hooks/queries/useCommentQuery";
 import ChallengeCard from "../cards/ChallengeCard";
+import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 
 function ChallengeComment({ id }) {
-  return (
-    <div className="w-full border-r border-l mt-2">
-      <ChallengeCard
-        tags={["#coding", "#art", "#react"]}
-        title={"The React Challenge: Build a SaaS in 30 days"}
-        description={
-          "I am taking the challenge to build a full-stack SaaS application using React in just 30 days. I will be posting my progress, experiences and lessons learned here."
+  const { user } = useGlobalUser();
+  const userId = user?.publicMetadata?.userId;
+  console.log(userId);
+  const { toast } = useToast();
+  // get challenge by id
+  const { data: challengeData, isLoading: challengeLoading } =
+    useChallengeByIdQuery(id);
+  // create comment
+  const { mutate: createComment } = useCreateCommentMutation({ id });
+  //get comments
+  const {
+    data: comments,
+    isLoading: loadingComments,
+    fetchNextPage,
+    hasNextPage,
+  } = useCommentByIdQuery({ id, contentType: "Challenge" });
+
+  const loadMoreRef = useRef(null);
+  useEffect(() => {
+    if (!hasNextPage || loadingComments) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
         }
-        link={2}
+      },
+      { threshold: 1.0 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasNextPage, loadingComments, fetchNextPage]);
+
+  const form = useForm({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      content: "",
+      contentType: "Challenge",
+    },
+  });
+  const onSubmit = async (data) => {
+    try {
+      const commentData = {
+        userId: userId,
+        id,
+        ...data,
+      };
+      await createComment(
+        { commentData },
+        {
+          onError: (error) => {
+            console.log(error);
+            toast({
+              title: "Error",
+              description: error.message || "An error occurred.",
+              variant: "destructive",
+            });
+          },
+          onSuccess: () => {
+            toast({
+              title: "Comment created",
+              description: "Comment created successfully",
+            });
+          },
+        }
+      );
+      form.reset();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  if (challengeLoading) {
+    return <div>Loading.....</div>;
+  }
+  return (
+    <div className="w-full border-r border-l mt-2 max-w-2xl">
+      <ChallengeCard
+        key={challengeData?._id}
+        className="border-r-0 border-l-0"
+        id={challengeData?._id}
+        description={challengeData?.description}
+        title={challengeData?.challengeName}
+        tags={challengeData?.tags}
+        challengeDays={challengeData?.days}
+        challengeOwner={challengeData?.challengeOwner}
+        createdAt={challengeData?.createdAt}
       />
+      {/* comment section */}
       <section className="flex flex-col gap-2 ">
         {/* comment input */}
         <div className="flex items-center ">
-          <Input
-            placeholder="Add a comment"
-            className=" rounded-none h-12 border-r-0"
-          />
-          <Button size="lg" variant="outline" className="h-12 rounded-none">
-            Comment
-          </Button>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex item-center  w-full justify-between"
+            >
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input
+                        placeholder="Type comment ..."
+                        className="resize-none w-full border-r-0 border-l-0 rounded-none h-12 shadow-none border-t-0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="h-12 rounded-none">
+                Comment
+              </Button>
+            </form>
+          </Form>
         </div>
         {/* comments */}
-        <div className="ml-2">
-          <Comment
-            profileImage="https://avatars.githubusercontent.com/u/43632556?v=4"
-            name="Steve"
-            comment="first comment"
-          />
-          <Comment
-            profileImage="https://avatars.githubusercontent.com/u/43632556?v=4"
-            name="Steve"
-            comment="Nice picture where did you click this from "
-          />
+        <div key={id}>
+          {loadingComments && <div>Loading .....</div>}
+          {comments?.pages
+            ?.flatMap((page) => page.comments)
+            ?.map((comment) => (
+              <Comment
+                key={comment._id}
+                commentBy={comment.commentBy}
+                commentId={comment._id}
+                createdAt={comment.createdAt}
+                updatedAt={comment.updatedAt}
+                comment={comment.content}
+                optimistic={comment.optimistic}
+                postId={id}
+                isDeleting={comment.isDeleting}
+              />
+            ))}
         </div>
+        {hasNextPage && <div ref={loadMoreRef}>Loading more...</div>}
       </section>
     </div>
   );

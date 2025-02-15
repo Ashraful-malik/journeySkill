@@ -5,7 +5,7 @@ import { Comment } from "@/models/comment.model";
 import { Post } from "@/models/post.model";
 import dbConnect from "@/lib/dbConnect";
 
-// get all comments
+// get all comments of post or challenge by id
 export async function POST(req, { params }) {
   try {
     await dbConnect();
@@ -18,6 +18,14 @@ export async function POST(req, { params }) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
+    if (!contentType && !id) {
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "Content type and post id is required",
+      });
+    }
+
     let comments;
     if (contentType === "Post") {
       const post = await Post.findById(id);
@@ -29,7 +37,7 @@ export async function POST(req, { params }) {
         });
       }
       comments = await Comment.find({ post: id })
-        .populate("commentBy", "fullName username profileImage")
+        .populate("commentBy", "fullName username profileImage.imageUrl")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -43,7 +51,7 @@ export async function POST(req, { params }) {
         });
       }
       comments = await Comment.find({ challenge: id })
-        .populate("commentBy", "fullName username profileImage")
+        .populate("commentBy", "fullName username profileImage.imageUrl")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);

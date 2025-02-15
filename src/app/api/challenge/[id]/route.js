@@ -21,7 +21,7 @@ export async function GET(req, { params }) {
       });
     }
     const challenge = await Challenge.findById(id)
-      .populate("challengeOwner", "fullName username profileImage")
+      .populate("challengeOwner", "fullName username profileImage.imageUrl")
       .populate("tags", "tag");
     if (!challenge) {
       return createErrorResponse({

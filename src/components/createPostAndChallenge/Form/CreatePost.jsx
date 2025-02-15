@@ -44,7 +44,7 @@ function CreatePost({ userChallenges }) {
   const [imageData, setImageData] = useState(null);
   const navigate = useRouter();
   const { toast } = useToast();
-  const { mutate: createPost, isPending } = useCreatePostMutation();
+  const { mutate: createNewPost, isPending } = useCreatePostMutation();
   const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
   const form = useForm({
     resolver: zodResolver(postSchema),
@@ -70,7 +70,7 @@ function CreatePost({ userChallenges }) {
       userId,
     };
 
-    createPost(
+    createNewPost(
       { postData },
       {
         onSuccess: () => {

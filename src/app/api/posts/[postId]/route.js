@@ -4,6 +4,40 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { Post } from "@/models/post.model";
 import { createResponse } from "@/lib/utils/response";
 
+// get post by Id
+export async function GET(req, { params }) {
+  try {
+    const { postId } = await params;
+    if (!postId) {
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "Post ID is required or invalid",
+      });
+    }
+    await dbConnect();
+    const post = await Post.findById(postId)
+      .populate("owner", "profileImage.imageUrl fullName username")
+      .populate("challengeId", "challengeName");
+
+    if (!post) {
+      return createErrorResponse({
+        success: false,
+        status: 404,
+        message: "Post not found or Post ID is invalid",
+      });
+    }
+    return createResponse({ data: post, message: "success", status: 200 });
+  } catch (error) {
+    return createErrorResponse({
+      success: false,
+      status: 500,
+      message: "Error getting post",
+      errors: error.message,
+    });
+  }
+}
+
 // update post
 export async function PATCH(req, { params }) {
   try {

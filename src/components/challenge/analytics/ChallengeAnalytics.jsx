@@ -14,49 +14,36 @@ import BarChart from "@/components/charts/BarChart";
 import { CalendarChart } from "@/components/charts/CalendarChart";
 
 // This would typically come from a database or API
-const challengeData = {
-  challengeName: "30-Day Fitness Challenge",
-  totalTasks: 30,
-  completedTasks: 18,
-  completionPercentage: 60,
-  currentStreak: 5,
-  consistencyIncentiveDays: 2,
-  isCompleted: false,
-  lastActivityDate: "2023-05-15",
-  completionDate: null,
-  isPublic: true,
-  startDate: "2023-05-01",
-  viewCount: 150,
-};
 
-const dailyProgress = [
-  { day: 1, tasks: 2 },
-  { day: 2, tasks: 1 },
-  { day: 3, tasks: 3 },
-  { day: 4, tasks: 2 },
-  { day: 5, tasks: 1 },
-  { day: 6, tasks: 3 },
-  { day: 8, tasks: 2 },
-  { day: 9, tasks: 2 },
-  { day: 10, tasks: 2 },
-  { day: 11, tasks: 1 },
-  { day: 12, tasks: 3 },
-  { day: 13, tasks: 2 },
-  { day: 14, tasks: 2 },
-  { day: 15, tasks: 1 },
-  { day: 16, tasks: 1 },
-];
-const data = [
-  { day: "2024-12-01", value: 5 },
-  { day: "2024-12-02", value: 10 },
-  { day: "2024-12-03", value: 15 },
-  { day: "2024-12-04", value: 20 },
-  { day: "2025-12-05", value: 25 },
-  // Add more data as needed
-];
-export default function AnalyticsPage() {
+export default function AnalyticsPage({ challengeAnalyticsData }) {
+  const challengeDetails = challengeAnalyticsData?.challengeDetails;
+
+  // overview
+  const challengeData = {
+    challengeName: challengeDetails?.challengeName,
+    totalTasks: challengeDetails?.totalTasks,
+    completedTasks: challengeDetails?.completedTasks,
+    completionPercentage: challengeDetails?.completionPercentage,
+    currentStreak: challengeDetails?.currentStreak,
+    consistencyIncentiveDays: challengeDetails?.consistencyIncentiveDays,
+    isCompleted: challengeDetails?.isCompleted,
+    lastActivityDate: new Date(
+      challengeDetails?.lastActivityDate
+    ).toLocaleDateString(),
+    completionDate: challengeAnalyticsData?.completionDate || null,
+    isPublic: challengeDetails?.isPublic,
+    startDate: new Date(challengeDetails?.startDate).toLocaleDateString(),
+    endDate: new Date(challengeDetails?.endDate).toDateString(),
+    viewCount: challengeAnalyticsData?.viewCount || 0,
+  };
+
+  // daily progress details form barChart and calendarChart
+  const dailyProgress = challengeAnalyticsData?.dailyProgress?.map((item) => {
+    return { day: item.day, tasks: item.tasks, taskDate: item.taskDates };
+  });
+  // calender chart data
   const daysElapsed = Math.ceil(
-    (new Date().getTime() - new Date(challengeData.startDate).getTime()) /
+    (new Date().getTime() - new Date(challengeDetails?.startDate).getTime()) /
       (1000 * 3600 * 24)
   );
 
@@ -67,9 +54,17 @@ export default function AnalyticsPage() {
           {challengeData.challengeName}
         </h1>
         <div className="flex items-center space-x-2">
-          <Badge variant={challengeData.isCompleted ? "default" : "secondary"}>
-            {challengeData.isCompleted ? "Completed" : "In Progress"}
-          </Badge>
+          {new Date() > new Date(challengeDetails?.endDate) &&
+          !challengeData.isCompleted ? (
+            <Badge variant="destructive">Challenge Ended</Badge>
+          ) : (
+            <Badge
+              variant={challengeData.isCompleted ? "default" : "secondary"}
+            >
+              {challengeData.isCompleted ? "Completed" : "In Progress"}
+            </Badge>
+          )}
+
           {challengeData.isPublic && (
             <Badge variant="outline" className="flex items-center">
               <EyeIcon className="w-3 h-3 mr-1" />
@@ -106,6 +101,16 @@ export default function AnalyticsPage() {
             value={challengeData.viewCount}
             icon={<EyeIcon className="w-4 h-4" />}
           />
+          <QuickStat
+            title="Days Elapsed"
+            value={daysElapsed}
+            icon={<CalendarIcon className="w-4 h-4" />}
+          />
+          <QuickStat
+            title="End Date"
+            value={challengeData.endDate}
+            icon={<CalendarIcon className="w-4 h-4" />}
+          />
         </div>
       </section>
 
@@ -125,7 +130,11 @@ export default function AnalyticsPage() {
         <h2 className="text-2xl font-semibold mb-4">Activity Heatmap</h2>
         <Card>
           <CardContent>
-            <CalendarChart data={data} />
+            <CalendarChart
+              dailyProgress={dailyProgress}
+              from={challengeDetails?.startDate}
+              to={challengeDetails?.endDate}
+            />
           </CardContent>
         </Card>
       </section>
@@ -138,26 +147,35 @@ export default function AnalyticsPage() {
               <DetailItem
                 icon={<CalendarIcon />}
                 title="Start Date"
-                value={new Date(challengeData.startDate).toLocaleDateString()}
+                value={challengeData.startDate}
               />
               <DetailItem
                 icon={<CalendarIcon />}
                 title="Last Activity"
-                value={new Date(
-                  challengeData.lastActivityDate
-                ).toLocaleDateString()}
+                value={challengeData.lastActivityDate}
               />
               <DetailItem
                 icon={
-                  challengeData.isCompleted ? (
+                  new Date() > new Date(challengeDetails?.endDate) &&
+                  !challengeDetails?.isCompleted ? (
+                    <XCircleIcon className="text-red-500" />
+                  ) : challengeData.isCompleted ? (
                     <CheckCircleIcon className="text-green-500" />
                   ) : (
                     <XCircleIcon className="text-red-500" />
                   )
                 }
                 title="Status"
-                value={challengeData.isCompleted ? "Completed" : "In Progress"}
+                value={
+                  new Date() > new Date(challengeDetails?.endDate) &&
+                  !challengeDetails?.isCompleted
+                    ? "Challenge Ended"
+                    : challengeData.isCompleted
+                    ? "Completed"
+                    : "In Progress"
+                }
               />
+
               {challengeData.completionDate && (
                 <DetailItem
                   icon={<CalendarIcon />}

@@ -36,10 +36,13 @@ export async function GET(req) {
     return createResponse({
       data: {
         posts,
-        totalPost: totalPost,
-        totalPage: totalPage,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPage,
+          totalPosts: totalPost,
+        },
       },
-      message: "posts fetched successfully",
+      message: "Posts fetched successfully",
       status: 200,
     });
   } catch (error) {

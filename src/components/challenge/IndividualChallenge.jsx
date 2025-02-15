@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChartColumnStacked, Info, User } from "lucide-react";
 import { Button } from "../ui/button";
@@ -13,6 +13,10 @@ import {
 import Link from "next/link";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 import BackButton from "../BackButton";
+import { useChallengePostsQuery } from "@/hooks/queries/usePostQuery";
+import { useCrateViewMutation } from "@/hooks/mutations/useViewMutation";
+import { useGlobalUser } from "@/context/userContent";
+import IndividualChallengeSkeleton from "../skeleton/challenges/IndividualChallengeSkeleton";
 
 const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
   // Avoid division by zero
@@ -20,57 +24,97 @@ const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
     return 0;
   }
   const progress = (tasksCompleted / tasksRequired) * 100;
-  return Math.min(progress, 100).toFixed(2);
+  return Math.min(progress, 100);
 };
 
-const calculateElapsedDays = (startDate, endDate) => {
-  const now = new Date();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const elapsed = Math.max(0, (now - start) / (1000 * 60 * 60 * 24)); // Days elapsed
-  const total = Math.max(1, (end - start) / (1000 * 60 * 60 * 24)); // Total days
-  return { elapsedDays: Math.min(elapsed, total), totalDays: total };
-};
+// const calculateElapsedDays = (startDate, endDate) => {
+//   const now = new Date();
+//   const start = new Date(startDate);
+//   const end = new Date(endDate);
+//   const elapsed = Math.max(0, (now - start) / (1000 * 60 * 60 * 24)); // Days elapsed
+//   const total = Math.max(1, (end - start) / (1000 * 60 * 60 * 24)); // Total days
+//   return { elapsedDays: Math.min(elapsed, total), totalDays: total };
+// };
 
 function IndividualChallenge({ challengeId }) {
-  const { data: challenge, isLoading } = useChallengeByIdQuery(challengeId);
+  const { user } = useGlobalUser();
+  const userId = user?.publicMetadata?.userId;
+  // fetch challenge by Id
+  const { data: challenge, isLoading: challengeLoading } =
+    useChallengeByIdQuery(challengeId);
+  const { data: challengePosts, isLoading: postLoading } =
+    useChallengePostsQuery(challengeId);
+
+  // fetch all post of a challenge
   const challengeOwner = challenge?.challengeOwner;
   const challengeStartingDate = new Date(
     challenge?.startDate
   ).toLocaleDateString();
 
+  const isPostAvailable = !postLoading && challengePosts?.posts.length > 0;
   const progress = calculateProgress({
     tasksRequired: challenge?.tasksRequired,
     tasksCompleted: challenge?.tasksCompleted,
   });
 
-  const { elapsedDays, totalDays } = calculateElapsedDays(
-    challenge?.startDate,
-    challenge?.endDate
-  );
+  // const { elapsedDays, totalDays } = calculateElapsedDays(
+  //   challenge?.startDate,
+  //   challenge?.endDate
+  // );
 
-  const posts = [
-    {
-      content:
-        "I am doing a 30 days challenge to improve my coding skills. Each day, I am dedicating time to learn new concepts and apply them in small projects. It's been a rewarding experience so far and I'm excited to see my progress by the end of the challenge.",
-      image:
-        "https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww",
-      link: "https://journeyskill.verce.app",
-    },
-    {
-      content:
-        "I am doing a 30 days challenge to improve my coding skills. Each day, I am dedicating time to learn new concepts and apply them in small projects. It's been a rewarding experience so far and I'm excited to see my progress by the end of the challenge.",
-      image:
-        "https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww",
-      link: "https://journeyskill.verce.app",
-    },
-  ];
+  // Recording views
+  const { mutate: recordViews } = useCrateViewMutation();
+  const [timeSpent, setTimeSpent] = useState(0);
+  const MIN_VIEW_THRESHOLD = 5000; // 5 seconds in milliseconds
+  const [hasRecordedView, setHasRecordedView] = useState(false);
 
+  useEffect(() => {
+    let interval;
+    let startTime = Date.now();
+
+    // Start tracking time when the page is visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        startTime = Date.now();
+        interval = setInterval(() => {
+          setTimeSpent((pre) => pre + 1000);
+        }, 1000);
+      } else {
+        clearInterval(interval);
+      }
+    };
+    // Attach event listener for visibility changes
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    // Start the timer immediately
+    handleVisibilityChange();
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasRecordedView && timeSpent >= MIN_VIEW_THRESHOLD) {
+      console.log("Time Spent", timeSpent);
+      recordViews({
+        viewData: {
+          contentType: "Challenge",
+          postIds: [challengeId],
+          userId: userId,
+        },
+      });
+      setHasRecordedView(true); // Ensure we only record the view once
+    }
+  }, [timeSpent, hasRecordedView, userId, challengeId]);
+
+  if (challengeLoading) {
+    return <IndividualChallengeSkeleton />;
+  }
   return (
     <>
       <div className="px-2 lg:px-0">
         <BackButton />
-        {isLoading && <div>Loading...</div>}
         {/* Header */}
         <header className="flex items-center justify-between pb-4 mt-5">
           <div className="flex items-center gap-2">
@@ -138,8 +182,8 @@ function IndividualChallenge({ challengeId }) {
           />
           {progress === 0 && (
             <p className="text-sm italic text-muted-foreground">
-              You haven’t started yet! Let’s get going and complete your first
-              task.
+              This user haven&#39;t started yet! Let&#39;s cheer them on as they
+              complete their first task.
             </p>
           )}
         </div>
@@ -184,14 +228,26 @@ function IndividualChallenge({ challengeId }) {
 
         {/* Posts Section */}
         <div>
-          {posts.map((post, index) => (
-            <PostCard
-              key={index}
-              content={post.content}
-              image={post.image}
-              link={post.link}
-            />
-          ))}
+          {/* {postLoading && <div>Loading...</div>} */}
+          {!isPostAvailable ? (
+            <div className="flex items-center justify-center">
+              <p className="text-base font-semibold">
+                No posts available for this challenge
+              </p>
+            </div>
+          ) : (
+            challengePosts?.posts?.map((post) => (
+              <PostCard
+                key={post?._id}
+                content={post?.text}
+                image={post?.image}
+                linkUrl={post?.link}
+                createdAt={post?.createdAt}
+                owner={post?.owner}
+                challenge={post?.challengeId}
+              />
+            ))
+          )}
         </div>
       </div>
     </>

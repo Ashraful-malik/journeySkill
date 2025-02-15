@@ -3,12 +3,16 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Challenge } from "@/models/challenge.model";
 import mongoose from "mongoose";
-// API endpoint to get analytics for a challenge
+import { auth } from "@clerk/nextjs/server";
+
 export async function POST(req, { params }) {
+  const session = await auth();
+  const userId = session?.sessionClaims?.user_Id;
+  console.log(userId);
+
   try {
     await dbConnect();
     const { challengeId } = await params;
-    const { userId } = await req.json();
 
     if (!challengeId) {
       return createErrorResponse({
@@ -33,38 +37,89 @@ export async function POST(req, { params }) {
         },
       },
       {
-        // $project is an aggregation operator that allows us to select and transform the fields of the documents in the pipeline
-        // In this case, we are selecting the challengeName field and renaming it to challengeName
-        $project: {
-          challengeName: "$challengeName",
-          totalTasks: "$tasksRequired",
-          completedTasks: "$tasksCompleted",
-          completionPercentage: {
-            $multiply: [
-              { $divide: ["$tasksCompleted", "$tasksRequired"] },
-              100,
-            ],
-          },
-          currentStreak: 1,
-          consistencyIncentiveDays: 1,
-          isCompleted: 1,
-          lastActivityDate: 1,
-          completionDate: 1,
-          isPublic: 1,
-          startDate: 1,
-          viewCount: 1,
+        $facet: {
+          // Fetch aggregated daily task data
+          dailyProgress: [
+            { $unwind: "$taskLogs" },
+            {
+              $addFields: {
+                day: {
+                  $add: [
+                    {
+                      $divide: [
+                        {
+                          $subtract: [
+                            "$taskLogs.taskCompletionDate",
+                            "$startDate",
+                          ],
+                        },
+                        1000 * 60 * 60 * 24, // Convert milliseconds to days
+                      ],
+                    },
+                    1, // Start days at 1
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: { day: { $floor: "$day" } },
+                tasks: { $sum: 1 },
+                taskDates: { $push: "$taskLogs.taskCompletionDate" }, // Collect task completion dates
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                day: "$_id.day",
+                tasks: 1,
+                taskDates: 1, // Include taskCompletionDates in the result
+              },
+            },
+            { $sort: { day: 1 } },
+          ],
+          // Fetch overall challenge details
+          challengeDetails: [
+            {
+              $project: {
+                _id: 0,
+                challengeName: 1,
+                totalTasks: "$tasksRequired",
+                completedTasks: "$tasksCompleted",
+                completionPercentage: {
+                  $multiply: [
+                    { $divide: ["$tasksCompleted", "$tasksRequired"] },
+                    100,
+                  ],
+                },
+                currentStreak: 1,
+                consistencyIncentiveDays: 1,
+                isCompleted: 1,
+                lastActivityDate: 1,
+                completionDate: 1,
+                isPublic: 1,
+                startDate: 1,
+                endDate: 1,
+                viewCount: 1,
+              },
+            },
+          ],
         },
       },
     ]);
+
     const result = analytic[0];
 
     return createResponse({
       success: true,
-      data: result,
+      data: {
+        challengeDetails: result.challengeDetails[0],
+        dailyProgress: result.dailyProgress,
+      },
       status: 200,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return createErrorResponse({
       errors: error.message,
       success: false,

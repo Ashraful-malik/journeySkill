@@ -1,14 +1,35 @@
+"use client";
 import BackButton from "@/components/BackButton";
 import ChallengeAnalytics from "@/components/challenge/analytics/ChallengeAnalytics";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
-import React from "react";
+import ChallengeAnalyticsSkeleton from "@/components/skeleton/challenges/ChallengeAnalyticsSkeleton";
+import { useUserChallengeAnalyticsQuery } from "@/hooks/queries/useChallengeQuery";
+import React, { useEffect, useState } from "react";
 
-export default async function Page({ params }) {
-  const { id } = await params;
+function Page({ params }) {
+  const [challengeId, setChallengeId] = useState(null);
+  const { data: challengeAnalyticsData, isLoading } =
+    useUserChallengeAnalyticsQuery(challengeId);
+
+  useEffect(() => {
+    const getId = async () => {
+      const { id } = await params;
+      setChallengeId(id);
+    };
+    getId();
+  });
+
   return (
     <WrapperLayout>
-      <BackButton />
-      <ChallengeAnalytics />
+      {isLoading ? (
+        <ChallengeAnalyticsSkeleton />
+      ) : (
+        <>
+          <BackButton />
+          <ChallengeAnalytics challengeAnalyticsData={challengeAnalyticsData} />
+        </>
+      )}
     </WrapperLayout>
   );
 }
+export default Page;

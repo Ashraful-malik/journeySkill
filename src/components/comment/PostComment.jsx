@@ -1,46 +1,186 @@
 "use client";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import PostCard from "../cards/PostCard";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import Comment from "./view/Comment";
+import { usePostByIdQuery } from "@/hooks/queries/usePostQuery";
+import { useForm } from "react-hook-form";
+import { commentSchema } from "@/schema/commentSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-function PostComment() {
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "../ui/form";
+import { useCreateCommentMutation } from "@/hooks/mutations/useCommentMutation";
+import { useGlobalUser } from "@/context/userContent";
+import { useToast } from "@/hooks/use-toast";
+import { useCommentByIdQuery } from "@/hooks/queries/useCommentQuery";
+import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import { CommentSkeleton } from "../skeleton/comment/CommentSkeleton";
+
+function PostComment({ id }) {
+  const { user } = useGlobalUser();
+  const userId = user?.publicMetadata?.userId;
+  console.log(userId);
+  const { toast } = useToast();
+  // get post by id
+  const { data: postData, isLoading: postLoading } = usePostByIdQuery(id);
+  // create comment
+  const { mutate: createComment } = useCreateCommentMutation({ id });
+  //get comments
+  const {
+    data: comments,
+    isLoading: loadingComments,
+    fetchNextPage,
+    hasNextPage,
+  } = useCommentByIdQuery({
+    id,
+    contentType: "Post",
+  });
+  console.log(comments);
+  const loadMoreRef = useRef(null);
+  useEffect(() => {
+    if (!hasNextPage || loadingComments) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasNextPage, loadingComments, fetchNextPage]);
+
+  const form = useForm({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      content: "",
+      contentType: "Post",
+    },
+  });
+  const onSubmit = async (data) => {
+    try {
+      const commentData = {
+        userId: userId,
+        id,
+        ...data,
+      };
+      await createComment(
+        { commentData },
+        {
+          onError: (error) => {
+            console.log(error);
+            toast({
+              title: "Error",
+              description: error.message || "An error occurred.",
+              variant: "destructive",
+            });
+          },
+          onSuccess: () => {
+            toast({
+              title: "Comment created",
+              description: "Comment created successfully",
+            });
+          },
+        }
+      );
+      form.reset();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  if (postLoading) {
+    return (
+      <div className="w-full border-r border-l mt-2 max-w-2xl">
+        <PostCardSkeleton />
+        {/* comment section */}
+        <section className="flex flex-col  ">
+          {/* comment input */}
+          <CommentSkeleton />
+        </section>
+      </div>
+    );
+  }
   return (
-    <div className="w-full border-r border-l mt-2">
+    <div className="w-full border-r border-l mt-2 max-w-2xl">
       <PostCard
         className="border-r-0 border-l-0"
-        content={
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        }
-        image="https://images.unsplash.com/photo-1446776899648-aa78eefe8ed0?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2F0ZWxsaXRlJTIwaW1hZ2VzfGVufDB8fDB8fHww"
-        link="https://journeyskill.verce.app"
+        content={postData?.content}
+        image={postData?.image}
+        linkUrl={postData?.link}
+        createdAt={postData?.createdAt}
+        owner={postData?.owner}
+        challenge={postData?.challengeId}
+        postId={postData?._id}
+        key={postData?._id}
       />
       {/* comment section */}
       <section className="flex flex-col gap-2 ">
         {/* comment input */}
         <div className="flex items-center ">
-          <Input
-            placeholder="Add a comment"
-            className=" rounded-none h-12 border-r-0"
-          />
-          <Button size="lg" variant="outline" className="h-12 rounded-none">
-            Comment
-          </Button>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex item-center  w-full justify-between"
+            >
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input
+                        placeholder="Type comment ..."
+                        className="resize-none w-full border-r-0 border-l-0 rounded-none h-12 shadow-none border-t-0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="h-12 rounded-none">
+                Comment
+              </Button>
+            </form>
+          </Form>
         </div>
         {/* comments */}
-        <div className="ml-2">
-          <Comment
-            profileImage="https://avatars.githubusercontent.com/u/43632556?v=4"
-            name="Steve"
-            comment="first comment"
-          />
-          <Comment
-            profileImage="https://avatars.githubusercontent.com/u/43632556?v=4"
-            name="Steve"
-            comment="This is an extremely long comment meant to test how the UI handles text overflow. The comment should ideally be truncated or wrapped properly to ensure that the layout remains consistent and visually appealing across different devices and screen sizes. Proper handling of long text is crucial for maintaining a good user experience, especially when dealing with user-generated content that can vary greatly in length and format. Let's see how this works out!"
-          />
+        <div key={id}>
+          {loadingComments && <div>Loading .....</div>}
+          {comments?.pages
+            ?.flatMap((page) => page.comments)
+            ?.map((comment) => (
+              <Comment
+                key={comment._id}
+                commentBy={comment.commentBy}
+                commentId={comment._id}
+                createdAt={comment.createdAt}
+                updatedAt={comment.updatedAt}
+                comment={comment.content}
+                optimistic={comment.optimistic}
+                postId={id}
+                isDeleting={comment.isDeleting}
+              />
+            ))}
         </div>
+        {hasNextPage && <div ref={loadMoreRef}>Loading more...</div>}
       </section>
     </div>
   );

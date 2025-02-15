@@ -29,6 +29,7 @@ export const createChallengeApi = async (challengeData) => {
 
 // get challenge by id
 export const getChallengeById = async (challengeId) => {
+  console.log("challengeId", challengeId);
   try {
     const response = await axiosInstance.get(`/challenge/${challengeId}`);
     return response.data.data;
@@ -41,6 +42,17 @@ export const getChallengeById = async (challengeId) => {
 export const fetchUserChallenges = async (userId) => {
   try {
     const response = await axiosInstance.get(`/challenge/user/${userId}`);
+    return response.data.data;
+  } catch (error) {
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+
+// fetch user analytics
+export const fetchUserChallengesAnalytics = async (challengeId) => {
+  try {
+    const response = await axiosInstance.post(`/analytics/${challengeId}`);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

@@ -3,6 +3,7 @@ import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Post } from "@/models/post.model";
 import { auth } from "@clerk/nextjs/server";
+import mongoose from "mongoose";
 
 //Get all users post
 export async function GET(req, { params }) {
@@ -13,18 +14,18 @@ export async function GET(req, { params }) {
     const skip = (page - 1) * limit;
 
     const { userId } = await params;
-    if (!userId) {
+    const isUserId = new mongoose.Types.ObjectId(userId);
+    if (!isUserId) {
       return createErrorResponse({
         success: false,
         status: 401,
-        message: "Unauthorized",
+        message: "userId is invalid",
       });
     }
 
     //connecting database
     await dbConnect();
     const posts = await Post.find({ owner: userId })
-
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 })

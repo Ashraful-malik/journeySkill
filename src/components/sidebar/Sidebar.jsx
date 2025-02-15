@@ -8,28 +8,25 @@ import {
   SquarePlus,
   SlidersHorizontal,
   Bug,
-  SunMoon,
   MessageCircleMore,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import the hook for current pathname
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../ui/dropdown-menu"; // Import ShadCN dropdown menu components
-import { UserButton } from "@clerk/nextjs";
 import ThemeSwitcher from "../ThemeSwitcher";
-import { useGlobalUser } from "@/context/userContent";
-import { useState } from "react";
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
   const username = userData?.username;
   const pathname = usePathname(); // Get the current route
+
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
@@ -57,11 +54,11 @@ const Sidebar = () => {
       </div>
 
       {/* User avatar */}
-      <Avatar
-        className="w-12 h-12 cursor-pointer border-2"
-        aria-label="User avatar"
-      >
-        <UserButton afterSignOutUrl="/" />
+      <Avatar className="w-14 h-14  border-2" aria-label="User avatar">
+        <AvatarImage
+          src={userData?.profileImage?.imageUrl}
+          alt={userData?.username}
+        />
         <AvatarFallback>
           <User />
         </AvatarFallback>
@@ -76,8 +73,8 @@ const Sidebar = () => {
                 <button
                   className={`flex items-center gap-3 p-2 rounded-lg w-full ${
                     pathname === item.link
-                      ? "bg-accent text-primary-foreground"
-                      : "hover:bg-accent focus:bg-accent"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "hover:bg-sidebar-accent focus:bg-sidebar-accent"
                   }`}
                   aria-label={item.name}
                 >
@@ -110,8 +107,8 @@ const Sidebar = () => {
               key={idx}
               className={`flex items-center gap-3 p-2 rounded-lg ${
                 pathname === item.link
-                  ? "bg-accent text-white"
-                  : "hover:bg-accent focus:bg-accent"
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "hover:bg-sidebar-accent focus:bg-sidebar-accent"
               }`}
               aria-label={item.name}
             >
