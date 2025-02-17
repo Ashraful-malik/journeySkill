@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import PropTypes from "prop-types";
+import ChallengeCardSkeleton from "../skeleton/card/ChallengesCardSkeleton";
 function ChallengeCard({
   id,
   description,
@@ -39,7 +40,10 @@ function ChallengeCard({
   onLike,
   onUnlike,
   commentCount,
+  optimistic = false,
+  isDeleting = false,
 }) {
+  console.log("isDeleting", isDeleting);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const challengeCreatedAt = new Date(createdAt).toDateString();
@@ -58,16 +62,18 @@ function ChallengeCard({
     }
     setIsLiked(!isLiked); // Optimistic update for immediate UI feedback
   };
-
+  if (optimistic) return <ChallengeCardSkeleton />;
   return (
-    <Card className=" rounded-sm">
+    <Card
+      className={`rounded-sm ${isDeleting && "opacity-50 pointer-events-none"}`}
+    >
       {/* Header */}
       <CardHeader>
         <CardTitle className="flex items-center  justify-between">
           {/* profile details */}
 
           <div className="flex items-center space-x-2">
-            <Avatar aria-label="User Avatar: Ashraful Malik">
+            <Avatar aria-label="User Avatar">
               <AvatarImage
                 src={challengeOwner?.profileImage?.imageUrl}
                 alt={challengeOwner?.username}
@@ -90,7 +96,12 @@ function ChallengeCard({
           </div>
           {/* dropdown menu */}
           <div>
-            <CustomDropdownMenu />
+            {/* custom dropdown menu for the card */}
+            <CustomDropdownMenu
+              challengeId={id}
+              isDeleting={isDeleting}
+              targetType="challenge"
+            />
           </div>
         </CardTitle>
         <CardDescription aria-labelledby="author-name">

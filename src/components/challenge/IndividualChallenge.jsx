@@ -17,6 +17,7 @@ import { useChallengePostsQuery } from "@/hooks/queries/usePostQuery";
 import { useCrateViewMutation } from "@/hooks/mutations/useViewMutation";
 import { useGlobalUser } from "@/context/userContent";
 import IndividualChallengeSkeleton from "../skeleton/challenges/IndividualChallengeSkeleton";
+import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
 
 const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
   // Avoid division by zero
@@ -27,21 +28,13 @@ const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
   return Math.min(progress, 100);
 };
 
-// const calculateElapsedDays = (startDate, endDate) => {
-//   const now = new Date();
-//   const start = new Date(startDate);
-//   const end = new Date(endDate);
-//   const elapsed = Math.max(0, (now - start) / (1000 * 60 * 60 * 24)); // Days elapsed
-//   const total = Math.max(1, (end - start) / (1000 * 60 * 60 * 24)); // Total days
-//   return { elapsedDays: Math.min(elapsed, total), totalDays: total };
-// };
-
 function IndividualChallenge({ challengeId }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   // fetch challenge by Id
   const { data: challenge, isLoading: challengeLoading } =
     useChallengeByIdQuery(challengeId);
+
   const { data: challengePosts, isLoading: postLoading } =
     useChallengePostsQuery(challengeId);
 
@@ -56,11 +49,6 @@ function IndividualChallenge({ challengeId }) {
     tasksRequired: challenge?.tasksRequired,
     tasksCompleted: challenge?.tasksCompleted,
   });
-
-  // const { elapsedDays, totalDays } = calculateElapsedDays(
-  //   challenge?.startDate,
-  //   challenge?.endDate
-  // );
 
   // Recording views
   const { mutate: recordViews } = useCrateViewMutation();
@@ -228,8 +216,8 @@ function IndividualChallenge({ challengeId }) {
 
         {/* Posts Section */}
         <div>
-          {/* {postLoading && <div>Loading...</div>} */}
-          {!isPostAvailable ? (
+          {postLoading && <PostCardSkeleton />}
+          {!isPostAvailable && !postLoading ? (
             <div className="flex items-center justify-center">
               <p className="text-base font-semibold">
                 No posts available for this challenge

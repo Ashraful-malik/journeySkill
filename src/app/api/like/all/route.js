@@ -10,8 +10,6 @@ export async function GET(req) {
     const postIds = searchParams.getAll("postIds");
     const userId = searchParams.get("userId");
     const targetType = searchParams.get("targetType");
-    console.log(searchParams);
-    console.log("userId", userId);
 
     // Validation
     if (!postIds?.length) {
@@ -24,6 +22,7 @@ export async function GET(req) {
     await dbConnect();
     // convert an object id
     const objectIds = postIds?.map((id) => new mongoose.Types.ObjectId(id));
+    console.log(objectIds);
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? new mongoose.Types.ObjectId(userId)
       : null;

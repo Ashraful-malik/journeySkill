@@ -28,7 +28,6 @@ function Comment({
   postId,
   isDeleting,
 }) {
-  console.log("isDeleting", isDeleting);
   const { mutate: deleteCommentMutation, isPending } =
     useDeleteCommentMutation();
   const [showMore, setShowMore] = useState(false);
@@ -82,7 +81,7 @@ function Comment({
 
   return (
     <div
-      className={`bg-card pt-2 pb-8 px-4 text-primary border-b relative ${
+      className={`bg-card pt-2 pb-8 px-4 text-primary border relative ${
         optimistic || isDeleting ? "opacity-50 pointer-events-none" : ""
       }`}
       aria-busy={optimistic || isDeleting}

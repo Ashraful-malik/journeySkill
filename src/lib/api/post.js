@@ -86,3 +86,15 @@ export const fetchChallengePosts = async (challengeId) => {
     throw { message, code };
   }
 };
+
+// delete post
+export const deletePost = async (postId) => {
+  try {
+    const response = await axiosInstance.delete(`/posts/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};

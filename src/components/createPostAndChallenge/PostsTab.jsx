@@ -5,7 +5,7 @@ import CreatePost from "./Form/CreatePost";
 import CreateChallenge from "./Form/CreateChallenge";
 import { StickyNote, Swords } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-function PostsTab({ userChallenges }) {
+function PostsTab({ userChallenges, isChallengeLoading }) {
   // fetch use challenges
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,9 +21,14 @@ function PostsTab({ userChallenges }) {
     if (currentTab !== activeTab) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("tab", activeTab);
-      router.replace(`?${params.toString()}`); // Update the query params without refreshing
+
+      // Ensure it only updates if there's an actual difference
+      if (window.location.search !== `?${params.toString()}`) {
+        router.replace(`?${params.toString()}`);
+      }
     }
   }, [activeTab, searchParams, router]);
+
   return (
     <Tabs
       defaultValue="create-post"
@@ -43,7 +48,10 @@ function PostsTab({ userChallenges }) {
       </TabsList>
       <TabsContent value="create-post">
         {/* CreatePost form */}
-        <CreatePost userChallenges={userChallenges} />
+        <CreatePost
+          userChallenges={userChallenges}
+          isChallengeLoading={isChallengeLoading}
+        />
       </TabsContent>
       <TabsContent value="create-challenge">
         {/* CreateChallenge form */}

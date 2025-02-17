@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import User from "./user.model";
 import { Tag } from "./tag.model";
 const TaskLogSchema = new mongoose.Schema({
-  taskId: { type: String, required: true },
+  taskId: { type: mongoose.Schema.Types.ObjectId, required: true },
   taskCompletionDate: { type: Date, required: true },
 });
 

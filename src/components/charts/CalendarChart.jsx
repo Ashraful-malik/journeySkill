@@ -9,7 +9,7 @@ export const CalendarChart = ({ dailyProgress, from, to }) => {
 
   // data for the calendar
   const data = dailyProgress?.map((item) => ({
-    day: new Date(item.taskDate[0]).toISOString().split("T")[0], // Convert to YYYY-MM-DD
+    day: new Date(item.taskDate[0])?.toISOString().split("T")[0], // Convert to YYYY-MM-DD
     value: item.tasks, // Keep the tasks count as is
   }));
   const startingFrom = new Date(from).toISOString().split("T")[0];

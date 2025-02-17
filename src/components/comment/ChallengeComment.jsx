@@ -21,6 +21,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useCommentByIdQuery } from "@/hooks/queries/useCommentQuery";
 import ChallengeCard from "../cards/ChallengeCard";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
+import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import { CommentSkeleton } from "../skeleton/comment/CommentSkeleton";
+import BackButton from "../BackButton";
 
 function ChallengeComment({ id }) {
   const { user } = useGlobalUser();
@@ -103,10 +106,22 @@ function ChallengeComment({ id }) {
     }
   };
   if (challengeLoading) {
-    return <div>Loading.....</div>;
+    return (
+      <div className="w-full border-r border-l mt-2 max-w-2xl">
+        <PostCardSkeleton />
+        {/* comment section */}
+        <section className="flex flex-col ">
+          {/* comment input */}
+          <CommentSkeleton />
+        </section>
+      </div>
+    );
   }
   return (
-    <div className="w-full border-r border-l mt-2 max-w-2xl">
+    <div className="w-full max-w-2xl">
+      <div className="mb-2">
+        <BackButton />
+      </div>
       <ChallengeCard
         key={challengeData?._id}
         className="border-r-0 border-l-0"
@@ -135,7 +150,7 @@ function ChallengeComment({ id }) {
                     <FormControl>
                       <Input
                         placeholder="Type comment ..."
-                        className="resize-none w-full border-r-0 border-l-0 rounded-none h-12 shadow-none border-t-0"
+                        className="resize-none w-full rounded-none h-12 shadow-none border-t-0"
                         {...field}
                       />
                     </FormControl>

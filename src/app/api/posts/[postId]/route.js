@@ -118,7 +118,9 @@ export async function DELETE(req, { params }) {
         message: "Post not found or Post ID is invalid",
       });
     }
-    await deleteFileOnCloudinary(post.imagePublicId);
+    if (post.imagePublicId) {
+      await deleteFileOnCloudinary(post.imagePublicId);
+    }
     await Post.deleteOne({ _id: postId });
     return createResponse({
       success: true,

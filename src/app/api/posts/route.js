@@ -10,45 +10,55 @@ import User from "@/models/user.model";
 import mongoose from "mongoose";
 
 export async function POST(req) {
-  await dbConnect(); // Ensure database connection
+  await dbConnect();
 
-  const session = await mongoose.startSession(); // Create a new MongoDB session
-  let retryCount = 0;
+  const { userId, challengeId, text, link, imageUrl, imagePublicId, isPublic } =
+    await req.json();
+
+  if (!userId || !challengeId) {
+    return createErrorResponse({
+      success: false,
+      status: 400,
+      message: "User ID and Challenge ID are required.",
+    });
+  }
+
+  if (!text && !link && !imageUrl) {
+    return createErrorResponse({
+      success: false,
+      status: 400,
+      message: "At least one of text, link, or image is required.",
+    });
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return createErrorResponse({
+      success: false,
+      status: 404,
+      message: "User not found.",
+    });
+  }
+
   const MAX_RETRIES = 3;
-  let newPost; // Declare newPost outside the transaction block
+  let retryCount = 0;
+  let newPost;
 
   while (retryCount < MAX_RETRIES) {
+    const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
-        const {
-          userId,
-          challengeId,
-          text,
-          link,
-          imageUrl,
-          imagePublicId,
-          isPublic,
-        } = await req.json();
-
-        if (!userId || !challengeId) {
-          throw new Error("User ID and Challenge ID are required.");
-        }
-        if (!text && !link && !imageUrl) {
-          throw new Error("At least one of text, link, or image is required.");
-        }
-
-        // Fetch user and challenge inside the transaction
-        const user = await User.findById(userId).session(session);
         const challenge = await Challenge.findById(challengeId).session(
           session
         );
+        if (!challenge) {
+          throw new Error("Challenge not found.");
+        }
 
-        if (!user) throw new Error("User not found.");
-        if (!challenge) throw new Error("Challenge not found.");
-        if (challenge.isCompleted)
-          throw new Error("Challenge is already completed.");
+        if (challenge.endDate < new Date() || challenge.isCompleted) {
+          throw new Error("Challenge has ended. You cannot create a post.");
+        }
 
-        // Update image status if needed
         if (imagePublicId) {
           await UploadedImage.updateOne(
             { publicId: imagePublicId },
@@ -57,9 +67,7 @@ export async function POST(req) {
           );
         }
 
-        // Create new post
         newPost = new Post({
-          // Assign to the outer-scoped variable
           owner: userId,
           challengeId,
           text: text || "",
@@ -69,14 +77,13 @@ export async function POST(req) {
           imagePublicId,
         });
 
-        // Update challenge progress
         challenge.taskLogs.push({
           taskId: newPost._id,
           taskCompletionDate: new Date(),
         });
         challenge.tasksCompleted += 1;
 
-        // Handle streak logic
+        // Streak Logic Optimization
         const now = new Date();
         const lastActiveDate = challenge.lastActivityDate
           ? new Date(challenge.lastActivityDate)
@@ -95,18 +102,6 @@ export async function POST(req) {
         }
         challenge.lastActivityDate = now;
 
-        // Add badge if milestone is reached
-        if (streakMilestones.includes(challenge.currentStreak)) {
-          const badge = await Badge.findOne({
-            streak: challenge.currentStreak,
-          }).session(session);
-          if (badge && !user.badges.includes(badge._id)) {
-            user.badges.push(badge._id);
-            await user.save({ session });
-          }
-        }
-
-        // Check if challenge is completed
         if (
           challenge.tasksCompleted >= challenge.totalTasks &&
           challenge.currentStreak >= challenge.consistencyIncentiveDays
@@ -114,37 +109,57 @@ export async function POST(req) {
           challenge.isCompleted = true;
           challenge.completionDate = new Date();
         }
+        // Update challenge efficiently
+        await Challenge.updateOne(
+          { _id: challenge._id },
+          {
+            $push: {
+              taskLogs: { taskId: newPost._id, taskCompletionDate: new Date() },
+            },
+            $inc: { tasksCompleted: 1 },
+            $set: { lastActivityDate: new Date() },
+          },
+          { session }
+        );
 
-        // Save post & challenge inside transaction
-        await Promise.all([
-          newPost.save({ session }),
-          challenge.save({ session }),
-        ]);
+        await newPost.save({ session });
       });
 
-      // If the transaction succeeds, break the retry loop
-      break;
+      session.endSession(); // Close session after successful transaction
+      break; // Exit retry loop
     } catch (error) {
-      retryCount++;
-      if (retryCount === MAX_RETRIES) {
-        console.error("Transaction failed after retries:", error);
+      session.endSession(); // Ensure session is closed before retrying
+
+      if (
+        error.name === "TransientTransactionError" ||
+        error.message.includes("WriteConflict")
+      ) {
+        retryCount++;
+        console.warn(
+          `Retrying transaction (${retryCount}/${MAX_RETRIES})...`,
+          error
+        );
+        if (retryCount === MAX_RETRIES) {
+          return createErrorResponse({
+            success: false,
+            status: 500,
+            message: "Transaction failed after multiple retries.",
+          });
+        }
+      } else {
         return createErrorResponse({
           success: false,
           status: 500,
-          message: error.message || "Error creating post",
+          message: error.message || "Error creating post.",
         });
       }
-      console.warn(`Retrying transaction (${retryCount}/${MAX_RETRIES})...`);
-    } finally {
-      session.endSession(); // Ensure session is closed
     }
   }
 
-  // Now newPost is accessible here
   return createResponse({
     success: true,
-    status: 200,
-    message: "Post created successfully",
+    status: 201,
+    message: "Post created successfully.",
     data: { post: newPost },
   });
 }

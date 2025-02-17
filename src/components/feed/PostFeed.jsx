@@ -8,6 +8,7 @@ import { useGlobalUser } from "@/context/userContent";
 import { useGetLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { useCountCommentsQuery } from "@/hooks/queries/useCommentQuery";
+import { LoaderCircle } from "lucide-react";
 
 const VIEW_THRESHOLD_MS = 3000; // Minimum time to count a view (3 seconds)
 
@@ -22,7 +23,7 @@ const PostFeed = ({ posts, ref, hasNextPage }) => {
   );
   console.log("post Ids ===>", postIds);
 
-  const { data: viewsMap = {}, isLoading } = useViewsQuery({
+  const { data: viewsMap = {}, isLoading: viewsLoading } = useViewsQuery({
     postIds: postIds,
     contentType: "Post",
   });
@@ -112,8 +113,8 @@ const PostFeed = ({ posts, ref, hasNextPage }) => {
   }, [timeSpentMap, recordViews]);
 
   // batch fetch all likes
-  const { data: likesMap = {} } = useGetLikesQuery({
-    postIds: postIds,
+  const { data: likesMap = {}, isLoading: likesLoading } = useGetLikesQuery({
+    paginatedPosts: posts,
     userId: userId,
     targetType: "Post",
   });
@@ -135,11 +136,9 @@ const PostFeed = ({ posts, ref, hasNextPage }) => {
     postIds: postIds,
     targetType: "post",
   });
-  console.log("comment map from the post====>", commentCountMap);
 
   return (
-    <div className="flex-1 max-w-2xl mx-auto" ref={containerRef}>
-      {isLoading && <div>Loading...</div>}
+    <div className="flex-1 max-w-2xl mx-auto" ref={containerRef} key={postIds}>
       {posts?.pages
         ?.flatMap((page) => page.posts)
         ?.map((post) => (
@@ -158,9 +157,29 @@ const PostFeed = ({ posts, ref, hasNextPage }) => {
             onLike={() => handleLike(post._id, "like")} // Pass like handler
             onUnlike={() => handleLike(post._id, "unlike")} // Pass unlike handler
             commentCount={commentCountMap[post._id] || 0}
+            optimistic={post.optimistic}
+            viewsLoading={viewsLoading}
+            likeLoading={likesLoading}
+            isDeleting={post.isDeleting}
           />
         ))}
-      {hasNextPage && <div ref={ref}>Loading more...</div>}
+      {hasNextPage && (
+        <div ref={ref}>
+          <div
+            className="flex items-center justify-center pt-8"
+            aria-busy="true"
+            aria-label="loading posts"
+            role="status"
+          >
+            <span className="mr-2">
+              <LoaderCircle className="animate-spin" />
+            </span>{" "}
+            <p className="text-sm animate-pulse" aria-hidden="true">
+              Loading more...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

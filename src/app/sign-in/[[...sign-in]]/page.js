@@ -30,7 +30,7 @@ export default function Page() {
 
       {/* Right Section */}
       <div className="md:w-1/2  flex flex-col justify-center items-center px-6 dark:bg-background ">
-        <SignIn />
+        <SignIn afterSignInUrl="/home" />
       </div>
     </div>
   );

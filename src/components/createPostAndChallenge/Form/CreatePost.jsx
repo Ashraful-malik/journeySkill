@@ -32,8 +32,10 @@ import PostImageUpload from "@/components/fileUpload/PostImageUpload";
 import { useCreatePostMutation } from "@/hooks/mutations/useCreatePostMutation";
 import { Loader } from "lucide-react";
 import { useGlobalUser } from "@/context/userContent";
+import { usePostQuery } from "@/hooks/queries/usePostQuery";
+import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 
-function CreatePost({ userChallenges }) {
+function CreatePost({ userChallenges, isChallengeLoading }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   // all user challenges
@@ -61,8 +63,25 @@ function CreatePost({ userChallenges }) {
     () => !!selectChallenge,
     [selectChallenge]
   );
+  const { data: userChallenge } = useChallengeByIdQuery(selectChallenge);
+  const challengeIsCompleted = userChallenge?.isCompleted;
+  const isChallengeActive = useMemo(() => {
+    if (!userChallenge?.startDate || !userChallenge?.endDate) return false;
+    return (
+      new Date() >= new Date(userChallenge.startDate) &&
+      new Date() <= new Date(userChallenge.endDate)
+    );
+  }, [userChallenge]);
 
   const onSubmit = async (data) => {
+    if (!isChallengeActive && !challengeIsCompleted) {
+      toast({
+        title: "Challenge is Ended",
+        description: "You can't post to a challenge that has already ended.",
+        variant: "destructive",
+      });
+      return;
+    }
     const postData = {
       ...data,
       imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
@@ -90,6 +109,9 @@ function CreatePost({ userChallenges }) {
       }
     );
   };
+  // we are fetching all the posts its important because if we dont do that-
+  //  in the post page we will get an error
+  const { data } = usePostQuery();
 
   return (
     <div>
@@ -111,12 +133,22 @@ function CreatePost({ userChallenges }) {
               <FormItem>
                 <FormLabel>Select Challenge</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    if (value !== field.value) {
+                      field.onChange(value); // Only update if there's an actual change
+                    }
+                  }}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Challenge" />
+                      <SelectValue
+                        placeholder={
+                          isChallengeLoading
+                            ? "Loading challenges..."
+                            : "Select Challenge"
+                        }
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -250,3 +282,22 @@ function CreatePost({ userChallenges }) {
 }
 
 export default CreatePost;
+// const isChallengeActive = useMemo(() => {
+//   if (!userChallenge?.startDate || !userChallenge?.endDate) return false;
+//   return (
+//     new Date() >= new Date(userChallenge.startDate) &&
+//     new Date() <= new Date(userChallenge.endDate)
+//   );
+// }, [userChallenge]);
+
+// const { data: userChallenge } = useChallengeByIdQuery(selectChallenge);
+// const [isChallengeActive, setIsChallengeActive] = useState(false);
+
+// useEffect(() => {
+//   if (userChallenge?.startDate && userChallenge?.endDate) {
+//     setIsChallengeActive(
+//       new Date() >= new Date(userChallenge.startDate) &&
+//       new Date() <= new Date(userChallenge.endDate)
+//     );
+//   }
+// }, [userChallenge]);

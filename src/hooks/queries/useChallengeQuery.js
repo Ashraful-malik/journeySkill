@@ -4,13 +4,20 @@ import {
   fetchUserChallengesAnalytics,
   getChallengeById,
 } from "@/lib/api/challenge";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 // fetching all challenges
 export const useChallengeQuery = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["challenges"],
     queryFn: () => fetchChallenges(),
+    staleTime: 30 * 1000, // Data is fresh for 30 seconds
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || !lastPage.pagination) return undefined;
+      const { currentPage, totalPages } = lastPage.pagination;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
   });
 };
 
@@ -20,6 +27,7 @@ export const useChallengeByIdQuery = (challengeId) => {
     queryKey: ["challenge", challengeId],
     queryFn: () => getChallengeById(challengeId),
     enabled: !!challengeId,
+    staleTime: Infinity, // Data is fresh for Infinity seconds
   });
 };
 

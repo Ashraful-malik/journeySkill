@@ -83,9 +83,11 @@ export async function GET(req) {
       status: 200,
       data: {
         allChallenges,
-        currentPage: page,
-        totalPages: totalPages,
-        totalCalledChallenges: total,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPages,
+          totalChallenges: total,
+        },
       },
     });
   } catch (error) {

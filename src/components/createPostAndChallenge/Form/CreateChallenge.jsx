@@ -31,11 +31,15 @@ import {
 } from "@/components/ui/popover";
 import TagInput from "@/components/ui/tag-input";
 import { useCreateChallengeMutation } from "@/hooks/mutations/useCreateChallengeMutation";
+import { useChallengeQuery } from "@/hooks/queries/useChallengeQuery";
 
 function CreateChallenge() {
   const { mutate: createChallenge, isPending } = useCreateChallengeMutation();
   const router = useRouter();
   const { toast } = useToast();
+
+  // this is important  to fetch challenges so its not give error
+  const { data } = useChallengeQuery();
 
   // Define the mutation
 

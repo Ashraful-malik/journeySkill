@@ -64,12 +64,7 @@ export const useBatchLikeMutation = () => {
 
           if (updatedData[targetId]) {
             const postData = updatedData[targetId];
-            console.log(
-              "postData--------------?>",
-              postData,
-              "operation",
-              operation
-            );
+
             postData.count =
               operation === "like"
                 ? postData.count + 1

@@ -9,6 +9,7 @@ import {
   SlidersHorizontal,
   Bug,
   MessageCircleMore,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import the hook for current pathname
@@ -21,11 +22,13 @@ import {
 } from "../ui/dropdown-menu"; // Import ShadCN dropdown menu components
 import ThemeSwitcher from "../ThemeSwitcher";
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
+import { useClerk } from "@clerk/nextjs";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
   const username = userData?.username;
   const pathname = usePathname(); // Get the current route
+  const { signOut } = useClerk();
 
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
@@ -39,6 +42,15 @@ const Sidebar = () => {
       subItems: [
         { name: "Report Issue", link: "#report", icon: Bug },
         { name: "Send Feedback", link: "#feedback", icon: MessageCircleMore },
+        {
+          name: "Logout",
+          link: "#logout",
+          icon: LogOut,
+          className: "text-red-500",
+          onClick: () => {
+            signOut({ redirectUrl: "/" });
+          },
+        },
       ],
     },
   ];
@@ -91,7 +103,12 @@ const Sidebar = () => {
                       aria-label={subItem.name}
                     >
                       <subItem.icon size={24} aria-hidden="true" />
-                      <span className="text-lg">{subItem.name}</span>
+                      <span
+                        className={`text-lg ${subItem.className}`}
+                        onClick={subItem.onClick}
+                      >
+                        {subItem.name}
+                      </span>
                     </Link>
                   </DropdownMenuItem>
                 ))}

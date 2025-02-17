@@ -19,6 +19,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import { useToast } from "@/hooks/use-toast";
 
 function PostCard({
   content,
@@ -35,10 +37,13 @@ function PostCard({
   onLike,
   onUnlike,
   commentCount,
+  optimistic = false,
+  viewsLoading,
+  likeLoading = true,
+  isDeleting = false,
 }) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
-
   useEffect(() => {
     setIsLiked(initialIsLiked);
     setLikesCount(initialLikesCount);
@@ -55,8 +60,14 @@ function PostCard({
     setIsLiked(!isLiked); // Optimistic update for immediate UI feedback
   };
 
+  if (optimistic) return <PostCardSkeleton />;
   return (
-    <Card className={`border rounded-none ${className}`} data-post-id={postId}>
+    <Card
+      className={`border rounded-none ${className} ${
+        isDeleting && "opacity-50 pointer-events-none"
+      }`}
+      data-post-id={postId}
+    >
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -78,7 +89,12 @@ function PostCard({
               </p>
             </div>
           </div>
-          <CustomDropdownMenu />
+          {/* custom dropdown menu */}
+          <CustomDropdownMenu
+            postId={postId}
+            isDeleting={isDeleting}
+            targetType="post"
+          />
         </CardTitle>
         <CardDescription>
           {new Date(createdAt).toDateString()}
@@ -124,15 +140,20 @@ function PostCard({
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-4 text-muted-foreground">
             {/* Toggle Like Button */}
+
             <button
               onClick={handleToggleLike}
               className="flex items-center gap-2 cursor-pointer"
+              disabled={likeLoading}
             >
               <Heart
                 size={20}
                 className={
                   isLiked ? "text-red-500 fill-current" : "text-gray-500"
                 }
+                style={{
+                  animation: likeLoading ? "pulse 1s ease-in-out infinite" : "",
+                }}
               />
               <span className="text-sm">{likesCount}</span>
             </button>
@@ -145,7 +166,12 @@ function PostCard({
             </Link>
 
             <div className="flex items-center gap-2 cursor-pointer">
-              <Eye size={20} className="hover:text-primary" />
+              <Eye
+                size={20}
+                className={`hover:text-primary ${
+                  viewsLoading && "animate-pulse"
+                }`}
+              />
               <span className="text-sm">{viewCount}</span>
             </div>
           </div>

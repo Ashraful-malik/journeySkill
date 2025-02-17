@@ -32,6 +32,7 @@ export const getChallengeById = async (challengeId) => {
   console.log("challengeId", challengeId);
   try {
     const response = await axiosInstance.get(`/challenge/${challengeId}`);
+    console.log("individual challenge", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -54,6 +55,17 @@ export const fetchUserChallengesAnalytics = async (challengeId) => {
   try {
     const response = await axiosInstance.post(`/analytics/${challengeId}`);
     return response.data.data;
+  } catch (error) {
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+
+// delete challenge
+export const deleteChallenge = async (challengeId) => {
+  try {
+    const response = await axiosInstance.delete(`/challenge/${challengeId}`);
+    return response.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };

@@ -14,7 +14,6 @@ const Page = () => {
     fetchNextPage,
     hasNextPage,
   } = usePostQuery();
-  console.log("post form hoem ---->", posts);
   const loadMoreRef = useRef(null);
 
   useEffect(() => {
@@ -25,7 +24,8 @@ const Page = () => {
           fetchNextPage();
         }
       },
-      { threshold: 1.0 }
+
+      { threshold: 0.5 }
     );
     if (loadMoreRef.current) {
       observer.observe(loadMoreRef.current);

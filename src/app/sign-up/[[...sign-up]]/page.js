@@ -36,7 +36,7 @@ export default function Page() {
       <div
         className={`md:w-1/2 flex flex-col justify-center items-center px-6 p-4 `}
       >
-        <SignUp />
+        <SignUp afterSignInUrl="/home" />
       </div>
     </div>
   );

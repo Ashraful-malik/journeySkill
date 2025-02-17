@@ -72,52 +72,6 @@ export const useCreateCommentMutation = ({ id }) => {
   });
 };
 
-// delete comment
-// export const useDeleteCommentMutation = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationKey: ["delete-comment"],
-//     mutationFn: ({ commentId }) => deleteComment(commentId), // Ensure deleteComment is implemented correctly
-//     onMutate: async ({ id, commentId }) => {
-//       // Pause ongoing fetches for this query
-//       await queryClient.cancelQueries(["comment", id]);
-
-//       // Get the current cached data
-//       const previousCommentPages = queryClient.getQueryData(["comment", id]);
-
-//       // Optimistically update the cache
-//       queryClient.setQueryData(["comment", id], (old) => {
-//         const pages = old?.pages || [];
-
-//         return {
-//           ...old,
-//           pages: pages.map((page) => ({
-//             ...page,
-//             comments: page.comments.filter(
-//               (comment) => comment._id !== commentId
-//             ),
-//           })),
-//         };
-//       });
-
-//       return { previousCommentPages }; // Save the previous state for rollback
-//     },
-//     onError: (_, variables, context) => {
-//       // Rollback to the previous state
-//       if (context?.previousCommentPages) {
-//         queryClient.setQueryData(
-//           ["comment", variables.id],
-//           context.previousCommentPages
-//         );
-//       }
-//     },
-//     onSettled: ({ id }) => {
-//       // Refetch fresh data from the server
-//       queryClient.invalidateQueries(["comment", id]);
-//     },
-//   });
-// };
 export const useDeleteCommentMutation = () => {
   const queryClient = useQueryClient();
 
