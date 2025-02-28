@@ -1,92 +1,101 @@
-import React from "react";
+"use client";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ChallengeCard from "../cards/ChallengeCard";
-import { useViewsQuery } from "@/hooks/queries/useViewQuery";
-import { useGetLikesQuery } from "@/hooks/queries/useLikesQuery";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { useGlobalUser } from "@/context/userContent";
-import { useCountCommentsQuery } from "@/hooks/queries/useCommentQuery";
 import BackButton from "../BackButton";
+import { useEngagementMetrics } from "@/hooks/queries/usePostQuery";
+import { Virtuoso } from "react-virtuoso";
+import ChallengeCardSkeleton from "../skeleton/card/ChallengesCardSkeleton";
 
-function ChallengeFeed({ challenges, ref, hasNextPage }) {
-  const postIds = challenges?.pages?.flatMap((page) =>
-    page?.allChallenges?.map((challenge) => challenge?._id)
-  );
+function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
 
-  // bath fetch  all views
-  const { data: viewsMap = {} } = useViewsQuery({
-    postIds: postIds,
-    contentType: "Challenge",
-  });
+  // Extract challenge post IDs
+  const postIds = useMemo(() => {
+    return (
+      challenges?.pages?.flatMap((page) =>
+        page?.allChallenges?.map((challenge) => challenge?._id)
+      ) || []
+    );
+  }, [challenges]);
+  // --------------Loading likes vies and comments-------------------------
 
-  // batch fetch all likes
-  const { data: likesMap = {} } = useGetLikesQuery({
-    paginatedPosts: challenges,
-    userId: userId,
-    targetType: "Challenge",
-  });
-  console.log("like of challenge", likesMap);
-  // get all comment count
-  const { data: commentCountMap = {} } = useCountCommentsQuery({
-    postIds: postIds,
-    targetType: "challenge",
-  });
-  // create like
+  const { data: engagementData, isLoading: engagementLoading } =
+    useEngagementMetrics({
+      postIds,
+      userId,
+      targetType: "Challenge",
+      contentType: "Challenge",
+    });
+
+  // -----------------------like Creation Logic ----------------------------------------
   const { addToBatch } = useBatchLikeMutation();
   const handleLike = (postId, operation) => {
     addToBatch({
       targetId: postId,
-      postIds: postIds, // Pass the postId as an array
+      postIds: postIds,
       userId: userId,
       operation: operation, // "like" or "unlike"
       targetType: "Challenge",
     });
   };
+  const MemoizedChallengePostCard = useCallback(
+    (challenge) => {
+      const engagement = engagementData?.[challenge._id] || {};
+      return (
+        <ChallengeCard
+          key={challenge?._id}
+          id={challenge?._id}
+          title={challenge?.challengeName}
+          description={challenge?.description}
+          tags={challenge?.challengeTags}
+          challengeDays={challenge?.challengeDays}
+          challengeOwner={challenge?.owner}
+          createdAt={challenge?.createdAt}
+          viewCount={engagement.views}
+          commentCount={engagement.comments}
+          likesCount={engagement.likes?.count || 0}
+          isLiked={engagement.likes?.isLiked || false}
+          likeLoading={engagementLoading}
+          onLike={() => handleLike(challenge?._id, "like")}
+          onUnlike={() => handleLike(challenge?._id, "unlike")}
+          optimistic={challenge.optimistic}
+          isDeleting={challenge.isDeleting}
+          userId={userId}
+          className="mb-4"
+        />
+      );
+    },
+    [engagementData]
+  );
 
   return (
-    <div className="flex-1 mx-auto  ">
+    <div className="flex-1 mx-auto ">
       <BackButton />
-      <div className="flex flex-col gap-4 py-4">
-        {challenges?.pages
-          ?.flatMap((page) => page.allChallenges)
-          ?.map((challenge) => (
-            <ChallengeCard
-              key={challenge?._id}
-              id={challenge?._id}
-              title={challenge?.challengeName}
-              description={challenge?.description}
-              tags={challenge?.challengeTags}
-              challengeDays={challenge?.challengeDays}
-              challengeOwner={challenge?.owner}
-              createdAt={challenge?.createdAt}
-              viewsCount={viewsMap[challenge?._id] || 0}
-              likesCount={likesMap[challenge?._id]?.count || 0}
-              isLiked={likesMap[challenge?._id]?.isLiked || false}
-              onLike={() => handleLike(challenge?._id, "like")} // Pass like handler
-              onUnlike={() => handleLike(challenge?._id, "unlike")} // Pass unlike handler
-              commentCount={commentCountMap[challenge?._id] || 0}
-              optimistic={challenge.optimistic}
-              isDeleting={challenge.isDeleting}
-            />
-          ))}
-        {hasNextPage && (
-          <div ref={ref}>
-            <div
-              className="flex items-center justify-center pt-8"
-              aria-busy="true"
-              aria-label="loading posts"
-              role="status"
-            >
-              <span className="mr-2">
-                <LoaderCircle className="animate-spin" />
-              </span>{" "}
-              <p className="text-sm animate-pulse" aria-hidden="true">
-                Loading more...
-              </p>
-            </div>
-          </div>
-        )}
+      <div className="flex flex-col pb-4">
+        <Virtuoso
+          className="mt-4"
+          useWindowScroll
+          data={[
+            ...(challenges?.pages?.flatMap((page) =>
+              page.allChallenges.map((challenge) => challenge)
+            ) || []),
+            ...(isFetchingNextPage
+              ? new Array(3).fill({ isSkeleton: true })
+              : []),
+          ]}
+          endReached={fetchNextPage}
+          overscan={500}
+          itemContent={(_, challenge) =>
+            challenge.isSkeleton ? (
+              <ChallengeCardSkeleton />
+            ) : (
+              MemoizedChallengePostCard(challenge)
+            )
+          }
+        />
       </div>
     </div>
   );

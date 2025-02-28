@@ -28,7 +28,6 @@ import BackButton from "../BackButton";
 function ChallengeComment({ id }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-  console.log(userId);
   const { toast } = useToast();
   // get challenge by id
   const { data: challengeData, isLoading: challengeLoading } =
@@ -81,7 +80,7 @@ function ChallengeComment({ id }) {
         id,
         ...data,
       };
-      await createComment(
+      createComment(
         { commentData },
         {
           onError: (error) => {
@@ -118,13 +117,12 @@ function ChallengeComment({ id }) {
     );
   }
   return (
-    <div className="w-full max-w-2xl">
+    <div className="w-full mt-2 max-w-2xl mx-auto lg:mx-0 ">
       <div className="mb-2">
         <BackButton />
       </div>
       <ChallengeCard
         key={challengeData?._id}
-        className="border-r-0 border-l-0"
         id={challengeData?._id}
         description={challengeData?.description}
         title={challengeData?.challengeName}
@@ -165,13 +163,13 @@ function ChallengeComment({ id }) {
           </Form>
         </div>
         {/* comments */}
-        <div key={id}>
-          {loadingComments && <div>Loading .....</div>}
-          {comments?.pages
-            ?.flatMap((page) => page.comments)
-            ?.map((comment) => (
+        {loadingComments && <CommentSkeleton />}
+        {comments?.pages
+          ?.flatMap((page) => page?.comments || []) // Ensure it's an array
+          ?.map((comment, index) => {
+            return (
               <Comment
-                key={comment._id}
+                key={comment._id || `fallback-${index}`} // Ensure unique key
                 commentBy={comment.commentBy}
                 commentId={comment._id}
                 createdAt={comment.createdAt}
@@ -180,9 +178,10 @@ function ChallengeComment({ id }) {
                 optimistic={comment.optimistic}
                 postId={id}
                 isDeleting={comment.isDeleting}
+                userId={userId}
               />
-            ))}
-        </div>
+            );
+          })}
         {hasNextPage && <div ref={loadMoreRef}>Loading more...</div>}
       </section>
     </div>

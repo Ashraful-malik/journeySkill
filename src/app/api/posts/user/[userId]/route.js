@@ -48,9 +48,11 @@ export async function GET(req, { params }) {
       message: "Posts fetched successfully",
       data: {
         posts,
-        currentPage: page,
-        totalPost: totalPost,
-        totalPage: totalPage,
+        pagination: {
+          currentPage: page,
+          totalPages: totalPage,
+          totalPosts: totalPost,
+        },
       },
     });
   } catch (error) {

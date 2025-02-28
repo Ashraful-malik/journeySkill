@@ -12,6 +12,7 @@ export async function POST(req, { params }) {
     // id here is post of content like post id or challenge id
     const { id } = await params;
     const { contentType } = await req.json();
+    console.log("comment--->", contentType, id);
 
     const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get("page") || "1");
@@ -29,6 +30,8 @@ export async function POST(req, { params }) {
     let comments;
     if (contentType === "Post") {
       const post = await Post.findById(id);
+      console.log("Comment post", post);
+
       if (!post) {
         return createErrorResponse({
           success: false,
@@ -75,6 +78,7 @@ export async function POST(req, { params }) {
     );
 
     const totalPage = Math.ceil(totalComment / limit);
+    console.log("comments--->", comments);
 
     return createResponse({
       data: {

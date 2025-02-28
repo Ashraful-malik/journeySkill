@@ -10,11 +10,11 @@ export async function GET(req) {
     const targetType = searchParams.get("targetType"); // "post" or "challenge"
     const postIds = searchParams.get("postIds");
     console.log(targetType, postIds);
-    if (!targetType || !["post", "challenge"].includes(targetType)) {
+    if (!targetType || !["Post", "Challenge"].includes(targetType)) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "Invalid targetType. Must be 'post' or 'challenge'",
+        message: "Invalid targetType. Must be 'Post' or 'Challenge'",
       });
     }
 
@@ -63,12 +63,12 @@ export async function GET(req) {
     const commentCounts = await Comment.aggregate([
       {
         $match: {
-          [targetType]: {
+          [targetType.toLowerCase()]: {
             $in: parsedEntityIds.map((id) => new mongoose.Types.ObjectId(id)),
           },
         },
       },
-      { $group: { _id: `$${targetType}`, count: { $sum: 1 } } },
+      { $group: { _id: `$${targetType.toLowerCase()}`, count: { $sum: 1 } } },
     ]);
 
     // Convert result into a key-value map { entityId: count }

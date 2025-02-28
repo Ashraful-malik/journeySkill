@@ -46,7 +46,7 @@ export async function POST(req) {
     // Filter out posts already viewed in the last 24 hours
     const alreadyViewedPostIds = await View.find({
       viewer: viewerId,
-      target: { $in: postIds },
+      target: { $in: postIds.postId },
       onModel: contentType,
       viewedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
     }).distinct("target");

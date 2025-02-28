@@ -3,8 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { Post } from "@/models/post.model";
 import { createResponse } from "@/lib/utils/response";
+import { auth } from "@clerk/nextjs/server";
 
-// get post by Id
 export async function GET(req, { params }) {
   try {
     const { postId } = await params;
@@ -101,7 +101,17 @@ export async function PATCH(req, { params }) {
 //Delete post
 export async function DELETE(req, { params }) {
   try {
+    const user = await auth();
     const { postId } = await params;
+    const id = user?.sessionClaims?.user_Id;
+
+    if (!id) {
+      return createErrorResponse({
+        success: false,
+        status: 401,
+        message: "Unauthorized please login",
+      });
+    }
     if (!postId) {
       return createErrorResponse({
         success: false,
@@ -115,9 +125,18 @@ export async function DELETE(req, { params }) {
       return createErrorResponse({
         success: false,
         status: 404,
-        message: "Post not found or Post ID is invalid",
+        message: "Post not found",
       });
     }
+
+    if (!post.owner.equals(id)) {
+      return createErrorResponse({
+        success: false,
+        status: 403,
+        message: "You are not authorized to delete this post",
+      });
+    }
+
     if (post.imagePublicId) {
       await deleteFileOnCloudinary(post.imagePublicId);
     }
@@ -132,7 +151,7 @@ export async function DELETE(req, { params }) {
     return createErrorResponse({
       success: false,
       status: 500,
-      message: "Error deleting post",
+      message: "Something went wrong while deleting the post.",
       errors: error.message,
     });
   }

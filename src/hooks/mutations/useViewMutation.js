@@ -6,6 +6,7 @@ export const useCrateViewMutation = () => {
   return useMutation({
     mutationKey: ["view"],
     mutationFn: ({ viewData }) => createView(viewData),
+
     onMutate: async () => {
       await queryClient.cancelQueries(["views"]);
       const previousViews = queryClient.getQueryData(["views"]);

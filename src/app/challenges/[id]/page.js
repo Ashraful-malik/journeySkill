@@ -1,46 +1,68 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 import IndividualChallenge from "@/components/challenge/IndividualChallenge";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
-import { useEffect } from "react";
 import IndividualChallengeSkeleton from "@/components/skeleton/challenges/IndividualChallengeSkeleton";
 
-function Page() {
+export default function ChallengePage() {
   const router = useRouter();
-  const { id: challengeId } = useParams(); // ✅ Extract challengeId from params
+  const params = useParams();
+  const challengeId = params?.id;
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  // 🔹 Fetch challenge data using React Query
+  // Challenge data query
   const {
     data: challenge,
-    isLoading: challengeLoading,
+    isLoading,
+    isError,
     error,
   } = useChallengeByIdQuery(challengeId);
 
-  // 🔹 Redirect to 404 if challenge is missing or error occurs
   useEffect(() => {
-    if (
-      !challengeId ||
-      challengeId === "undefined" ||
-      (!challengeLoading && !challenge)
-    ) {
-      router.replace("/404"); // ✅ Redirect if invalid
+    // Don't proceed if challengeId is missing or invalid
+    if (!challengeId || !challengeId.match(/^[a-f\d]{24}$/i)) {
+      setShouldRedirect(true);
+      return;
     }
-  }, [challengeId, challenge, challengeLoading, router]);
 
-  // 🔹 Prevent rendering if challenge doesn't exist
-  // if (!challenge) return null;
+    // Don't proceed if the query is still loading
+    if (isLoading) {
+      return;
+    }
 
+    // Redirect if the query fails with a 404 error
+    if (isError && error?.status === 404) {
+      console.log("isError===>", isError, "error===>", error);
+      setShouldRedirect(true);
+      return;
+    }
+
+    // Redirect if the query completes but no data is found
+  }, [challengeId, isLoading, isError, error]);
+
+  // Perform the redirect if needed
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.replace("/404");
+    }
+  }, [shouldRedirect, router]);
+
+  // Show loading state while validating
+  if (isLoading || !challenge) {
+    return (
+      <WrapperLayout>
+        <IndividualChallengeSkeleton />
+      </WrapperLayout>
+    );
+  }
+
+  // Render the challenge if all checks pass
   return (
     <WrapperLayout>
-      {challengeLoading || !challenge ? (
-        <IndividualChallengeSkeleton />
-      ) : (
-        <IndividualChallenge challengeId={challengeId} />
-      )}
+      <IndividualChallenge challengeId={challengeId} />
     </WrapperLayout>
   );
 }
-
-export default Page;

@@ -2,7 +2,6 @@
 
 import {
   Home,
-  Bell,
   User,
   Swords,
   SquarePlus,
@@ -10,6 +9,7 @@ import {
   Bug,
   MessageCircleMore,
   LogOut,
+  MessageSquareText,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Import the hook for current pathname
@@ -23,6 +23,7 @@ import {
 import ThemeSwitcher from "../ThemeSwitcher";
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import { useClerk } from "@clerk/nextjs";
+import { Badge } from "../ui/badge";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
@@ -36,12 +37,23 @@ const Sidebar = () => {
     { name: "Profile", icon: User, link: `/profile/${username}` },
     { name: "Create", icon: SquarePlus, link: "/create" },
     {
+      name: "✨Give Feedback",
+      icon: MessageSquareText,
+      link: "https://forms.gle/SXqpyrsJNbg8Nqiu7",
+      target: "_blank",
+    },
+    {
       name: "More",
       icon: SlidersHorizontal,
       link: "#more",
       subItems: [
-        { name: "Report Issue", link: "#report", icon: Bug },
-        { name: "Send Feedback", link: "#feedback", icon: MessageCircleMore },
+        {
+          name: "Report Issue",
+          link: "https://forms.gle/HZh448qtMXSMmFsx9",
+          icon: Bug,
+          target: "_blank",
+        },
+
         {
           name: "Logout",
           link: "#logout",
@@ -61,8 +73,14 @@ const Sidebar = () => {
       aria-label="Sidebar"
     >
       {/* Sidebar title */}
-      <div className="text-2xl font-bold mb-4" tabIndex={0}>
-        JourneySkill
+      <div
+        className="text-2xl font-bold mb-4 flex item-center  h-auto text-center gap-2"
+        tabIndex={0}
+      >
+        <p> JourneySkill</p>
+        <Badge variant="secondary" className="max-h-min">
+          Beta
+        </Badge>
       </div>
 
       {/* User avatar */}
@@ -101,6 +119,7 @@ const Sidebar = () => {
                       href={subItem.link}
                       className="flex items-center gap-3 rounded-lg hover:bg-accent focus:bg-accent"
                       aria-label={subItem.name}
+                      {...(subItem.target && { target: subItem.target })}
                     >
                       <subItem.icon size={24} aria-hidden="true" />
                       <span
@@ -128,6 +147,7 @@ const Sidebar = () => {
                   : "hover:bg-sidebar-accent focus:bg-sidebar-accent"
               }`}
               aria-label={item.name}
+              {...(item.target && { target: item.target })}
             >
               <item.icon size={24} aria-hidden="true" />
               <span className="text-lg">{item.name}</span>

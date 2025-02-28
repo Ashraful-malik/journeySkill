@@ -1,11 +1,11 @@
+import { useUserStats } from "@/context/UserStatsContext";
 import React from "react";
 
-const Stats = ({ posts, followerCount, followingCount, challenges }) => {
+const Stats = () => {
+  const { totalChallenges, totalPosts } = useUserStats();
   const stats = [
-    { label: "Challenges", value: 0 },
-    { label: "Followers", value: followerCount || 0 },
-    { label: "Following", value: followingCount || 0 },
-    { label: "Posts", value: 0 },
+    { label: "Challenges", value: totalChallenges },
+    { label: "Posts", value: totalPosts },
   ];
 
   return (

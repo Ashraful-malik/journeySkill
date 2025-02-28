@@ -4,6 +4,7 @@ import React from "react";
 import PostsTab from "@/components/createPostAndChallenge/PostsTab";
 import { useUserChallengesQuery } from "@/hooks/queries/useChallengeQuery";
 import { useGlobalUser } from "@/context/userContent";
+import BackButton from "@/components/BackButton";
 
 function page() {
   const { user } = useGlobalUser();
@@ -12,6 +13,7 @@ function page() {
     useUserChallengesQuery(userId);
   return (
     <WrapperLayout>
+      <BackButton />
       <PostsTab
         userChallenges={userChallenges}
         isChallengeLoading={isChallengeLoading}

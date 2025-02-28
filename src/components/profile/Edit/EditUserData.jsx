@@ -195,6 +195,7 @@ function EditUserData() {
               variant="outline"
               size="lg"
               onClick={backButton}
+              disabled={status === "pending"}
             >
               Cancel
             </Button>

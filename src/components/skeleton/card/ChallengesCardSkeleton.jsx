@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function ChallengeCardSkeleton() {
   return (
-    <div className="rounded-sm border shadow-sm p-4 space-y-4 ">
+    <div className="rounded-sm border shadow-sm p-4 space-y-4 w-full ">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between">
         {/* Profile and Name */}

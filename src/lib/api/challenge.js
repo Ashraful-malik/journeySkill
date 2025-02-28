@@ -2,9 +2,11 @@ import axiosInstance from "../axios";
 import { handleApiError } from "../utils/errorHandler";
 
 // fetch all challenges
-export const fetchChallenges = async () => {
+export const fetchChallenges = async ({ pageParams }) => {
   try {
-    const response = await axiosInstance.get("/challenge/all");
+    const response = await axiosInstance.get(
+      `/challenge/all/?page=${pageParams}`
+    );
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -40,9 +42,11 @@ export const getChallengeById = async (challengeId) => {
   }
 };
 // get all users challenges
-export const fetchUserChallenges = async (userId) => {
+export const fetchUserChallenges = async ({ userId, pageParams }) => {
   try {
-    const response = await axiosInstance.get(`/challenge/user/${userId}`);
+    const response = await axiosInstance.get(
+      `/challenge/user/${userId}/?page=${pageParams}`
+    );
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChartColumnStacked, Info, User } from "lucide-react";
-import { Button } from "../ui/button";
 import PostCard from "../cards/PostCard";
 import { Progress } from "../ui/progress";
 import {
@@ -13,17 +12,19 @@ import {
 import Link from "next/link";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 import BackButton from "../BackButton";
-import { useChallengePostsQuery } from "@/hooks/queries/usePostQuery";
+import {
+  useChallengePostsQuery,
+  useEngagementMetrics,
+} from "@/hooks/queries/usePostQuery";
 import { useCrateViewMutation } from "@/hooks/mutations/useViewMutation";
 import { useGlobalUser } from "@/context/userContent";
 import IndividualChallengeSkeleton from "../skeleton/challenges/IndividualChallengeSkeleton";
 import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
+import { Virtuoso } from "react-virtuoso";
 
 const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
-  // Avoid division by zero
-  if (!tasksRequired || tasksRequired === 0) {
-    return 0;
-  }
+  if (!tasksRequired || tasksRequired === 0) return 0;
   const progress = (tasksCompleted / tasksRequired) * 100;
   return Math.min(progress, 100);
 };
@@ -31,49 +32,49 @@ const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
 function IndividualChallenge({ challengeId }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-  // fetch challenge by Id
+
   const { data: challenge, isLoading: challengeLoading } =
     useChallengeByIdQuery(challengeId);
 
-  const { data: challengePosts, isLoading: postLoading } =
-    useChallengePostsQuery(challengeId);
+  const {
+    data: challengePosts,
+    isLoading: postLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useChallengePostsQuery(challengeId);
 
-  // fetch all post of a challenge
   const challengeOwner = challenge?.challengeOwner;
   const challengeStartingDate = new Date(
     challenge?.startDate
   ).toLocaleDateString();
 
-  const isPostAvailable = !postLoading && challengePosts?.posts.length > 0;
+  const isPostAvailable = !postLoading && challengePosts?.pages?.length > 0;
   const progress = calculateProgress({
     tasksRequired: challenge?.tasksRequired,
     tasksCompleted: challenge?.tasksCompleted,
   });
 
-  // Recording views
+  // ---------------record views  function------------
   const { mutate: recordViews } = useCrateViewMutation();
   const [timeSpent, setTimeSpent] = useState(0);
-  const MIN_VIEW_THRESHOLD = 5000; // 5 seconds in milliseconds
+  const MIN_VIEW_THRESHOLD = 5000;
   const [hasRecordedView, setHasRecordedView] = useState(false);
 
   useEffect(() => {
     let interval;
     let startTime = Date.now();
 
-    // Start tracking time when the page is visible
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         startTime = Date.now();
-        interval = setInterval(() => {
-          setTimeSpent((pre) => pre + 1000);
-        }, 1000);
+        interval = setInterval(() => setTimeSpent((pre) => pre + 1000), 1000);
       } else {
         clearInterval(interval);
       }
     };
-    // Attach event listener for visibility changes
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    // Start the timer immediately
     handleVisibilityChange();
 
     return () => {
@@ -84,7 +85,6 @@ function IndividualChallenge({ challengeId }) {
 
   useEffect(() => {
     if (!hasRecordedView && timeSpent >= MIN_VIEW_THRESHOLD) {
-      console.log("Time Spent", timeSpent);
       recordViews({
         viewData: {
           contentType: "Challenge",
@@ -92,13 +92,69 @@ function IndividualChallenge({ challengeId }) {
           userId: userId,
         },
       });
-      setHasRecordedView(true); // Ensure we only record the view once
+      setHasRecordedView(true);
     }
   }, [timeSpent, hasRecordedView, userId, challengeId]);
 
+  // ----------------fetching all post views,likes and comments---------------
+
+  const postIds = useMemo(() => {
+    return (
+      challengePosts?.pages?.flatMap((page) =>
+        page.posts?.map((post) => post._id)
+      ) || []
+    );
+  }, [challengePosts]);
+  const { data: engagementData, isLoading: engagementLoading } =
+    useEngagementMetrics({
+      postIds,
+      userId,
+      targetType: "Post",
+      contentType: "Post",
+    });
+
+  // -----------------------Create Like logic--------------------------------
+  const { addToBatch } = useBatchLikeMutation();
+  const handleLike = (postId, operation) => {
+    addToBatch({
+      targetId: postId,
+      postIds: postIds,
+      userId: userId,
+      operation: operation,
+      targetType: "Post",
+    });
+  };
+  const MemoizedPostCard = useCallback(
+    (post) => {
+      const engagement = engagementData?.[post._id] || {};
+      return (
+        <PostCard
+          key={post._id}
+          linkUrl={post?.link}
+          content={post?.text}
+          createdAt={post?.createdAt}
+          image={post?.image}
+          owner={post?.owner}
+          challenge={post?.challengeId}
+          postId={post?._id}
+          onLike={() => handleLike(post._id, "like")}
+          onUnlike={() => handleLike(post._id, "unlike")}
+          viewCount={engagement.views}
+          commentCount={engagement.comments}
+          likesCount={engagement.likes?.count || 0}
+          isLiked={engagement.likes?.isLiked || false}
+          likeLoading={engagementLoading}
+          isDeleting={post.isDeleting}
+          userId={userId}
+        />
+      );
+    },
+    [engagementData, engagementLoading, userId]
+  );
   if (challengeLoading) {
     return <IndividualChallengeSkeleton />;
   }
+
   return (
     <>
       <div className="px-2 lg:px-0">
@@ -126,8 +182,6 @@ function IndividualChallenge({ challengeId }) {
               </p>
             </div>
           </div>
-          {/* Follow Button */}
-          <Button size="sm">Follow</Button>
         </header>
 
         {/* Progress Bar Section */}
@@ -137,7 +191,6 @@ function IndividualChallenge({ challengeId }) {
               Progress: {progress}% ({challenge?.tasksCompleted} out of{" "}
               {challenge?.tasksRequired} tasks completed).
             </p>
-            {/* Tooltip for Progress */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -183,7 +236,6 @@ function IndividualChallenge({ challengeId }) {
               <p className="text-sm text-muted-foreground">
                 Challenge started: {challengeStartingDate}
               </p>
-              {/* Analytics */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
@@ -203,7 +255,6 @@ function IndividualChallenge({ challengeId }) {
             <p className="text-base leading-7 max-w-[70ch] mt-2">
               {challenge?.description}
             </p>
-            {/* Tags */}
             <div className="text-sm text-muted-foreground mt-4 flex gap-2">
               {challenge?.tags?.map((tag, index) => (
                 <span className="badge" key={index}>
@@ -215,26 +266,34 @@ function IndividualChallenge({ challengeId }) {
         </div>
 
         {/* Posts Section */}
-        <div>
-          {postLoading && <PostCardSkeleton />}
-          {!isPostAvailable && !postLoading ? (
+
+        <div className="h-full">
+          {postLoading ? (
+            <PostCardSkeleton />
+          ) : !isPostAvailable ? (
             <div className="flex items-center justify-center">
               <p className="text-base font-semibold">
                 No posts available for this challenge
               </p>
             </div>
           ) : (
-            challengePosts?.posts?.map((post) => (
-              <PostCard
-                key={post?._id}
-                content={post?.text}
-                image={post?.image}
-                linkUrl={post?.link}
-                createdAt={post?.createdAt}
-                owner={post?.owner}
-                challenge={post?.challengeId}
-              />
-            ))
+            <Virtuoso
+              className=" h-[calc(100vh-200px)]"
+              useWindowScroll
+              data={[
+                ...(challengePosts?.pages?.flatMap((page) =>
+                  page.posts.map((post) => ({ ...post, key: post._id }))
+                ) || []),
+                ...(isFetchingNextPage
+                  ? new Array(3).fill({ isSkeleton: true })
+                  : []),
+              ]}
+              endReached={hasNextPage ? fetchNextPage : undefined}
+              overscan={500}
+              itemContent={(_, post) =>
+                post.isSkeleton ? <PostCardSkeleton /> : MemoizedPostCard(post)
+              }
+            />
           )}
         </div>
       </div>

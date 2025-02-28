@@ -10,7 +10,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 export const useChallengeQuery = () => {
   return useInfiniteQuery({
     queryKey: ["challenges"],
-    queryFn: () => fetchChallenges(),
+    queryFn: ({ pageParam = 1 }) => fetchChallenges({ pageParams: pageParam }),
     staleTime: 30 * 1000, // Data is fresh for 30 seconds
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
@@ -27,17 +27,24 @@ export const useChallengeByIdQuery = (challengeId) => {
     queryKey: ["challenge", challengeId],
     queryFn: () => getChallengeById(challengeId),
     enabled: !!challengeId,
-    staleTime: Infinity, // Data is fresh for Infinity seconds
+    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
   });
 };
 
 // fetch all user challenges
 export const useUserChallengesQuery = (userId) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["user-challenges", userId],
-    queryFn: () => fetchUserChallenges(userId),
+    queryFn: ({ pageParam = 1 }) =>
+      fetchUserChallenges({ userId, pageParams: pageParam }),
+    initialPageParam: 1,
     enabled: !!userId,
     staleTime: 30 * 1000, // Data is fresh for 30 seconds
+    getNextPageParam: (lastPage) => {
+      if (!lastPage || !lastPage.pagination) return undefined;
+      const { currentPage, totalPages } = lastPage.pagination;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
   });
 };
 

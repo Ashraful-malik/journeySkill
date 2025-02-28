@@ -1,5 +1,4 @@
 "use client";
-
 import ChallengeFeed from "@/components/feed/ChallengeFeed";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import ChallengeCardSkeleton from "@/components/skeleton/card/ChallengesCardSkeleton";
@@ -13,28 +12,8 @@ function page() {
     error,
     fetchNextPage,
     hasNextPage,
+    isFetchingNextPage,
   } = useChallengeQuery();
-
-  const loadMoreRef = useRef(null);
-  useEffect(() => {
-    if (!hasNextPage || challengesLoading) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1.0 }
-    );
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-    return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
-      }
-    };
-  }, [hasNextPage, challengesLoading, fetchNextPage]);
 
   return (
     <>
@@ -49,8 +28,8 @@ function page() {
         ) : (
           <ChallengeFeed
             challenges={challenges}
-            ref={loadMoreRef}
-            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
           />
         )}
       </WrapperLayout>

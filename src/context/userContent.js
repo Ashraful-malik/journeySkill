@@ -17,7 +17,6 @@ export const UserProvider = ({ children }) => {
       }
     : null;
 
-  console.log(user);
   return (
     <UserContext.Provider value={{ user: filteredUser }}>
       {children}

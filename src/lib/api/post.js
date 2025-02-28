@@ -1,5 +1,8 @@
 import axiosInstance from "../axios";
 import { handleApiError } from "../utils/errorHandler";
+import { fetchCountComments } from "./comment";
+import { fetchLikes } from "./like";
+import { fetchViews } from "./view";
 
 // fetch  all post as feed
 export const fetchPosts = async ({ pageParams }) => {
@@ -54,9 +57,11 @@ export const uploadPostImage = async ({ file, userId }) => {
 };
 
 // get all user post by id
-export const fetchUserPosts = async (userId) => {
+export const fetchUserPosts = async ({ profileUserId, pageParams }) => {
   try {
-    const response = await axiosInstance.get(`/posts/user/${userId}`);
+    const response = await axiosInstance.get(
+      `/posts/user/${profileUserId}/?page=${pageParams}`
+    );
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -75,11 +80,17 @@ export const fetchPostById = async (postId) => {
 };
 
 // fetch all post of challenge
-export const fetchChallengePosts = async (challengeId) => {
+export const fetchChallengePosts = async ({ challengeId, pageParam }) => {
   try {
     const response = await axiosInstance.get(
-      `/posts/challengePosts/${challengeId}`
+      `/posts/challengePosts/${challengeId}`,
+      {
+        params: {
+          page: pageParam,
+        },
+      }
     );
+    console.log("all post of challenge", response.data.data);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -97,4 +108,26 @@ export const deletePost = async (postId) => {
     const { message, code } = handleApiError(error);
     throw { message, code };
   }
+};
+// fetching user engeagement metrics
+export const fetchEngagementMetrics = async ({
+  postIds,
+  userId,
+  targetType,
+  contentType,
+}) => {
+  const [views, likes, comments] = await Promise.all([
+    fetchViews({ postIds, contentType }),
+    fetchLikes(postIds, userId, targetType),
+    fetchCountComments(postIds, targetType),
+  ]);
+  // Structure data as a dictionary for quick lookups
+  return postIds.reduce((acc, postId) => {
+    acc[postId] = {
+      views: views[postId] || 0,
+      likes: likes[postId] || 0,
+      comments: comments[postId] || 0,
+    };
+    return acc;
+  }, {});
 };

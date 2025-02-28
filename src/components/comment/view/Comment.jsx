@@ -27,6 +27,7 @@ function Comment({
   commentId,
   postId,
   isDeleting,
+  userId,
 }) {
   const { mutate: deleteCommentMutation, isPending } =
     useDeleteCommentMutation();
@@ -140,38 +141,40 @@ function Comment({
                   {optimistic ? "loading..." : `@${commentBy?.username}`}
                 </Link>
               </div>
-              <div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-full"
-                    >
-                      <EllipsisVertical />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-40">
-                    <DropdownMenuGroup>
-                      {dropDownItems.map((item, idx) => (
-                        <DropdownMenuItem
-                          key={idx}
-                          onClick={item.action}
-                          disabled={isPending || optimistic}
-                          className="cursor-pointer"
-                        >
-                          {item.label}
-                          <DropdownMenuShortcut>
-                            <item.icon size={16} />
-                          </DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+              {commentBy?._id === userId && (
+                <div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full"
+                      >
+                        <EllipsisVertical />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-40">
+                      <DropdownMenuGroup>
+                        {dropDownItems.map((item, idx) => (
+                          <DropdownMenuItem
+                            key={idx}
+                            onClick={item.action}
+                            disabled={isPending || optimistic}
+                            className="cursor-pointer"
+                          >
+                            {item.label}
+                            <DropdownMenuShortcut>
+                              <item.icon size={16} />
+                            </DropdownMenuShortcut>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
             </div>
-            <div className="text-xs text-muted-foreground -mt-2">
+            <div className="text-xs text-muted-foreground -mt-1">
               {createdAtDate}
             </div>
           </div>

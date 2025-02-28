@@ -7,6 +7,7 @@ import {
   createOrUpdateTags,
   removeUnlinkedTags,
 } from "@/lib/utils/utilsForChallenge";
+import {auth} from "@clerk/nextjs/server";
 
 //get challenge by Challenge id
 export async function GET(req, { params }) {
@@ -142,6 +143,8 @@ export async function PUT(req, { params }) {
 // deleteChallenge
 export async function DELETE(req, { params }) {
   try {
+    const user = await auth();
+    const userId = user?.sessionClaims?.user_Id;
     await dbConnect();
     const { id } = await params;
     if (!id) {
@@ -153,11 +156,18 @@ export async function DELETE(req, { params }) {
     }
 
     const challenge = await Challenge.findById(id);
+
     if (!challenge) {
       return createErrorResponse({
         success: false,
         status: 404,
         message: "Challenge not found or Challenge ID is invalid",
+      });
+    }
+    if (!challenge.challengeOwner.equals(userId)) {
+      return createErrorResponse({
+        status: 401,
+        message: "You are not authorized to delete this comment",
       });
     }
 

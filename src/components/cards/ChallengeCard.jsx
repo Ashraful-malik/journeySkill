@@ -31,7 +31,6 @@ function ChallengeCard({
   description,
   title,
   tags,
-  challengeDays,
   challengeOwner,
   createdAt,
   viewsCount,
@@ -42,6 +41,8 @@ function ChallengeCard({
   commentCount,
   optimistic = false,
   isDeleting = false,
+  userId,
+  className,
 }) {
   console.log("isDeleting", isDeleting);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
@@ -65,7 +66,9 @@ function ChallengeCard({
   if (optimistic) return <ChallengeCardSkeleton />;
   return (
     <Card
-      className={`rounded-sm ${isDeleting && "opacity-50 pointer-events-none"}`}
+      className={`rounded-sm ${
+        isDeleting && "opacity-50 pointer-events-none"
+      } ${className}`}
     >
       {/* Header */}
       <CardHeader>
@@ -95,14 +98,16 @@ function ChallengeCard({
             </div>
           </div>
           {/* dropdown menu */}
-          <div>
-            {/* custom dropdown menu for the card */}
-            <CustomDropdownMenu
-              challengeId={id}
-              isDeleting={isDeleting}
-              targetType="challenge"
-            />
-          </div>
+          {userId === challengeOwner?._id && (
+            <div>
+              {/* custom dropdown menu for the card */}
+              <CustomDropdownMenu
+                challengeId={id}
+                isDeleting={isDeleting}
+                targetType="challenge"
+              />
+            </div>
+          )}
         </CardTitle>
         <CardDescription aria-labelledby="author-name">
           {challengeCreatedAt}
@@ -153,7 +158,7 @@ function ChallengeCard({
               </span>
             </button>
             {/* comment */}
-            <Link href={`comment/${id}/?type=challenge`}>
+            <Link href={`/comment/${id}/?type=challenge`}>
               <button
                 className="flex items-center gap-2 cursor-pointer"
                 aria-label="Comment on this post"

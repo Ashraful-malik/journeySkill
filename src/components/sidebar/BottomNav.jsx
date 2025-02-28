@@ -1,12 +1,15 @@
+import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import { Home, User, Swords, SquarePlus } from "lucide-react";
 import Link from "next/link";
 
 const BottomNav = () => {
+  const { data: userData, isLoading: userLoading } = useUserQuery();
+  const username = userData?.username;
   const navItems = [
-    { name: "Home", icon: Home, link: "/" },
+    { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
     { name: "Create", icon: SquarePlus, link: "/create" },
-    { name: "Profile", icon: User, link: "/profile" },
+    { name: "Profile", icon: User, link: `/profile/${username}` },
   ];
 
   return (
@@ -16,6 +19,7 @@ const BottomNav = () => {
           href={item.link}
           key={idx}
           className="flex flex-col items-center text-sm"
+          disabled={userLoading}
         >
           <item.icon className="w-6 h-6" />
           <span>{item.name}</span>

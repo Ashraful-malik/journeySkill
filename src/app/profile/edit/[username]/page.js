@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function page() {
   const { data: userData, isLoading, error } = useUserQuery();
-  console.log(userData);
   if (isLoading) {
     <Skeleton className="w-[100px] h-[20px] rounded-full" />;
   }

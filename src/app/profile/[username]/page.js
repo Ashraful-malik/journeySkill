@@ -2,13 +2,15 @@
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import ProfileDetails from "@/components/profile/ProfileDetails";
 import ProfileDetailsSkeleton from "@/components/skeleton/Profile/ProfileDetailsSkeleton";
-import { useUserQuery } from "@/hooks/queries/useUserQuery";
-import React, { useEffect, useState } from "react";
+import { useUserProfileQuery } from "@/hooks/queries/useUserQuery";
+import { useParams } from "next/navigation";
+import React from "react";
 
-function page() {
-  const { data: userData, isLoading, error } = useUserQuery();
-  // Fetch user data based on the username
-
+function Page() {
+  const params = useParams();
+  const username = params?.username;
+  // get user profile data
+  const { data, isLoading } = useUserProfileQuery(username);
   return (
     <WrapperLayout>
       {isLoading ? (
@@ -16,10 +18,10 @@ function page() {
           <ProfileDetailsSkeleton />
         </div>
       ) : (
-        <ProfileDetails userData={userData} />
+        <ProfileDetails userData={data} />
       )}
     </WrapperLayout>
   );
 }
 
-export default page;
+export default Page;

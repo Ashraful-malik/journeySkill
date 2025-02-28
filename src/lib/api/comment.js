@@ -15,7 +15,7 @@ export const crateComment = async (commentData) => {
 export const fetchComments = async ({ id, contentType, pageParams }) => {
   try {
     const response = await axiosInstance.post(
-      `/comment/all/${id}?page=${pageParams}`, // Ensure `page` matches backend query param
+      `/comment/all/${id}?page=${pageParams}`,
       { contentType }
     );
     return response.data.data;
@@ -37,7 +37,6 @@ export const deleteComment = async (commentId) => {
 };
 export const fetchCountComments = async (postIds, targetType) => {
   try {
-    console.log(targetType, postIds);
     const response = await axiosInstance.get("/comment/count", {
       params: {
         targetType,

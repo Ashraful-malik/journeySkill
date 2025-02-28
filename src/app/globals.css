@@ -105,16 +105,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   @apply bg-background text-foreground shadow-none;
 }
 .cl-socialButtonsBlockButton__google {
-  @apply h-9;
+  @apply h-9 dark:text-white dark:bg-neutral-800;
+}
+.cl-headerTitle {
+  @apply dark:text-neutral-200 text-2xl font-bold;
 }
 
 .cl-formButtonPrimary {
   @apply h-9;
 }
+.cl-formFieldInputShowPasswordButton {
+  @apply dark:text-neutral-400;
+}
 .cl-footer {
   background: transparent;
 }
-
-.cl-formFieldInput {
-  @apply bg-input text-foreground h-9;
+.cl-formFieldLabel {
+  @apply dark:text-neutral-300;
 }
+.cl-formFieldInput {
+  @apply bg-input text-foreground dark:text-white h-9;
+}
+.cl-dividerLine {
+  @apply dark:bg-neutral-800;
+}
+/* responsive column  */
+/* .masonry-column {
+  background-clip: padding-box;
+} */

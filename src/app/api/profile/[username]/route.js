@@ -8,6 +8,7 @@ export async function GET(req, { params }) {
   try {
     await dbConnect();
     const { username } = await params;
+
     console.log(username);
     if (!username) {
       return createErrorResponse({

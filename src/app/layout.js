@@ -8,13 +8,15 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "../lib/QueryProvider";
 import { UserProvider } from "@/context/userContent";
 import { dehydrate, QueryClient } from "@tanstack/react-query";
-import { auth } from "@clerk/nextjs/server";
-import { fetchUser } from "@/lib/api/user";
+import Script from "next/script";
+import HotjarTracker from "@/components/HotjarTracker";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+  fallback: ["sans-serif"],
 });
 export const metadata = {
   title: "JourneySkill",
@@ -57,26 +59,34 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const queryClient = new QueryClient();
-  // clerk mongodb id from the session
-  const session = await auth();
-  const userId = await session?.sessionClaims?.user_Id;
-  // if (userId) {
-  //   await queryClient.prefetchQuery({
-  //     queryKey: ["user", userId],
-  //     queryFn: () => fetchUser(userId),
-  //     staleTime: 60 * 60 * 1000, //1 hour
-  //   });
-  // }
+
   const dehydratedState = dehydrate(queryClient);
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-      }}
-    >
+    <ClerkProvider appearance={{ baseTheme: "light" }}>
       <UserProvider>
         <html lang="en" className={`${inter.className}`}>
+          <head>
+            {/* Hotjar Tracking Script */}
+            <Script
+              id="hotjar-script"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+      (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID || 0},hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    `,
+              }}
+            />
+          </head>
           <body className="antialiased">
+            <HotjarTracker /> {/* Track route changes */}
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
             {/* <ClerkLoading>
               loading
               <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
@@ -84,8 +94,8 @@ export default async function RootLayout({ children }) {
               </div>
             </ClerkLoading> */}
             {/* <ClerkLoaded> */}
-            <NavbarWrapper />
             <ThemeProvider attribute="class" defaultTheme="dark">
+              <NavbarWrapper />
               <QueryProvider dehydratedState={dehydratedState}>
                 {children}
                 <Toaster />

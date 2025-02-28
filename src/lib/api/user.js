@@ -47,6 +47,7 @@ export const updateUserProfile = async (formData) => {
   }
 };
 
+// update user banner image
 export const updateBannerImage = async (formData) => {
   console.log(formData);
   try {
@@ -54,6 +55,17 @@ export const updateBannerImage = async (formData) => {
     return response.data;
   } catch (error) {
     console.error(error);
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+
+// fetch user profile data
+export const fetchUserProfile = async (username) => {
+  try {
+    const response = await axiosInstance.get(`/profile/${username}`);
+    return response.data.data;
+  } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };
   }

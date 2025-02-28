@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef } from "react";
 
 const BATCH_DELAY = 1000;
+const MAX_BATCH_SIZE = 100;
 
 export const useBatchLikeMutation = () => {
   const queryClient = useQueryClient();
@@ -13,15 +14,17 @@ export const useBatchLikeMutation = () => {
   const processBatch = useCallback(async () => {
     if (batchQueue.current.length === 0) return;
 
-    const currentBatch = [...batchQueue.current];
-    batchQueue.current = [];
+    // Take only MAX_BATCH_SIZE likes and keep the rest for the next batch
+    const currentBatch = batchQueue.current.slice(0, MAX_BATCH_SIZE);
+    batchQueue.current = batchQueue.current.slice(MAX_BATCH_SIZE);
+    mutation.mutate(currentBatch); // Send batch to the server
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+    // If more likes exist, start a new timer to process them in the next batch
+    if (batchQueue.current.length > 0) {
+      timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
+    } else {
+      timeoutRef.current = null; // No pending likes, reset timer
     }
-
-    mutation.mutate(currentBatch);
   }, []);
 
   const addToBatch = useCallback(

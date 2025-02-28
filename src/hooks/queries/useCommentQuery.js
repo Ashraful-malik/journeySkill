@@ -1,5 +1,6 @@
 import { fetchComments, fetchCountComments } from "@/lib/api/comment";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 export const useCommentByIdQuery = ({ id, contentType }) => {
   return useInfiniteQuery({
@@ -7,6 +8,7 @@ export const useCommentByIdQuery = ({ id, contentType }) => {
     queryFn: ({ pageParam = 1 }) =>
       fetchComments({ id, contentType, pageParams: pageParam }),
     enabled: !!id,
+    staleTime: 60 * 1000,
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
       // Check if there are more pages based on backend metadata
@@ -18,10 +20,11 @@ export const useCommentByIdQuery = ({ id, contentType }) => {
 
 // fetch only total comments count
 export const useCountCommentsQuery = ({ postIds, targetType }) => {
+  const stablePostIds = useMemo(() => postIds || [], [postIds]);
   return useQuery({
-    queryKey: ["countComments", postIds, targetType],
-    queryFn: () => fetchCountComments(postIds, targetType),
-    enabled: !!postIds && !!targetType,
-    staleTime: 60 * 1000, // 1 minute stale time
+    queryKey: ["countComments", stablePostIds, targetType],
+    queryFn: () => fetchCountComments(stablePostIds, targetType),
+    enabled: stablePostIds.length > 0 && !!targetType,
+    staleTime: 60 * 1000,
   });
 };

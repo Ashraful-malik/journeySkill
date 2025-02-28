@@ -4,6 +4,7 @@ import { Challenge } from "@/models/challenge.model";
 import { Comment } from "@/models/comment.model";
 import { Post } from "@/models/post.model";
 import dbConnect from "@/lib/dbConnect";
+import mongoose from "mongoose";
 
 // create Comment
 export async function POST(req) {
@@ -19,7 +20,7 @@ export async function POST(req) {
       });
     }
 
-    if (!contentType && !id) {
+    if (!contentType && !mongoose.Types.ObjectId.isValid(id)) {
       return createErrorResponse({
         success: false,
         status: 400,

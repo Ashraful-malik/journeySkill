@@ -23,13 +23,14 @@ const Bio = ({ bioText, showMore, toggleShowMore, location }) => (
         </button>
       )}
     </div>
-
-    <div className="location">
-      <p className="text-sm text-muted-foreground flex items-center ">
-        <MapPin size={16} className="mr-2" />
-        <span className="font-bold">{location}</span>
-      </p>
-    </div>
+    {location && (
+      <div className="location">
+        <p className="text-sm text-muted-foreground flex items-center ">
+          <MapPin size={16} className="mr-2" />
+          <span className="font-bold">{location}</span>
+        </p>
+      </div>
+    )}
   </>
 );
 
