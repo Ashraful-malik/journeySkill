@@ -73,12 +73,14 @@ function CreateChallenge() {
     createChallenge(
       { challengeData },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log("Created challenge data", data);
           toast({
-            title: "Challenge created successfully",
-            description: "Challenge created successfully",
+            title: "Your Challenge is Live! 🎉",
+            description:
+              "You've successfully created a new challenge. Time to inspire and engage",
           });
-          router.push("/challenges");
+          router.push(`/challenges/analytics/${data?._id}`);
         },
         onError: (error) => {
           console.error("Error in form submission:", error);

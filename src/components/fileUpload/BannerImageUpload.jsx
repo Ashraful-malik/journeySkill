@@ -1,3 +1,4 @@
+"use client";
 import { useUploadBannerImage } from "@/hooks/mutations/useEditProfileImageMutation";
 import { useToast } from "@/hooks/use-toast";
 import { gradientStyle } from "@/lib/utils/randomGradientGenerator";
@@ -6,7 +7,7 @@ import { Button } from "../ui/button";
 import { Camera, Upload } from "lucide-react";
 import Image from "next/image";
 
-function bannerImageUpload({ userData }) {
+function BannerImageUpload({ userData }) {
   const { mutate: uploadBannerImage, isPending } = useUploadBannerImage();
   const { toast } = useToast();
   const fileInputRef = useRef(null);
@@ -145,4 +146,4 @@ function bannerImageUpload({ userData }) {
   );
 }
 
-export default bannerImageUpload;
+export default BannerImageUpload;

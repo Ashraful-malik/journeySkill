@@ -43,6 +43,7 @@ function UserPosts({ userData }) {
 
   useEffect(() => {
     if (!hasNextPage || postLoading) return;
+    const loadMoreElement = loadMoreRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -52,12 +53,12 @@ function UserPosts({ userData }) {
 
       { threshold: 0.5 }
     );
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    if (loadMoreElement) {
+      observer.observe(loadMoreElement);
     }
     return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+      if (loadMoreElement) {
+        observer.unobserve(loadMoreElement);
       }
     };
   }, [hasNextPage, postLoading, fetchNextPage]);

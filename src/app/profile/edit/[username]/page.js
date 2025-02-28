@@ -6,7 +6,7 @@ import BackButton from "@/components/BackButton";
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function page() {
+function Page() {
   const { data: userData, isLoading, error } = useUserQuery();
   if (isLoading) {
     <Skeleton className="w-[100px] h-[20px] rounded-full" />;
@@ -20,4 +20,4 @@ function page() {
     </>
   );
 }
-export default page;
+export default Page;

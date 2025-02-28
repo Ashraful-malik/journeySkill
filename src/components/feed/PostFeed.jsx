@@ -40,45 +40,44 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
   const recordPosts = useRef(new Set());
 
   // handle view recording
-  const handleView = useCallback((postId) => {
-    if (!recordPosts.current.has(postId)) {
-      recordPosts.current.add(postId);
-      viewQueue.current.set(postId, Date.now());
+  const handleView = useCallback(
+    (postId) => {
+      if (!recordPosts.current.has(postId)) {
+        recordPosts.current.add(postId);
+        viewQueue.current.set(postId, Date.now());
 
-      // Debounce api call
-      if (!flushTimeout.current) {
-        flushTimeout.current = setTimeout(() => {
-          const payload = Array.from(viewQueue.current.entries()).map(
-            ([postId, timestamp]) => ({
-              postId,
-              timestamp,
-            })
-          );
-          // send to the server
-          recordViews(
-            {
-              viewData: {
-                postIds: payload,
-                contentType: "Post",
-                userId,
+        // Debounce api call
+        if (!flushTimeout.current) {
+          flushTimeout.current = setTimeout(() => {
+            const payload = Array.from(viewQueue.current.keys()); // ✅ Extract only postId values
+
+            // send to the server
+            recordViews(
+              {
+                viewData: {
+                  postIds: payload,
+                  contentType: "Post",
+                  userId,
+                },
               },
-            },
-            {
-              onSuccess: () => {
-                viewQueue.current.clear();
-                flushTimeout.current = null;
-              },
-              onError: (error) => {
-                viewQueue.current.clear();
-                flushTimeout.current = null;
-                console.log(error);
-              },
-            }
-          );
-        }, DEBOUNCE_DELAY);
+              {
+                onSuccess: () => {
+                  viewQueue.current.clear();
+                  flushTimeout.current = null;
+                },
+                onError: (error) => {
+                  viewQueue.current.clear();
+                  flushTimeout.current = null;
+                  console.log(error);
+                },
+              }
+            );
+          }, DEBOUNCE_DELAY);
+        }
       }
-    }
-  }, []);
+    },
+    [recordViews, userId]
+  );
 
   // reset record post after 30 second
   useEffect(() => {
@@ -92,7 +91,9 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
   // Force flush view queue when the component unmounts
   useEffect(() => {
     return () => {
-      if (viewQueue.current.size > 0) {
+      const currentViewQueue = viewQueue.current;
+
+      if (currentViewQueue.size > 0) {
         const payload = Array.from(viewQueue.current.entries()).map(
           ([postId, timestamp]) => ({
             postId,
@@ -109,7 +110,7 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
         });
       }
     };
-  }, []);
+  }, [recordViews, userId]);
 
   // -----------------------like Creation Logic ----------------------------------------
   const { addToBatch } = useBatchLikeMutation();
@@ -153,7 +154,7 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
         />
       );
     },
-    [engagementData]
+    [engagementData, engagementLoading, handleLike, handleView, userId]
   );
 
   return (

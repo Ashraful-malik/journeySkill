@@ -19,7 +19,7 @@ export const useLikeQueue = (userId) => {
       console.error("Batch like failed:", error);
       queue.current.unshift(...actionsToSend); // Requeue failed actions
     }
-  }, [userId]);
+  });
 
   const addToQueue = useCallback(
     (action) => {

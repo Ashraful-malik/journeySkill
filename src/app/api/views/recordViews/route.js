@@ -43,10 +43,14 @@ export async function POST(req) {
     const onModel = contentType === "Post" ? Post : Challenge;
     const viewerId = new mongoose.Types.ObjectId(userId);
 
+    const normalizedPostIds = postIds.map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+
     // Filter out posts already viewed in the last 24 hours
     const alreadyViewedPostIds = await View.find({
       viewer: viewerId,
-      target: { $in: postIds.postId },
+      target: { $in: normalizedPostIds },
       onModel: contentType,
       viewedAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
     }).distinct("target");
@@ -56,11 +60,8 @@ export async function POST(req) {
     );
 
     // Determine the new posts to record views for
-
-    const newPostIds = postIds.filter(
-      (postId) =>
-        !alreadyViewedPostIdsSet.has(postId.toString()) && // Exclude already viewed posts
-        mongoose.Types.ObjectId.isValid(postId) // Ensure postId is valid
+    const newPostIds = normalizedPostIds.filter(
+      (postId) => !alreadyViewedPostIdsSet.has(postId.toString())
     );
 
     if (newPostIds.length === 0) {

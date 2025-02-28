@@ -32,15 +32,20 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
 
   // -----------------------like Creation Logic ----------------------------------------
   const { addToBatch } = useBatchLikeMutation();
-  const handleLike = (postId, operation) => {
-    addToBatch({
-      targetId: postId,
-      postIds: postIds,
-      userId: userId,
-      operation: operation, // "like" or "unlike"
-      targetType: "Challenge",
-    });
-  };
+
+  const handleLike = useCallback(
+    (postId, operation) => {
+      addToBatch({
+        targetId: postId,
+        postIds: postIds,
+        userId: userId,
+        operation: operation, // "like" or "unlike"
+        targetType: "Challenge",
+      });
+    },
+    [postIds, userId, addToBatch]
+  );
+
   const MemoizedChallengePostCard = useCallback(
     (challenge) => {
       const engagement = engagementData?.[challenge._id] || {};
@@ -54,7 +59,7 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
           challengeDays={challenge?.challengeDays}
           challengeOwner={challenge?.owner}
           createdAt={challenge?.createdAt}
-          viewCount={engagement.views}
+          viewsCount={engagement.views}
           commentCount={engagement.comments}
           likesCount={engagement.likes?.count || 0}
           isLiked={engagement.likes?.isLiked || false}
@@ -68,7 +73,7 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
         />
       );
     },
-    [engagementData]
+    [engagementData, engagementLoading, userId, handleLike]
   );
 
   return (

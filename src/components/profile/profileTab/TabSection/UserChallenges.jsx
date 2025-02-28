@@ -1,23 +1,17 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import ChallengeCard from "@/components/cards/ChallengeCard";
 import { useGlobalUser } from "@/context/userContent";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { useUserChallengesQuery } from "@/hooks/queries/useChallengeQuery";
 import Masonry from "react-masonry-css";
-import { useGetLikesQuery } from "@/hooks/queries/useLikesQuery";
-import { useViewsQuery } from "@/hooks/queries/useViewQuery";
-import { useCountCommentsQuery } from "@/hooks/queries/useCommentQuery";
 import { LoaderCircle } from "lucide-react";
-import { isEqual } from "lodash";
 import ChallengeCardSkeleton from "@/components/skeleton/card/ChallengesCardSkeleton";
+import { useEngagementMetrics } from "@/hooks/queries/usePostQuery";
 
 function UserChallenges({ userData }) {
   const { user } = useGlobalUser();
-  const userId = user?.publicMetadata?.userId;
-  const [cachedViewsMap, setCachedViewsMap] = useState({});
-  const [cachedLikesMap, setCachedLikesMap] = useState({});
-  const [cachedCommentCountMap, setCachedCommentCountMap] = useState({});
+  const LoginUserId = user?.publicMetadata?.userId;
 
   const {
     data: userChallenges,
@@ -36,49 +30,18 @@ function UserChallenges({ userData }) {
     );
   }, [userChallenges]);
 
-  // Batch fetch views only for new post IDs
-  const { data: viewsMap = {}, isLoading: viewsLoading } = useViewsQuery({
-    postIds: postIds,
-    contentType: "Challenge",
-  });
-
-  // Batch fetch likes
-  const { data: likesMap = {}, isLoading: likesLoading } = useGetLikesQuery({
-    paginatedPosts: userChallenges,
-    userId: userId,
-    targetType: "Challenge",
-    postIds: postIds,
-  });
-
-  // Get comment count
-  const { data: commentCountMap = {}, isLoading: commentCountLoading } =
-    useCountCommentsQuery({
-      postIds: postIds,
-      targetType: "challenge",
+  const { data: engagementData, isLoading: engagementLoading } =
+    useEngagementMetrics({
+      postIds,
+      userId: LoginUserId,
+      targetType: "Challenge",
+      contentType: "Challenge",
     });
-
-  // update cached views
-  useEffect(() => {
-    if (viewsLoading || isEqual(viewsMap, cachedViewsMap)) return;
-    setCachedViewsMap((prev) => ({ ...prev, ...viewsMap }));
-  }, [viewsMap, viewsLoading]);
-
-  // Update cached likes
-  useEffect(() => {
-    if (likesLoading || isEqual(likesMap, cachedLikesMap)) return;
-    setCachedLikesMap((prev) => ({ ...prev, ...likesMap }));
-  }, [likesMap, likesLoading]);
-
-  // Update cached comments
-  useEffect(() => {
-    if (commentCountLoading || isEqual(commentCountMap, cachedCommentCountMap))
-      return;
-    setCachedCommentCountMap((prev) => ({ ...prev, ...commentCountMap }));
-  }, [commentCountMap, commentCountLoading]);
 
   //   observer for infinite scrolling
   useEffect(() => {
     if (!hasNextPage || challengeLoading) return;
+    const loadMoreElement = loadMoreRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -88,12 +51,12 @@ function UserChallenges({ userData }) {
 
       { threshold: 0.5 }
     );
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    if (loadMoreElement) {
+      observer.observe(loadMoreElement);
     }
     return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+      if (loadMoreElement) {
+        observer.unobserve(loadMoreElement);
       }
     };
   }, [hasNextPage, challengeLoading, fetchNextPage]);
@@ -104,7 +67,7 @@ function UserChallenges({ userData }) {
     addToBatch({
       targetId: postId,
       postIds: postIds,
-      userId: userId,
+      userId: LoginUserId,
       operation: operation, // "like" or "unlike"
       targetType: "Challenge",
     });
@@ -136,27 +99,31 @@ function UserChallenges({ userData }) {
     >
       {userChallenges?.pages
         ?.flatMap((page) => page.allChallenges)
-        ?.map((challenge) => (
-          <div key={challenge._id} className="mb-4">
-            <ChallengeCard
-              title={challenge?.challengeName}
-              description={challenge?.description}
-              id={challenge?._id}
-              createdAt={challenge?.createdAt}
-              challengeOwner={userData}
-              className="max-w-sm w-full "
-              viewsCount={cachedViewsMap[challenge?._id] || 0}
-              likesCount={cachedLikesMap[challenge?._id]?.count || 0}
-              isLiked={cachedLikesMap[challenge?._id]?.isLiked || false}
-              onLike={() => handleLike(challenge?._id, "like")}
-              onUnlike={() => handleLike(challenge?._id, "unlike")}
-              commentCount={cachedCommentCountMap[challenge?._id] || 0}
-              optimistic={challenge.optimistic}
-              isDeleting={challenge.isDeleting}
-              userId={userId}
-            />
-          </div>
-        ))}
+        ?.map((challenge) => {
+          const engagement = engagementData?.[challenge._id] || {};
+          return (
+            <div key={challenge._id} className="mb-4">
+              <ChallengeCard
+                title={challenge?.challengeName}
+                description={challenge?.description}
+                id={challenge?._id}
+                createdAt={challenge?.createdAt}
+                challengeOwner={userData}
+                className="max-w-sm w-full "
+                onLike={() => handleLike(challenge?._id, "like")}
+                onUnlike={() => handleLike(challenge?._id, "unlike")}
+                optimistic={challenge.optimistic}
+                isDeleting={challenge.isDeleting}
+                viewsCount={engagement.views}
+                commentCount={engagement.comments}
+                likesCount={engagement.likes?.count || 0}
+                isLiked={engagement.likes?.isLiked || false}
+                likeLoading={engagementLoading}
+                userId={LoginUserId}
+              />
+            </div>
+          );
+        })}
       {hasNextPage && (
         <div ref={loadMoreRef}>
           <div

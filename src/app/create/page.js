@@ -1,25 +1,30 @@
 "use client";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
-import React from "react";
+import React, { useMemo } from "react";
 import PostsTab from "@/components/createPostAndChallenge/PostsTab";
 import { useUserChallengesQuery } from "@/hooks/queries/useChallengeQuery";
 import { useGlobalUser } from "@/context/userContent";
 import BackButton from "@/components/BackButton";
 
-function page() {
+function Page() {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-  const { data: userChallenges, isLoading: isChallengeLoading } =
+  const { data: allUserChallenges, isLoading: isChallengeLoading } =
     useUserChallengesQuery(userId);
+
+  const allChallenges = allUserChallenges?.pages?.flatMap(
+    (page) => page?.allChallenges
+  );
+
   return (
     <WrapperLayout>
       <BackButton />
       <PostsTab
-        userChallenges={userChallenges}
+        userChallenges={allChallenges}
         isChallengeLoading={isChallengeLoading}
       />
     </WrapperLayout>
   );
 }
 
-export default page;
+export default Page;

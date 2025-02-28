@@ -47,6 +47,7 @@ export const fetchUserChallenges = async ({ userId, pageParams }) => {
     const response = await axiosInstance.get(
       `/challenge/user/${userId}/?page=${pageParams}`
     );
+    console.log("all user challenges", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

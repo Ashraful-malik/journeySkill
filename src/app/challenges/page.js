@@ -5,11 +5,10 @@ import ChallengeCardSkeleton from "@/components/skeleton/card/ChallengesCardSkel
 import { useChallengeQuery } from "@/hooks/queries/useChallengeQuery";
 import React, { useEffect, useRef } from "react";
 
-function page() {
+function Page() {
   const {
     data: challenges,
     isLoading: challengesLoading,
-    error,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -37,4 +36,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

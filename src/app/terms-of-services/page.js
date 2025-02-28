@@ -2,25 +2,23 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   const effectiveDate = "1 March 2025";
   return (
     <>
       <NavBar />
       <div className="bg-gray-100 text-gray-800 min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-3xl p-8  rounded-lg">
-          <h1 className="text-4xl font-bold  text-gray-900">
-            Terms of Service
-          </h1>
-          <p className="text-sm text-gray-600  mt-2">
+        <div className="max-w-3xl p-8 rounded-lg">
+          <h1 className="text-4xl font-bold text-gray-900">Terms of Service</h1>
+          <p className="text-sm text-gray-600 mt-2">
             <strong>Effective Date:</strong> {effectiveDate}
           </p>
 
           <p className="mt-6">
-            Welcome to JourneySkill! These Terms of Service ("Terms") govern
-            your access and use of JourneySkill ("Platform"), including all
-            features, content, and services. By using JourneySkill, you agree to
-            these Terms.
+            Welcome to JourneySkill. These Terms of Service (&quot;Terms&quot;)
+            govern your access and use of JourneySkill (&quot;Platform&quot;),
+            including all features, content, and services. By using
+            JourneySkill, you agree to these Terms.
           </p>
 
           <hr className="my-6 border-gray-300" />
@@ -76,7 +74,7 @@ const page = () => {
                 content within the Platform.
               </li>
               <li>
-                Content that is harmful, offensive, or infringes on others'
+                Content that is harmful, offensive, or infringes on others&apos;
                 rights may be removed.
               </li>
             </ul>
@@ -100,8 +98,8 @@ const page = () => {
                 property of JourneySkill.
               </li>
               <li>
-                You may not copy, distribute, or modify JourneySkill’s materials
-                without permission.
+                You may not copy, distribute, or modify JourneySkill&apos;s
+                materials without permission.
               </li>
             </ul>
           </Section>
@@ -131,7 +129,8 @@ const page = () => {
           <Section title="9. Disclaimers & Limitation of Liability">
             <ul className="list-disc ml-5 space-y-1">
               <li>
-                JourneySkill is provided "as is" without warranties of any kind.
+                JourneySkill is provided &quot;as is&quot; without warranties of
+                any kind.
               </li>
               <li>
                 We are not liable for any damages resulting from your use of the
@@ -176,13 +175,20 @@ const Section = ({ title, children }) => (
     <hr className="my-6 border-gray-300" />
   </div>
 );
-// nav bar
+
+// NavBar Component
 const NavBar = () => {
   return (
     <nav className="bg-indigo-600 p-4">
       <div className="max-w-4xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center">
-          <Image src="/logo.png" alt="logo" width={20} height={20} style={{width:"auto",height:"auto"}}/>
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={20}
+            height={20}
+            style={{ width: "auto", height: "auto" }}
+          />
           <p className="text-2xl font-bold text-white pl-2">JourneySkill</p>
         </Link>
       </div>
@@ -190,4 +196,4 @@ const NavBar = () => {
   );
 };
 
-export default page;
+export default Page;

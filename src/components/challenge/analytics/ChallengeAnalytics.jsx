@@ -215,7 +215,8 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
               days to maintain consistency.
             </p>
             <p className="mb-2">
-              <strong>Completion Rate:</strong> You're completing an average of{" "}
+              <strong>Completion Rate:</strong> You&apos;re completing an
+              average of
               {(challengeData.completedTasks / daysElapsed).toFixed(1)} tasks
               per day.
             </p>

@@ -39,10 +39,11 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   // all user challenges
-  const allUserChallenges = userChallenges?.challenges?.map((challenge) => ({
+  const allUserChallenges = userChallenges?.map((challenge) => ({
     name: challenge.challengeName,
     value: challenge._id,
   }));
+
   const [imageData, setImageData] = useState(null);
   const navigate = useRouter();
   const { toast } = useToast();
@@ -59,20 +60,28 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
     },
   });
   const selectChallenge = form.watch("challengeId");
+
   const isChallengeSelected = useMemo(
     () => !!selectChallenge,
     [selectChallenge]
   );
-  const { data: userChallenge } = useChallengeByIdQuery(selectChallenge);
-  const challengeIsCompleted = userChallenge?.isCompleted;
-  const isChallengeActive = useMemo(() => {
-    if (!userChallenge?.startDate || !userChallenge?.endDate) return false;
-    return (
-      new Date() >= new Date(userChallenge.startDate) &&
-      new Date() <= new Date(userChallenge.endDate)
-    );
-  }, [userChallenge]);
 
+  // ----------Get individual challenge details with selected Challenge id-------
+
+  const { data: individualChallenge } = useChallengeByIdQuery(selectChallenge);
+
+  const challengeIsCompleted = individualChallenge?.isCompleted;
+
+  const isChallengeActive = useMemo(() => {
+    if (!individualChallenge?.startDate || !individualChallenge?.endDate)
+      return false;
+    return (
+      new Date() >= new Date(individualChallenge.startDate) &&
+      new Date() <= new Date(individualChallenge.endDate)
+    );
+  }, [individualChallenge]);
+
+  // -------submit form---------
   const onSubmit = async (data) => {
     if (!isChallengeActive && !challengeIsCompleted) {
       toast({
@@ -282,22 +291,3 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
 }
 
 export default CreatePost;
-// const isChallengeActive = useMemo(() => {
-//   if (!userChallenge?.startDate || !userChallenge?.endDate) return false;
-//   return (
-//     new Date() >= new Date(userChallenge.startDate) &&
-//     new Date() <= new Date(userChallenge.endDate)
-//   );
-// }, [userChallenge]);
-
-// const { data: userChallenge } = useChallengeByIdQuery(selectChallenge);
-// const [isChallengeActive, setIsChallengeActive] = useState(false);
-
-// useEffect(() => {
-//   if (userChallenge?.startDate && userChallenge?.endDate) {
-//     setIsChallengeActive(
-//       new Date() >= new Date(userChallenge.startDate) &&
-//       new Date() <= new Date(userChallenge.endDate)
-//     );
-//   }
-// }, [userChallenge]);

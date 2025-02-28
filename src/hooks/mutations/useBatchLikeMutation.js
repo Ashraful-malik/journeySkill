@@ -11,42 +11,7 @@ export const useBatchLikeMutation = () => {
   const batchQueue = useRef([]);
   const timeoutRef = useRef(null);
 
-  const processBatch = useCallback(async () => {
-    if (batchQueue.current.length === 0) return;
-
-    // Take only MAX_BATCH_SIZE likes and keep the rest for the next batch
-    const currentBatch = batchQueue.current.slice(0, MAX_BATCH_SIZE);
-    batchQueue.current = batchQueue.current.slice(MAX_BATCH_SIZE);
-    mutation.mutate(currentBatch); // Send batch to the server
-
-    // If more likes exist, start a new timer to process them in the next batch
-    if (batchQueue.current.length > 0) {
-      timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
-    } else {
-      timeoutRef.current = null; // No pending likes, reset timer
-    }
-  }, []);
-
-  const addToBatch = useCallback(
-    (action) => {
-      batchQueue.current.push(action);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
-    },
-    [processBatch]
-  );
-
-  useEffect(() => {
-    return () => {
-      if (batchQueue.current.length > 0) {
-        processBatch();
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [processBatch]);
-
+  // Mutation for sending batched likes to the server
   const mutation = useMutation({
     mutationKey: ["batchLike"],
     mutationFn: async (batchActions) => createLike({ actions: batchActions }),
@@ -96,6 +61,43 @@ export const useBatchLikeMutation = () => {
       });
     },
   });
+
+  // Process batch of likes
+  const processBatch = useCallback(async () => {
+    if (batchQueue.current.length === 0) return;
+
+    const currentBatch = batchQueue.current.slice(0, MAX_BATCH_SIZE);
+    batchQueue.current = batchQueue.current.slice(MAX_BATCH_SIZE);
+    mutation.mutate(currentBatch);
+
+    if (batchQueue.current.length > 0) {
+      timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
+    } else {
+      timeoutRef.current = null;
+    }
+  }, [mutation, queryClient]); // ✅ Added queryClient
+
+  // Function to add likes to the batch queue
+  const addToBatch = useCallback(
+    (action) => {
+      batchQueue.current.push(action);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
+    },
+    [processBatch] // ✅ processBatch as a dependency
+  );
+
+  // Cleanup: Process remaining likes on unmount
+  useEffect(() => {
+    return () => {
+      if (batchQueue.current.length > 0) {
+        processBatch();
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [processBatch]); // ✅ processBatch as a dependency
 
   return { addToBatch };
 };

@@ -6,6 +6,7 @@ import { useUploadPostImageMutation } from "@/hooks/mutations/useUploadPostImage
 import { useToast } from "@/hooks/use-toast";
 import { useGlobalUser } from "@/context/userContent";
 import { usePostQuery } from "@/hooks/queries/usePostQuery";
+import Image from "next/image";
 
 const allowedImageTypes = [
   "image/jpeg",
@@ -120,10 +121,11 @@ const PostImageUpload = ({ onUploadSuccess, onUploadPending }) => {
             aria-hidden="true"
           ></div>
           <div className="relative z-2 flex items-center justify-center h-full">
-            <img
+            <Image
               src={previewImage?.secure_url}
               alt="Uploaded"
-              className="object-scale-down w-full h-full"
+              className="object-scale-down "
+              fill
               loading="lazy"
             />
           </div>

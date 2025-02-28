@@ -59,6 +59,8 @@ function PostCard({
   // IntersectionObserver for record views
   useEffect(() => {
     if (!onView) return;
+    const postElement = postRef.current; // Store ref in a variable
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -78,12 +80,12 @@ function PostCard({
       },
       { threshold: 0.7 } // 75% of the post must be visible
     );
-    if (postRef.current) {
-      observer.observe(postRef.current);
+    if (postElement) {
+      observer.observe(postElement);
     }
     return () => {
-      if (postRef.current) {
-        observer.unobserve(postRef.current);
+      if (postElement) {
+        observer.unobserve(postElement);
       }
       clearInterval(timerRef.current);
     };
@@ -98,9 +100,11 @@ function PostCard({
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
+    return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
+      clearInterval(timerRef.current); // Cleanup when unmounting
+    };
+  });
 
   // -----------------Likes Toggle------------------------
   const handleToggleLike = () => {
@@ -181,7 +185,6 @@ function PostCard({
             className="w-full h-auto object-cover rounded-md"
             height={500}
             width={500}
-            loading="lazy"
             alt="Post content image"
           />
         )}

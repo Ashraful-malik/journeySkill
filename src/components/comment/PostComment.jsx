@@ -46,6 +46,7 @@ function PostComment({ id }) {
   const loadMoreRef = useRef(null);
   useEffect(() => {
     if (!hasNextPage || loadingComments) return;
+    const loadMoreElement = loadMoreRef.current;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -56,13 +57,13 @@ function PostComment({ id }) {
       { threshold: 1.0 }
     );
 
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
+    if (loadMoreElement) {
+      observer.observe(loadMoreElement);
     }
 
     return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+      if (loadMoreElement) {
+        observer.unobserve(loadMoreElement);
       }
     };
   }, [hasNextPage, loadingComments, fetchNextPage]);

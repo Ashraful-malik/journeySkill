@@ -7,7 +7,6 @@ import {
   SquarePlus,
   SlidersHorizontal,
   Bug,
-  MessageCircleMore,
   LogOut,
   MessageSquareText,
 } from "lucide-react";
@@ -24,12 +23,16 @@ import ThemeSwitcher from "../ThemeSwitcher";
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import { useClerk } from "@clerk/nextjs";
 import { Badge } from "../ui/badge";
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
   const username = userData?.username;
   const pathname = usePathname(); // Get the current route
   const { signOut } = useClerk();
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/logo.png" : "/logo-dark.png";
 
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
@@ -77,7 +80,8 @@ const Sidebar = () => {
         className="text-2xl font-bold mb-4 flex item-center  h-auto text-center gap-2"
         tabIndex={0}
       >
-        <p> JourneySkill</p>
+        <Image src={logoSrc} alt="logo" width={20} height={20} />
+        <p className="">JourneySkill</p>
         <Badge variant="secondary" className="max-h-min">
           Beta
         </Badge>

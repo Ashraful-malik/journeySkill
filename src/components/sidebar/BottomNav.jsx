@@ -1,5 +1,11 @@
 import { useUserQuery } from "@/hooks/queries/useUserQuery";
-import { Home, User, Swords, SquarePlus } from "lucide-react";
+import {
+  Home,
+  User,
+  Swords,
+  SquarePlus,
+  MessageSquareText,
+} from "lucide-react";
 import Link from "next/link";
 
 const BottomNav = () => {
@@ -9,6 +15,12 @@ const BottomNav = () => {
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
     { name: "Create", icon: SquarePlus, link: "/create" },
+    {
+      name: "✨Feedback",
+      icon: MessageSquareText,
+      link: "https://forms.gle/SXqpyrsJNbg8Nqiu7",
+      target: "_blank",
+    },
     { name: "Profile", icon: User, link: `/profile/${username}` },
   ];
 
@@ -20,6 +32,7 @@ const BottomNav = () => {
           key={idx}
           className="flex flex-col items-center text-sm"
           disabled={userLoading}
+          {...(item.target && { target: item.target })}
         >
           <item.icon className="w-6 h-6" />
           <span>{item.name}</span>

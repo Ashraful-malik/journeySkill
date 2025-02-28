@@ -5,7 +5,7 @@ import WrapperLayout from "@/components/layouts/WrapperLayout";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
 
-function page() {
+function Page() {
   const commentId = useParams().id;
   const posteType = useSearchParams();
   const type = posteType.get("type");
@@ -21,4 +21,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

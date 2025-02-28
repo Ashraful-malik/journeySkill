@@ -57,6 +57,7 @@ function IndividualChallenge({ challengeId }) {
 
   // ---------------record views  function------------
   const { mutate: recordViews } = useCrateViewMutation();
+
   const [timeSpent, setTimeSpent] = useState(0);
   const MIN_VIEW_THRESHOLD = 5000;
   const [hasRecordedView, setHasRecordedView] = useState(false);
@@ -94,7 +95,7 @@ function IndividualChallenge({ challengeId }) {
       });
       setHasRecordedView(true);
     }
-  }, [timeSpent, hasRecordedView, userId, challengeId]);
+  }, [timeSpent, hasRecordedView, userId, challengeId, recordViews]);
 
   // ----------------fetching all post views,likes and comments---------------
 
@@ -115,15 +116,20 @@ function IndividualChallenge({ challengeId }) {
 
   // -----------------------Create Like logic--------------------------------
   const { addToBatch } = useBatchLikeMutation();
-  const handleLike = (postId, operation) => {
-    addToBatch({
-      targetId: postId,
-      postIds: postIds,
-      userId: userId,
-      operation: operation,
-      targetType: "Post",
-    });
-  };
+
+  const handleLike = useCallback(
+    (postId, operation) => {
+      addToBatch({
+        targetId: postId,
+        postIds: postIds,
+        userId: userId,
+        operation: operation,
+        targetType: "Post",
+      });
+    },
+    [postIds, userId, addToBatch]
+  );
+
   const MemoizedPostCard = useCallback(
     (post) => {
       const engagement = engagementData?.[post._id] || {};
@@ -149,7 +155,7 @@ function IndividualChallenge({ challengeId }) {
         />
       );
     },
-    [engagementData, engagementLoading, userId]
+    [engagementData, engagementLoading, userId, handleLike]
   );
   if (challengeLoading) {
     return <IndividualChallengeSkeleton />;
@@ -200,8 +206,8 @@ function IndividualChallenge({ challengeId }) {
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-sm">
-                    Progress represents the percentage of tasks you've completed
-                    out of the total required for this challenge.
+                    Progress represents the percentage of tasks you&apos;ve
+                    completed out of the total required for this challenge.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -223,8 +229,8 @@ function IndividualChallenge({ challengeId }) {
           />
           {progress === 0 && (
             <p className="text-sm italic text-muted-foreground">
-              This user haven&#39;t started yet! Let&#39;s cheer them on as they
-              complete their first task.
+              This user hasn&apos;t started yet! Let&apos;s cheer them on as
+              they complete their first task.
             </p>
           )}
         </div>
