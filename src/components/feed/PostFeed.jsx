@@ -7,14 +7,15 @@ import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { Virtuoso } from "react-virtuoso";
 import { useEngagementMetrics } from "@/hooks/queries/usePostQuery";
 import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const DEBOUNCE_DELAY = 5000; // Debounce delay for view tracking
 
 const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-  console.log(userId);
-
+  const router = useRouter();
   // Memoized post IDs
   const postIds = useMemo(() => {
     return (
@@ -49,7 +50,7 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
         // Debounce api call
         if (!flushTimeout.current) {
           flushTimeout.current = setTimeout(() => {
-            const payload = Array.from(viewQueue.current.keys()); // ✅ Extract only postId values
+            const payload = Array.from(viewQueue.current.keys());
 
             // send to the server
             recordViews(
@@ -90,11 +91,10 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
 
   // Force flush view queue when the component unmounts
   useEffect(() => {
+    const currentViewQueue = new Map(viewQueue.current);
     return () => {
-      const currentViewQueue = viewQueue.current;
-
       if (currentViewQueue.size > 0) {
-        const payload = Array.from(viewQueue.current.entries()).map(
+        const payload = Array.from(currentViewQueue.entries()).map(
           ([postId, timestamp]) => ({
             postId,
             timestamp,
@@ -143,6 +143,7 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
           postId={post?._id}
           onLike={() => handleLike(post._id, "like")}
           onUnlike={() => handleLike(post._id, "unlike")}
+          optimistic={post?.optimistic}
           onView={handleView}
           viewCount={engagement.views}
           commentCount={engagement.comments}
@@ -156,24 +157,44 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
     },
     [engagementData, engagementLoading, handleLike, handleView, userId]
   );
-
+  // Check if there are no challenges
+  const hasPosts = posts?.pages?.flatMap((page) =>
+    page?.posts?.length > 0 ? true : false
+  );
   return (
     <div className="flex-1 max-w-2xl mx-auto">
-      <Virtuoso
-        useWindowScroll
-        data={[
-          ...(posts?.pages?.flatMap((page) => page.posts.map((post) => post)) ||
-            []),
-          ...(isFetchingNextPage
-            ? new Array(3).fill({ isSkeleton: true })
-            : []),
-        ]}
-        endReached={fetchNextPage}
-        overscan={500}
-        itemContent={(_, post) =>
-          post.isSkeleton ? <PostCardSkeleton /> : MemoizedPostCard(post)
-        }
-      />
+      {hasPosts?.length === 0 ? (
+        <div className="flex flex-col items-center justify-center text-center mt-20">
+          <h2 className="text-xl font-semibold mb-4">
+            🌱 No Posts Yet... Be the First to Share!
+          </h2>
+          <p className=" max-w-lg mb-6">
+            The feed is empty—create a challenge and share your journey. Whether
+            you&apos;re starting or progressing, your posts can inspire others
+            to join in.💪
+          </p>
+          <Button onClick={() => router.push("/create")} variant="default">
+            Create Your Challenge
+          </Button>
+        </div>
+      ) : (
+        <Virtuoso
+          useWindowScroll
+          data={[
+            ...(posts?.pages?.flatMap((page) =>
+              page.posts.map((post) => post)
+            ) || []),
+            ...(isFetchingNextPage
+              ? new Array(3).fill({ isSkeleton: true })
+              : []),
+          ]}
+          endReached={fetchNextPage}
+          overscan={500}
+          itemContent={(_, post) =>
+            post.isSkeleton ? <PostCardSkeleton /> : MemoizedPostCard(post)
+          }
+        />
+      )}
     </div>
   );
 };

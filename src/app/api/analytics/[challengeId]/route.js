@@ -8,7 +8,6 @@ import { auth } from "@clerk/nextjs/server";
 export async function POST(req, { params }) {
   const session = await auth();
   const userId = session?.sessionClaims?.user_Id;
-  console.log(userId);
 
   try {
     await dbConnect();
@@ -26,6 +25,13 @@ export async function POST(req, { params }) {
         success: false,
         status: 400,
         message: "User ID is required or invalid",
+      });
+    }
+    if (userId !== Challenge.challengeOwner) {
+      return createErrorResponse({
+        success: false,
+        status: 400,
+        message: "You are not authorized to access this challenge analytics",
       });
     }
 

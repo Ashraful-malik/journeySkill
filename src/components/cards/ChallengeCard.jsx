@@ -24,7 +24,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import PropTypes from "prop-types";
 import ChallengeCardSkeleton from "../skeleton/card/ChallengesCardSkeleton";
 function ChallengeCard({
   id,
@@ -182,20 +181,22 @@ function ChallengeCard({
           </div>
 
           {/* Right side Action */}
-          <div className="flex items-center space-x-4">
-            <TooltipProvider arial-label="challenge analytics">
-              <Tooltip>
-                <TooltipTrigger>
-                  <Link href={`/challenges/analytics/${id}`}>
-                    <ChartColumnStacked size={20} />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Challenge Analytics</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          {userId === challengeOwner?._id && (
+            <div className="flex items-center space-x-4">
+              <TooltipProvider arial-label="challenge analytics">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Link href={`/challenges/analytics/${id}`}>
+                      <ChartColumnStacked size={20} />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Challenge Analytics</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
         </div>
       </CardFooter>
     </Card>

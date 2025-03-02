@@ -75,7 +75,7 @@ export const useBatchLikeMutation = () => {
     } else {
       timeoutRef.current = null;
     }
-  }, [mutation, queryClient]); // ✅ Added queryClient
+  }, [mutation]);
 
   // Function to add likes to the batch queue
   const addToBatch = useCallback(
@@ -84,7 +84,7 @@ export const useBatchLikeMutation = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(processBatch, BATCH_DELAY);
     },
-    [processBatch] // ✅ processBatch as a dependency
+    [processBatch]
   );
 
   // Cleanup: Process remaining likes on unmount
@@ -97,7 +97,7 @@ export const useBatchLikeMutation = () => {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [processBatch]); // ✅ processBatch as a dependency
+  }, [processBatch]);
 
   return { addToBatch };
 };

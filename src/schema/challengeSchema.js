@@ -13,7 +13,7 @@ const challengeSchema = z.object({
     from: z.date(),
     to: z.date(),
   }),
-  days: z.number().min(10, "Days must be at least 10"),
+  days: z.number(),
 });
 
 export default challengeSchema;

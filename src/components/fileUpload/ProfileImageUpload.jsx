@@ -3,6 +3,7 @@ import React from "react";
 import { CameraIcon, ImageUp, User } from "lucide-react";
 import { useUploadProfileImage } from "@/hooks/mutations/useEditProfileImageMutation";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 function UpdateProfileImage({ userData }) {
   // console.log(userData.image);
@@ -87,14 +88,16 @@ function UpdateProfileImage({ userData }) {
         <div className="absolute inset-0 rounded-full  flex items-center justify-center">
           <div className="relative w-full h-full rounded-full overflow-hidden">
             {/* <!-- Image --> */}
-            <img
+            <Image
               src={
                 userData?.tempProfileImage
                   ? userData?.tempProfileImage
                   : userData?.profileImage?.imageUrl
               }
-              alt="Profile"
-              className="object-cover w-full h-full"
+              alt="Profile image"
+              className="object-cover "
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 24px"
             />
           </div>
         </div>

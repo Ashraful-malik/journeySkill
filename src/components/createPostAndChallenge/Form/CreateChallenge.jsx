@@ -23,7 +23,6 @@ import { addDays, format } from "date-fns";
 import { CalendarIcon, Loader, SplineIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import axiosInstance from "@/lib/axios";
 import {
   Popover,
   PopoverContent,

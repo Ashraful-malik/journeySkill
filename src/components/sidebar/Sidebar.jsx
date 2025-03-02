@@ -80,7 +80,13 @@ const Sidebar = () => {
         className="text-2xl font-bold mb-4 flex item-center  h-auto text-center gap-2"
         tabIndex={0}
       >
-        <Image src={logoSrc} alt="logo" width={20} height={20} />
+        <Image
+          src={logoSrc}
+          alt="logo"
+          width={12}
+          height={12}
+          style={{ width: "auto", height: "auto" }}
+        />
         <p className="">JourneySkill</p>
         <Badge variant="secondary" className="max-h-min">
           Beta

@@ -76,12 +76,13 @@ function EditUserData() {
         updatedData: data,
       },
       {
-        onSuccess: () => {
+        onSuccess: (newData) => {
+          console.log("new Data ==>", newData);
           toast({
             title: "Success",
             description: "Profile updated successfully!",
           });
-          route.push(`/profile/${userData?.username}`);
+          route.push(`/profile/${newData?.data?.username}`);
         },
         onError: (error) => {
           console.error("Error in form submission:", error);

@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
@@ -30,13 +29,7 @@ function Navbar() {
           href="/"
           className="text-white text-2xl font-bold flex items-start gap-2 pb-2 md:pb-0 "
         >
-          <Image
-            src="/logo.png"
-            alt="logo"
-            width={18}
-            height={18}
-            layout="intrinsic"
-          />
+          <Image src="/logo.png" alt="logo" width={18} height={18} />
           <p>JourneySkill</p>
         </Link>
         {userId ? (

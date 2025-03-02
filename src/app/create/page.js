@@ -1,10 +1,10 @@
 "use client";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
-import React, { useMemo } from "react";
 import PostsTab from "@/components/createPostAndChallenge/PostsTab";
 import { useUserChallengesQuery } from "@/hooks/queries/useChallengeQuery";
 import { useGlobalUser } from "@/context/userContent";
 import BackButton from "@/components/BackButton";
+import { Suspense } from "react";
 
 function Page() {
   const { user } = useGlobalUser();
@@ -19,10 +19,13 @@ function Page() {
   return (
     <WrapperLayout>
       <BackButton />
-      <PostsTab
-        userChallenges={allChallenges}
-        isChallengeLoading={isChallengeLoading}
-      />
+      {/* Wrap PostsTab with Suspense to handle client-side hooks */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <PostsTab
+          userChallenges={allChallenges}
+          isChallengeLoading={isChallengeLoading}
+        />
+      </Suspense>
     </WrapperLayout>
   );
 }

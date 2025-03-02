@@ -33,9 +33,11 @@ function IndividualChallenge({ challengeId }) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
 
+  // ----load only one challenge by id----------
   const { data: challenge, isLoading: challengeLoading } =
     useChallengeByIdQuery(challengeId);
 
+  // --------loading all challenge posts------------
   const {
     data: challengePosts,
     isLoading: postLoading,
@@ -238,23 +240,25 @@ function IndividualChallenge({ challengeId }) {
         {/* Body */}
         <div className="my-8">
           <div className="content">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Challenge started: {challengeStartingDate}
-              </p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Link href={`/challenges/analytics/${challengeId}`}>
-                      <ChartColumnStacked size={20} />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Challenge Analytics</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            {userId === challenge?.challengeOwner?._id && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Challenge started: {challengeStartingDate}
+                </p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Link href={`/challenges/analytics/${challengeId}`}>
+                        <ChartColumnStacked size={20} />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Challenge Analytics</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
             <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight">
               {challenge?.challengeName}
             </h1>

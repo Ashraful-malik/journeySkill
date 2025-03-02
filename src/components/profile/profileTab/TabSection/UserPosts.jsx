@@ -9,6 +9,7 @@ import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { useGlobalUser } from "@/context/userContent";
 import Masonry from "react-masonry-css";
 import PostCardSkeleton from "@/components/skeleton/card/PostCardSkeleton";
+import { LoaderCircle } from "lucide-react";
 
 function UserPosts({ userData }) {
   const profileUserId = userData?._id;
@@ -95,7 +96,11 @@ function UserPosts({ userData }) {
   }
 
   return (
-    <Masonry breakpointCols={breakPointColumnsObj} className="flex gap-2">
+    <Masonry
+      breakpointCols={breakPointColumnsObj}
+      className="flex gap-2"
+      columnClassName="masonry-column"
+    >
       {userPosts?.pages
         ?.flatMap((page) => page.posts)
         ?.map((post) => {

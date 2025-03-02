@@ -78,7 +78,7 @@ export async function PUT(req, { params }) {
         $set: updateFields,
       },
       { new: true }
-    );
+    ).select("-bannerImage -profileImage -clerkId -email -dob -location");
     if (!user) {
       return createErrorResponse({
         status: 404,
@@ -88,6 +88,7 @@ export async function PUT(req, { params }) {
     await user.save();
     return createResponse({
       status: 200,
+      data: user,
       success: true,
       message: "user detail updated successfully",
     });

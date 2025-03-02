@@ -109,7 +109,6 @@ function UserChallenges({ userData }) {
                 id={challenge?._id}
                 createdAt={challenge?.createdAt}
                 challengeOwner={userData}
-                className="max-w-sm w-full "
                 onLike={() => handleLike(challenge?._id, "like")}
                 onUnlike={() => handleLike(challenge?._id, "unlike")}
                 optimistic={challenge.optimistic}

@@ -1,22 +1,14 @@
 "use client";
-import ChallengeComment from "@/components/comment/ChallengeComment";
-import PostComment from "@/components/comment/PostComment";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
-import { useParams, useSearchParams } from "next/navigation";
-import React from "react";
+import CommentTypeSelector from "@/components/CommentTypeSelector";
+import { Suspense } from "react";
 
 function Page() {
-  const commentId = useParams().id;
-  const posteType = useSearchParams();
-  const type = posteType.get("type");
-
   return (
     <WrapperLayout>
-      {type === "post" ? (
-        <PostComment id={commentId} key={commentId} />
-      ) : (
-        <ChallengeComment id={commentId} key={commentId} />
-      )}
+      <Suspense fallback={<div>Loading...</div>}>
+        <CommentTypeSelector />
+      </Suspense>
     </WrapperLayout>
   );
 }

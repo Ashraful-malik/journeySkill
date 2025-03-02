@@ -90,12 +90,12 @@ function BannerImageUpload({ userData }) {
     }
   };
   return (
-    <div>
+    <div className="relative">
       {/* banner edit overlays button */}
-      <div className="absolute top-0 right-0 bg-black/30 w-full h-full rounded-lg"></div>
+      <div className="z-10 absolute top-0 right-0 bg-black/30 w-full h-full rounded-lg"></div>
 
       {/* banner edit button */}
-      <div className=" absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="z-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <Button
           variant="ghost"
           size="sm"
@@ -124,18 +124,19 @@ function BannerImageUpload({ userData }) {
       </div>
 
       {userData?.bannerImage ? (
-        <Image
-          src={
-            userData?.tempBannerImage
-              ? userData?.tempBannerImage
-              : userData?.bannerImage?.imageUrl
-          }
-          alt="banner image"
-          className="w-full h-[150px] object-cover rounded-lg"
-          loading="lazy"
-          width={800}
-          height={150}
-        />
+        <div className="relative w-full h-[150px] rounded-lg overflow-hidden">
+          <Image
+            src={
+              userData?.tempBannerImage
+                ? userData?.tempBannerImage
+                : userData?.bannerImage?.imageUrl
+            }
+            alt="banner image"
+            className="object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          />
+        </div>
       ) : (
         <div
           className={`w-full h-[150px] rounded-lg `}

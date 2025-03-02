@@ -1,19 +1,20 @@
 "use client";
-
 import { ResponsiveCalendar } from "@nivo/calendar";
 
 export const CalendarChart = ({ dailyProgress, from, to }) => {
   if (!dailyProgress) {
     return null;
   }
+  console.log("from", from);
+  console.log("to", to);
 
   // data for the calendar
   const data = dailyProgress?.map((item) => ({
     day: new Date(item.taskDate[0])?.toISOString().split("T")[0], // Convert to YYYY-MM-DD
     value: item.tasks, // Keep the tasks count as is
   }));
-  const startingFrom = new Date(from).toISOString().split("T")[0];
-  const endingTo = new Date(to).toISOString().split("T")[0];
+  const startingFrom = new Date(from)?.toISOString().split("T")[0];
+  const endingTo = new Date(to)?.toISOString().split("T")[0];
 
   const isDarkMode =
     typeof window !== "undefined" &&

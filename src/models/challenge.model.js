@@ -46,8 +46,9 @@ const challengeSchema = new Schema(
     },
     currentStreak: {
       type: Number,
-      default: 0,
+      default: 1,
     },
+
     consistencyIncentiveDays: {
       type: Number,
     },
@@ -56,8 +57,9 @@ const challengeSchema = new Schema(
 
     lastActivityDate: {
       type: Date,
-      default: null,
+      default: Date.now,
     },
+
     isCompleted: {
       type: Boolean,
       default: false,

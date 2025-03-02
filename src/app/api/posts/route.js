@@ -77,47 +77,63 @@ export async function POST(req) {
           imagePublicId,
         });
 
-        challenge.taskLogs.push({
-          taskId: newPost._id,
-          taskCompletionDate: new Date(),
-        });
-        challenge.tasksCompleted += 1;
-
-        // Streak Logic Optimization
         const now = new Date();
+
         const lastActiveDate = challenge.lastActivityDate
           ? new Date(challenge.lastActivityDate)
           : null;
-        const isSameDay =
-          lastActiveDate &&
-          now.toDateString() === lastActiveDate.toDateString();
+
+        const isSameDay = lastActiveDate
+          ? now.toDateString() === lastActiveDate.toDateString()
+          : false;
+
         const requiredInterval =
           challenge.consistencyIncentiveDays * 24 * 60 * 60 * 1000;
 
+        // **Only count ONE post per day towards the challenge progress**
+        let isTaskCounted = false;
+
         if (!isSameDay) {
-          challenge.currentStreak =
-            lastActiveDate && now - lastActiveDate <= requiredInterval
-              ? challenge.currentStreak + 1
-              : 1;
+          isTaskCounted = true;
+          if (lastActiveDate && now - lastActiveDate <= requiredInterval) {
+            challenge.currentStreak += 1; // Increase streak if within interval
+          } else {
+            challenge.currentStreak = 1; // Reset streak if too much time has passed
+          }
         }
         challenge.lastActivityDate = now;
 
-        if (
-          challenge.tasksCompleted >= challenge.totalTasks &&
-          challenge.currentStreak >= challenge.consistencyIncentiveDays
-        ) {
-          challenge.isCompleted = true;
-          challenge.completionDate = new Date();
+        if (isTaskCounted) {
+          challenge.tasksCompleted += 1;
         }
+
+        // Completion Check
+        const meetsTaskRequirement =
+          challenge.tasksCompleted >= challenge.tasksRequired;
+
+        const meetsStreakRequirement =
+          challenge.consistencyIncentiveDays <= 1 ||
+          challenge.currentStreak >= challenge.consistencyIncentiveDays;
+
+        if (meetsTaskRequirement && meetsStreakRequirement) {
+          challenge.isCompleted = true;
+          challenge.completionDate = now;
+        }
+
         // Update challenge efficiently
         await Challenge.updateOne(
           { _id: challenge._id },
           {
             $push: {
-              taskLogs: { taskId: newPost._id, taskCompletionDate: new Date() },
+              taskLogs: { taskId: newPost._id, taskCompletionDate: now },
             },
-            $inc: { tasksCompleted: 1 },
-            $set: { lastActivityDate: new Date() },
+            $set: {
+              currentStreak: challenge.currentStreak,
+              lastActivityDate: now,
+              isCompleted: challenge.isCompleted,
+              completionDate: challenge.completionDate,
+            },
+            ...(isTaskCounted && { $inc: { tasksCompleted: 1 } }),
           },
           { session }
         );
