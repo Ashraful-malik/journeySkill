@@ -101,9 +101,7 @@ function PostComment({ id }) {
         }
       );
       form.reset();
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
   if (postLoading) {
     return (

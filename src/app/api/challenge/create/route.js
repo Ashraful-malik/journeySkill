@@ -31,16 +31,6 @@ export async function POST(req) {
 
     const { challengeName, challengeDescription, tags, days, isPublic } =
       await req.json();
-    console.log(
-      "challengeName",
-      challengeName,
-      "challengeDescription",
-      challengeDescription,
-      "tags",
-      tags,
-      "days",
-      days
-    );
 
     if (
       !challengeName ||
@@ -94,7 +84,6 @@ export async function POST(req) {
         status: 200,
       });
     } catch (error) {
-      console.log("challenge creation error==>", error);
       return createErrorResponse({
         success: false,
         status: 400,
@@ -102,8 +91,6 @@ export async function POST(req) {
       });
     }
   } catch (error) {
-    console.log("error==>", error);
-
     return createErrorResponse({
       success: false,
       status: 500,

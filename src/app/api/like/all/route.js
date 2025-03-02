@@ -22,7 +22,6 @@ export async function GET(req) {
     await dbConnect();
     // convert an object id
     const objectIds = postIds?.map((id) => new mongoose.Types.ObjectId(id));
-    console.log(objectIds);
     const userObjectId = mongoose.Types.ObjectId.isValid(userId)
       ? new mongoose.Types.ObjectId(userId)
       : null;
@@ -32,7 +31,6 @@ export async function GET(req) {
         message: "Invalid or missing userId",
       });
     }
-    console.log("userObjectId--->", userObjectId);
 
     const likesData = await Like.aggregate([
       {
@@ -72,7 +70,6 @@ export async function GET(req) {
     }, {});
     return createResponse({ data: likeMap, message: "success", status: 200 });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

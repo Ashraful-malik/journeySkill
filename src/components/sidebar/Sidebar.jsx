@@ -94,7 +94,7 @@ const Sidebar = () => {
       </div>
 
       {/* User avatar */}
-      <Avatar className="w-14 h-14  border-2" aria-label="User avatar">
+      <Avatar className="w-16 h-16  border-2" aria-label="User avatar">
         <AvatarImage
           src={userData?.profileImage?.imageUrl}
           alt={userData?.username}

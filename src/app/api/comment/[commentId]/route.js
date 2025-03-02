@@ -6,11 +6,9 @@ import { auth } from "@clerk/nextjs/server";
 // update comment
 export async function PUT(req, { params }) {
   try {
-    console.log("update comment");
     await dbConnect();
     const { commentId } = await params;
     const { content } = await req.json();
-    console.log(content, commentId);
 
     if (!commentId) {
       return createErrorResponse({
@@ -39,7 +37,6 @@ export async function PUT(req, { params }) {
     await comment.save();
     return createResponse({ message: "comment updated", status: 200 });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,
@@ -85,7 +82,6 @@ export async function DELETE(req, { params }) {
     await Comment.findByIdAndDelete(commentId);
     return createResponse({ message: "comment deleted", status: 200 });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

@@ -56,7 +56,6 @@ const PostImageUpload = ({ onUploadSuccess, onUploadPending }) => {
       { file, userId },
       {
         onSuccess: (data) => {
-          console.log("data from postImage Upload===>", data);
           onUploadSuccess(data);
           setPreviewImage(data);
         },

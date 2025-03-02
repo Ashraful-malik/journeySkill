@@ -4,8 +4,6 @@ export const handleApiError = (error) => {
   //check if the response is an axios error
   if (error.response) {
     const { data, status } = error.response;
-    // Log error response for debugging (use your logger in production)
-    console.log("API Error:", data, status);
     // Extract the error message from response
     errorMessage =
       data?.errors ||

@@ -8,7 +8,6 @@ import { fetchViews } from "./view";
 export const fetchPosts = async ({ pageParams }) => {
   try {
     const response = await axiosInstance.get(`/posts/feed/?page=${pageParams}`);
-    console.log(response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -20,7 +19,6 @@ export const fetchPosts = async ({ pageParams }) => {
 export const createPostApi = async (postData) => {
   try {
     const response = await axiosInstance.post("/posts", postData);
-    console.log("create post response", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -90,7 +88,6 @@ export const fetchChallengePosts = async ({ challengeId, pageParam }) => {
         },
       }
     );
-    console.log("all post of challenge", response.data.data);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -104,7 +101,6 @@ export const deletePost = async (postId) => {
     const response = await axiosInstance.delete(`/posts/${postId}`);
     return response.data;
   } catch (error) {
-    console.log(error);
     const { message, code } = handleApiError(error);
     throw { message, code };
   }

@@ -48,9 +48,6 @@ export async function GET(req) {
       try {
         await deleteFileOnCloudinary(image.publicId);
         await image.remove(); // Delete the document if successful
-        console.log(
-          `Successfully retried deletion for image: ${image.publicId}`
-        );
       } catch (retryError) {
         console.error(`Retry failed for image: ${image.publicId}`, retryError);
         // Optionally update errorMessage for tracking

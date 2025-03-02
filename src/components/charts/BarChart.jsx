@@ -19,7 +19,6 @@ const BarChart = ({ dailyProgress }) => {
     tasks: item.tasks, // Keep the tasks count as is
   }));
 
-  console.log(formattedData);
   return (
     <div style={{ height: 400 }}>
       <ResponsiveBar

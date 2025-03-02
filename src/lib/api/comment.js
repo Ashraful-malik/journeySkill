@@ -4,7 +4,6 @@ import { handleApiError } from "../utils/errorHandler";
 export const crateComment = async (commentData) => {
   try {
     const response = await axiosInstance.post("/comment", commentData);
-    console.log("create comment response", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

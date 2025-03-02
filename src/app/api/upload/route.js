@@ -118,7 +118,6 @@ export async function POST(req) {
     } else if (type === "post") {
       // Check if the user already has a post
       const existingPost = await Post.findOne({ owner: userId });
-      console.log("existingPost", existingPost);
 
       // Delete existing image if applicable
       if (existingPost?.imagePublicId) {

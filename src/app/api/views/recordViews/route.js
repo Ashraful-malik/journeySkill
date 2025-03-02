@@ -9,7 +9,6 @@ import mongoose from "mongoose";
 export async function POST(req) {
   try {
     const { contentType, postIds, userId } = await req.json();
-    console.log(contentType, postIds, userId);
 
     // Validate required fields
     if (!contentType || !postIds || !userId) {

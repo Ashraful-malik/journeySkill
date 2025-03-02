@@ -79,7 +79,6 @@ export const useDeleteCommentMutation = () => {
     mutationKey: ["delete-comment"],
     mutationFn: ({ commentId }) => deleteComment(commentId), // Your API call for deletion
     onMutate: async ({ postId, commentId }) => {
-      console.log("id", postId, "commentId", commentId);
       // Pause ongoing fetches for this query
       await queryClient.cancelQueries(["comment", postId]);
 
@@ -88,9 +87,6 @@ export const useDeleteCommentMutation = () => {
         "comment",
         postId,
       ]);
-
-      // Debugging: Check the cached structure
-      console.log("Cached Data Before Mutation:", previousCommentPages);
 
       // Optimistically update the cache
       queryClient.setQueryData(["comment", postId], (old) => {
@@ -104,10 +100,6 @@ export const useDeleteCommentMutation = () => {
               : comment
           ),
         }));
-
-        // Debugging: Check the updated structure
-        console.log("Updated Pages After Mutation:", updatedPages);
-
         return {
           ...old,
           pages: updatedPages,

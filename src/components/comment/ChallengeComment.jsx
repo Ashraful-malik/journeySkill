@@ -85,7 +85,6 @@ function ChallengeComment({ id }) {
         { commentData },
         {
           onError: (error) => {
-            console.log(error);
             toast({
               title: "Error",
               description: error.message || "An error occurred.",

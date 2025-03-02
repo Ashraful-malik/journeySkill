@@ -29,7 +29,6 @@ import { CalendarChart } from "@/components/charts/CalendarChart";
 
 export default function AnalyticsPage({ challengeAnalyticsData }) {
   const challengeDetails = challengeAnalyticsData?.challengeDetails;
-  console.log("challengeDetails", challengeDetails);
 
   const challengeData = {
     challengeName: challengeDetails?.challengeName,

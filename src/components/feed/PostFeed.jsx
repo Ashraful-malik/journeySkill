@@ -69,7 +69,6 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
                 onError: (error) => {
                   viewQueue.current.clear();
                   flushTimeout.current = null;
-                  console.log(error);
                 },
               }
             );

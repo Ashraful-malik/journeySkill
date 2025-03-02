@@ -77,7 +77,6 @@ function EditUserData() {
       },
       {
         onSuccess: (newData) => {
-          console.log("new Data ==>", newData);
           toast({
             title: "Success",
             description: "Profile updated successfully!",
@@ -86,7 +85,6 @@ function EditUserData() {
         },
         onError: (error) => {
           console.error("Error in form submission:", error);
-          // console.log(error.response);
           toast({
             title: "Error",
             description: error.message || "An error occurred.",

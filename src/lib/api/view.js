@@ -4,9 +4,7 @@ import { handleApiError } from "../utils/errorHandler";
 // create view
 export const createView = async (viewData) => {
   try {
-    console.log("viewData", viewData);
     const response = await axiosInstance.post("views/recordViews", viewData);
-    console.log(response.data);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

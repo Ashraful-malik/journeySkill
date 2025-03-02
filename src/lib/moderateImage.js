@@ -8,7 +8,6 @@ export const analyzeImage = async (file) => {
     // const formData = new FormData();
     // formData.append("file", file);
     const name = URL.createObjectURL(file);
-    console.log(name);
     const response = await axios.post(
       `https://${apiKey}:${apiSecret}@api.cloudinary.com/v2/analysis/${cloudName}/analyze/ai_vision_moderation`,
       {
@@ -29,7 +28,6 @@ export const analyzeImage = async (file) => {
 
     // Handle moderation results
     const results = response.data;
-    console.log("Moderation Results:", results);
     // Parse the response
     const analysis = response.data.data.analysis.responses;
     const isSafe = analysis.every((item) => item.value === "no");

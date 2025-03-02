@@ -6,12 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
 function UpdateProfileImage({ userData }) {
-  // console.log(userData.image);
   const { mutate: uploadProfileImage, isPending } = useUploadProfileImage();
   const { toast } = useToast();
   const handleFileChange = (e) => {
     e.preventDefault();
-    console.log(e.target.files);
     const file = e.target.files[0];
     if (!file) {
       toast({
@@ -63,7 +61,6 @@ function UpdateProfileImage({ userData }) {
           },
           onError: (error) => {
             console.error("Error in form submission:", error);
-            // console.log(error.response);
             toast({
               title: "Error",
               description: error.message || "An error occurred.",
@@ -73,7 +70,6 @@ function UpdateProfileImage({ userData }) {
         }
       );
     } catch (error) {
-      // console.log(error.response);
       toast({
         title: "Error",
         description: error.message || "An error occurred.",

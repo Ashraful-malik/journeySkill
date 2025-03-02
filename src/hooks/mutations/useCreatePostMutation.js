@@ -43,7 +43,6 @@ export const useCreatePostMutation = () => {
       queryClient.invalidateQueries(["feed"]);
     },
     onError: (error, variables, context) => {
-      console.log(error);
       if (context?.previousPosts) {
         queryClient.setQueryData(["feed"], context.previousPosts);
       }

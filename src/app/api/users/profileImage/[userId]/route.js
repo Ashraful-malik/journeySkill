@@ -41,7 +41,6 @@ export async function POST(req, { params }) {
       message: "profile image updated successfully",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       status: 500,
       message: "Internal server error",

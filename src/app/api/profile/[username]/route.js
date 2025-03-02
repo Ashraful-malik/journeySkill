@@ -9,7 +9,6 @@ export async function GET(req, { params }) {
     await dbConnect();
     const { username } = await params;
 
-    console.log(username);
     if (!username) {
       return createErrorResponse({
         success: false,
@@ -30,7 +29,6 @@ export async function GET(req, { params }) {
     }
     return createResponse({ data: user, message: "success", status: 200 });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

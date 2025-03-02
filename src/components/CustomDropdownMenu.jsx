@@ -58,7 +58,6 @@ const CustomDropdownMenu = ({
               });
             },
             onError: (error) => {
-              console.log(error);
               toast({
                 title: "Error deleting post",
                 description: error.message || "An error occurred.",

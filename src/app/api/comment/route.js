@@ -59,7 +59,6 @@ export async function POST(req) {
     await comment.save();
     return createResponse({ data: comment, message: "success", status: 200 });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

@@ -43,7 +43,6 @@ function ChallengeCard({
   userId,
   className,
 }) {
-  console.log("isDeleting", isDeleting);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const challengeCreatedAt = new Date(createdAt).toDateString();

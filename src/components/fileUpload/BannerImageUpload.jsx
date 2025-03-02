@@ -13,7 +13,6 @@ function BannerImageUpload({ userData }) {
   const fileInputRef = useRef(null);
   const handleFileChange = (e) => {
     e.preventDefault();
-    console.log(e.target.files);
     const file = e.target.files[0];
     if (!file) {
       toast({
@@ -65,7 +64,6 @@ function BannerImageUpload({ userData }) {
           },
           onError: (error) => {
             console.error("Error in form submission:", error);
-            // console.log(error.response);
             toast({
               title: "Error",
               description: error.message || "An error occurred.",
@@ -75,7 +73,6 @@ function BannerImageUpload({ userData }) {
         }
       );
     } catch (error) {
-      // console.log(error.response);
       toast({
         title: "Error",
         description: error.message || "An error occurred.",
@@ -84,7 +81,6 @@ function BannerImageUpload({ userData }) {
     }
   };
   const handleButtonClick = () => {
-    console.log("fileInputRef----->", fileInputRef);
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }

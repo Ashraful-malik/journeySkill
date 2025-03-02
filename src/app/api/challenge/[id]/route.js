@@ -7,7 +7,7 @@ import {
   createOrUpdateTags,
   removeUnlinkedTags,
 } from "@/lib/utils/utilsForChallenge";
-import {auth} from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 //get challenge by Challenge id
 export async function GET(req, { params }) {
@@ -113,7 +113,6 @@ export async function PUT(req, { params }) {
       }
       const updatedChallenge = await challenge.save();
       await removeUnlinkedTags(updatedChallenge._id, updatedChallenge.tags); // Remove unlinked ();
-      console.log(updatedChallenge);
       return createResponse({
         success: true,
         message: "challenge updated successfully",
@@ -123,7 +122,6 @@ export async function PUT(req, { params }) {
         status: 200,
       });
     } catch (error) {
-      console.log(error);
       return createErrorResponse({
         success: false,
         status: 500,
@@ -131,7 +129,6 @@ export async function PUT(req, { params }) {
       });
     }
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,
@@ -180,7 +177,6 @@ export async function DELETE(req, { params }) {
       status: 200,
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

@@ -6,14 +6,12 @@ import { useFetchUserPostsQuery } from "@/hooks/queries/usePostQuery";
 const UserStatsContext = createContext();
 
 export const UserStatsProvider = ({ children, userId }) => {
-  console.log(userId);
   const [totalChallenges, setTotalChallenges] = useState(0);
   const [totalPosts, setTotalPosts] = useState(0);
 
   const { data: userChallenges } = useUserChallengesQuery(userId);
   //   fetch all user posts
   const { data: userPosts } = useFetchUserPostsQuery({ profileUserId: userId });
-  console.log(userChallenges);
 
   useEffect(() => {
     if (userChallenges) {

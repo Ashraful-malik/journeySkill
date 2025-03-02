@@ -9,7 +9,6 @@ export async function GET(req) {
     const { searchParams } = req.nextUrl;
     const targetType = searchParams.get("targetType"); // "post" or "challenge"
     const postIds = searchParams.get("postIds");
-    console.log(targetType, postIds);
     if (!targetType || !["Post", "Challenge"].includes(targetType)) {
       return createErrorResponse({
         success: false,
@@ -76,7 +75,6 @@ export async function GET(req) {
     commentCounts.forEach(({ _id, count }) => {
       countsMap[_id.toString()] = count;
     });
-    console.log(countsMap);
 
     return createResponse({
       success: true,

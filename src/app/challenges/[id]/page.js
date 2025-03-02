@@ -35,7 +35,6 @@ export default function ChallengePage() {
 
     // Redirect if the query fails with a 404 error
     if (isError && error?.status === 404) {
-      console.log("isError===>", isError, "error===>", error);
       setShouldRedirect(true);
       return;
     }

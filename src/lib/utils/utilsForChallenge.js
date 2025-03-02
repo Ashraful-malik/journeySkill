@@ -61,7 +61,6 @@ export const removeUnlinkedTags = async (
       }
     }
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

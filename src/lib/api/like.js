@@ -7,7 +7,6 @@ export const createLike = async ({ actions }) => {
     const response = await axiosInstance.post("/like", {
       batchActions: actions,
     });
-    console.log(response.data.data);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -30,7 +29,6 @@ export const fetchLikes = async (postIds, userId, targetType) => {
         });
       },
     });
-    console.log("all likes response", response.data.data);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

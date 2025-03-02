@@ -46,14 +46,12 @@ export const uploadImageToCloudinary = async (
 export const deleteFileOnCloudinary = async (publicId) => {
   try {
     const deletedFile = await cloudinary.uploader.destroy(publicId);
-    console.log("deletedFile", deletedFile);
     return createResponse({
       success: true,
       status: 200,
       message: "File deleted",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

@@ -36,7 +36,6 @@ export const updateUser = async (userId, updatedData) => {
 
 // update user profile image
 export const updateUserProfile = async (formData) => {
-  console.log(formData);
   try {
     const response = await axiosInstance.post("/upload/profile", formData);
     return response.data;
@@ -49,7 +48,6 @@ export const updateUserProfile = async (formData) => {
 
 // update user banner image
 export const updateBannerImage = async (formData) => {
-  console.log(formData);
   try {
     const response = await axiosInstance.post("/upload/banner", formData);
     return response.data;

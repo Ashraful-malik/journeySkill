@@ -88,7 +88,6 @@ export async function PATCH(req, { params }) {
       data: updatedPost,
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,
@@ -147,7 +146,6 @@ export async function DELETE(req, { params }) {
       message: "Post deleted successfully",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

@@ -21,7 +21,6 @@ export const createChallengeApi = async (challengeData) => {
       "/challenge/create",
       challengeData
     );
-    console.log(response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -31,10 +30,8 @@ export const createChallengeApi = async (challengeData) => {
 
 // get challenge by id
 export const getChallengeById = async (challengeId) => {
-  console.log("challengeId", challengeId);
   try {
     const response = await axiosInstance.get(`/challenge/${challengeId}`);
-    console.log("individual challenge", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
@@ -47,7 +44,6 @@ export const fetchUserChallenges = async ({ userId, pageParams }) => {
     const response = await axiosInstance.get(
       `/challenge/user/${userId}/?page=${pageParams}`
     );
-    console.log("all user challenges", response);
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

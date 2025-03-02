@@ -23,7 +23,6 @@ export async function PUT(req, { params }) {
     if (username) {
       try {
         const user = await clerkClient.users.updateUser(clerkId, { username });
-        console.log(user);
         if (!user) {
           return createErrorResponse({
             status: 404,
@@ -93,7 +92,6 @@ export async function PUT(req, { params }) {
       message: "user detail updated successfully",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       status: 500,
       message: "Internal server error",

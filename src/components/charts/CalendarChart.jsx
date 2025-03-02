@@ -5,8 +5,6 @@ export const CalendarChart = ({ dailyProgress, from, to }) => {
   if (!dailyProgress) {
     return null;
   }
-  console.log("from", from);
-  console.log("to", to);
 
   // data for the calendar
   const data = dailyProgress?.map((item) => ({

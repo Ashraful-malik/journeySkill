@@ -13,7 +13,6 @@ export async function POST(req, { params }) {
     // Extract userId from params and followerId from request body
     const { userId } = await params; // ID of the user to be followed
     const { followerId } = await req.json(); // ID of the user who wants to follow
-    console.log(followerId);
 
     // Validate input
     if (!userId) {
