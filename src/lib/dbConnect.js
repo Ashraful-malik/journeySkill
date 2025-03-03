@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-// import { DB_NAME } from "./constants";
 
 let isConnected = false;
 let cached = global.mongoose;
@@ -19,32 +18,25 @@ const dbConnect = async () => {
     throw new Error("DB_NAME environment variable is not defined!");
   }
   if (cached.conn) {
-    console.log("Reusing existing database connection.");
     return cached.conn;
   }
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(MONGODB_URI, {
         dbName: DB_NAME,
-        maxPoolSize: 10, // Connection pool size
-        serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds if MongoDB is unreachable
+        maxPoolSize: 20, // Optimized for production
+        serverSelectionTimeoutMS: 10000, // 10 sec timeout
       })
       .then((mongooseInstance) => {
-        console.log("Database connected successfully.");
         isConnected = true;
-        mongoose.connection.on("connected", () => {
-          console.log("Mongoose connected to database");
-        });
-        mongoose.connection.on("error", (err) => {
-          console.error("Mongoose connection error:", err);
-        });
-        mongoose.connection.on("disconnected", () => {
-          console.warn("Mongoose disconnected ");
-        });
+
+        mongoose.connection.on("connected", () => {});
+        mongoose.connection.on("error", (err) => {});
+
+        mongoose.connection.on("disconnected", () => {});
         return mongooseInstance;
       })
       .catch((err) => {
-        console.error("Database connection error:", err);
         throw err;
       });
   }

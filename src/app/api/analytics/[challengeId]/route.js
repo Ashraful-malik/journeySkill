@@ -27,10 +27,20 @@ export async function POST(req, { params }) {
         message: "User ID is required or invalid",
       });
     }
-    if (userId !== Challenge.challengeOwner) {
+    const challenge = await Challenge.findById(challengeId, {
+      challengeOwner: 1,
+    }).populate("challengeOwner", "_id");
+    if (!challenge || !challenge.challengeOwner) {
       return createErrorResponse({
         success: false,
-        status: 400,
+        status: 404,
+        message: "Challenge not found or missing owner",
+      });
+    }
+    if (userId !== challenge.challengeOwner._id.toString()) {
+      return createErrorResponse({
+        success: false,
+        status: 403, // Change to 403 Forbidden
         message: "You are not authorized to access this challenge analytics",
       });
     }

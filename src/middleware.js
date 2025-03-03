@@ -13,40 +13,46 @@ const isPublicApiRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (authFn, req) => {
-  const auth = await authFn();
-  const { userId } = auth; // Clerk provides `userId` if authenticated
+  try {
+    const auth = await authFn();
+    const { userId } = auth; // Clerk provides `userId` if authenticated
 
-  const currentUrl = new URL(req.url);
-  const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
+    const currentUrl = new URL(req.url);
+    const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
 
-  // 1. **Allow public API routes to bypass all authentication logic**
-  if (isPublicApiRoute(req)) {
-    return NextResponse.next(); // Let public API routes proceed
-  }
-
-  // 2. **Unauthenticated user logic**
-  if (!userId) {
-    if (!isPublicRoute(req)) {
-      // Redirect unauthenticated users trying to access private routes
-      return NextResponse.redirect(new URL("/sign-in", req.url));
+    // 1. **Allow public API routes to bypass all authentication logic**
+    if (isPublicApiRoute(req)) {
+      return NextResponse.next(); // Let public API routes proceed
     }
-    return NextResponse.next(); // Allow unauthenticated users to access public routes
-  }
 
-  // 3. **Authenticated user logic**
-  if (userId) {
-    if (isPublicRoute(req) && currentUrl.pathname !== "/") {
-      // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`
-      return NextResponse.redirect(new URL("/", req.url));
+    // 2. **Unauthenticated user logic**
+    if (!userId) {
+      if (!isPublicRoute(req)) {
+        // Redirect unauthenticated users trying to access private routes
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+      }
+      return NextResponse.next(); // Allow unauthenticated users to access public routes
     }
-    if (isApiRequest) {
-      // Allow authenticated users to make API requests
-      return NextResponse.next();
-    }
-  }
 
-  // 4. **Default case**
-  return NextResponse.next();
+    // 3. **Authenticated user logic**
+    if (userId) {
+      if (isPublicRoute(req) && currentUrl.pathname !== "/") {
+        // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+      if (isApiRequest) {
+        // Allow authenticated users to make API requests
+        return NextResponse.next();
+      }
+    }
+
+    // 4. **Default case**
+    return NextResponse.next();
+  } catch (error) {
+    return new NextResponse("Something went wrong. Please try again later.", {
+      status: 500,
+    });
+  }
 });
 
 export const config = {

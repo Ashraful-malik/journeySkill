@@ -19,19 +19,19 @@ const inter = Inter({
   fallback: ["sans-serif"],
 });
 export const metadata = {
-  title: "JourneySkill",
+  title: "JourneySkill - Build Your Coding Habit",
   description:
-    "Master new skills through personalized challenges. Build in public, track your progress, and connect with a community of learners like you.",
+    "Join JourneySkill to create custom coding challenges and track your progress.",
   twitter: {
     card: "summary_large_image",
-    title: "JourneySkill",
+    title: "JourneySkill - Build Your Coding Habit",
     description:
-      "Master new skills through personalized challenges. Build in public, track your progress, and connect with a community of learners like you.",
+      "Join JourneySkill to create custom coding challenges and track your progress.",
     creator: "@Ashraful__malik",
     siteName: "JourneySkill",
     images: [
       {
-        url: "https://journeyskill.vercel.app/jorneyskill.png",
+        url: "/twitterCard/landing-page.png",
         width: 800,
         height: 600,
         alt: "journeyskill image",
@@ -39,21 +39,14 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: "JourneySkill",
+    title: "JourneySkill - Build Your Coding Habit",
     description:
-      "Master new skills through personalized challenges. Build in public, track your progress, and connect with a community of learners like you.",
+      "Join JourneySkill to create custom coding challenges and track your progress.",
     siteName: "JourneySkill",
     locale: "en_US",
     type: "website",
-    url: "https://journeyskill.vercel.app",
-    images: [
-      {
-        url: "https://journeyskill.vercel.app/jorneyskill.png",
-        width: 800,
-        height: 600,
-        alt: "journeyskill image",
-      },
-    ],
+    url: "https://journeyskill.online",
+    images: ["/twitterCard/landing-page.png"],
   },
 };
 
@@ -87,13 +80,6 @@ export default async function RootLayout({ children }) {
           <body className="antialiased">
             <HotjarTracker /> {/* Track route changes */}
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-            {/* <ClerkLoading>
-              loading
-              <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-                <div className="w-16 h-16 border-b-2 border-white rounded-full animate-spin"></div>
-              </div>
-            </ClerkLoading> */}
-            {/* <ClerkLoaded> */}
             <ThemeProvider attribute="class" defaultTheme="dark">
               <NavbarWrapper />
               <QueryProvider dehydratedState={dehydratedState}>
