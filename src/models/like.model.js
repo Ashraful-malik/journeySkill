@@ -11,7 +11,6 @@ const likeSchema = new Schema(
     targetId: {
       type: Schema.Types.ObjectId,
       required: true,
-      refPath: "targetType",
     },
 
     targetType: {
@@ -31,4 +30,4 @@ const likeSchema = new Schema(
 
 likeSchema.index({ userId: 1, targetType: 1, targetId: 1 }, { unique: true });
 
-export const Like = mongoose.model.Like || mongoose.model("Like", likeSchema);
+export const Like = mongoose.models.Like || mongoose.model("Like", likeSchema);

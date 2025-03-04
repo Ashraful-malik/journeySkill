@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-
+import { Challenge } from "./challenge.model";
 const postSchema = new Schema(
   {
     owner: {
@@ -10,6 +10,7 @@ const postSchema = new Schema(
     challengeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Challenge",
+      required: true,
     },
 
     text: {
@@ -22,6 +23,7 @@ const postSchema = new Schema(
 
     imagePublicId: {
       type: String, //cloudinary public id
+      unique: true,
     },
 
     viewCount: {
@@ -37,10 +39,14 @@ const postSchema = new Schema(
     link: {
       type: String,
     },
+    isPublic: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-postSchema.index({ challengeId: 1 });
+postSchema.index({ challengeId: 1, isPublic: 1 });
 
 export const Post = mongoose.models.Post || mongoose.model("Post", postSchema);

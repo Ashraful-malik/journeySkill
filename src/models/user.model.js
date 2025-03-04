@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import Badge from "./badge.model";
 
 const userSchema = new Schema(
   {
@@ -17,14 +18,15 @@ const userSchema = new Schema(
       index: true,
     },
     profileImage: {
-      type: String,
+      imageUrl: { type: String },
+      publicId: { type: String },
+      clerkImage: { type: String },
     },
-    profileImagePublicId: {
-      type: String,
+    bannerImage: {
+      imageUrl: { type: String },
+      publicId: { type: String },
     },
-    coverImagePublicId: {
-      type: String,
-    },
+
     email: {
       type: String,
       required: true,
@@ -42,9 +44,8 @@ const userSchema = new Schema(
       type: String,
       trim: true,
     },
-
-    coverImage: {
-      type: String, //cloudinary url
+    fullName: {
+      type: String,
     },
 
     bio: {
@@ -75,5 +76,5 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-const User = mongoose.models.users || mongoose.model("users", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;

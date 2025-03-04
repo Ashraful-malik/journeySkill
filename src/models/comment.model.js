@@ -9,9 +9,7 @@ const commentSchema = new Schema(
     },
 
     post: { type: Schema.Types.ObjectId, ref: "Post" },
-
     challenge: { type: Schema.Types.ObjectId, ref: "Challenge" },
-
     content: {
       type: String,
       required: true, // Ensure the comment has content
@@ -26,6 +24,5 @@ commentSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
-
 export const Comment =
   mongoose.models.Comment || mongoose.model("Comment", commentSchema);

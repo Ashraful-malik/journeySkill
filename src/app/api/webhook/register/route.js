@@ -4,7 +4,7 @@ import { createResponse } from "@/lib/utils/response";
 import User from "@/models/user.model";
 import dbConnect from "@/lib/dbConnect";
 import { Webhook } from "svix";
-import { clerkClient } from "@clerk/nextjs/dist/types/server";
+import { clerkClient } from "@clerk/nextjs/server";
 
 /**
  * Handles incoming POST requests for webhook registration.
@@ -28,7 +28,6 @@ export async function POST(req) {
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
     if (!WEBHOOK_SECRET) {
-      console.error("Missing Clerk Webhook Secret");
       throw new Error(
         "Server configuration error: Missing Clerk Webhook Secret"
       );
@@ -43,11 +42,6 @@ export async function POST(req) {
     const svixSignature = headerPayload.get("svix-signature");
 
     if (!svixId || !svixTimestamp || !svixSignature) {
-      console.error("Missing Svix headers", {
-        svixId,
-        svixTimestamp,
-        svixSignature,
-      });
       return createErrorResponse({
         message: "Missing Svix headers",
         status: 400,
@@ -76,15 +70,7 @@ export async function POST(req) {
     const { id } = evt.data;
     const eventType = evt.type;
 
-    // Logs
-    console.log(
-      `Received webhook with ID ${id} and event type of ${eventType}`
-    );
-    console.log("Webhook payload:", body);
-
     if (eventType === "user.created") {
-      console.log("envent data=======>", evt.data);
-
       const {
         email_addresses,
         primary_email_address_id,
@@ -111,10 +97,10 @@ export async function POST(req) {
           message: "Missing primary email address",
         });
       }
+
       const existingUser = await User.findOne({ clerkId: id });
 
       if (existingUser) {
-        console.log("User already exists:", existingUser);
         return createResponse({
           status: 200,
           success: true,
@@ -122,22 +108,27 @@ export async function POST(req) {
           data: existingUser,
         });
       }
+      const fullName = [first_name, last_name].filter(Boolean).join(" ");
       // insert User to database
       try {
         const newUser = await User.create({
           email: primaryEmail.email_address,
           clerkId: id,
           username: username,
-          profileImage: image_url,
+          profileImage: {
+            imageUrl: image_url,
+          },
           firstName: first_name,
           lastName: last_name,
+          fullName: fullName,
         });
         if (newUser) {
-          await clerkClient.users.updateUserMetadata(id, {
+          const client = await clerkClient();
+
+          await client.users.updateUserMetadata(id, {
             publicMetadata: { userId: newUser._id },
           });
         }
-        console.log("User created successfully:", newUser);
       } catch (error) {
         console.error("Database error:", error.message);
         return createErrorResponse({

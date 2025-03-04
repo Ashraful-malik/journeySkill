@@ -1,8 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-
+import User from "./user.model";
+import { Tag } from "./tag.model";
 const TaskLogSchema = new mongoose.Schema({
-  taskId: { type: String, required: true },
-  completionDate: { type: Date, required: true },
+  taskId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  taskCompletionDate: { type: Date, required: true },
 });
 
 const challengeSchema = new Schema(
@@ -10,6 +11,7 @@ const challengeSchema = new Schema(
     challengeOwner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     challengeName: {
@@ -25,6 +27,7 @@ const challengeSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "Tag",
+        required: true,
       },
     ],
     days: {
@@ -43,26 +46,27 @@ const challengeSchema = new Schema(
     },
     currentStreak: {
       type: Number,
-      default: 0,
+      default: 1,
     },
+
     consistencyIncentiveDays: {
       type: Number,
     },
 
     taskLogs: [TaskLogSchema],
 
-    tasksRequired: {
-      type: Number,
-      required: true,
-    },
-
     lastActivityDate: {
       type: Date,
-      default: null,
+      default: Date.now,
     },
+
     isCompleted: {
       type: Boolean,
       default: false,
+    },
+    completionDate: {
+      type: Date,
+      default: null,
     },
 
     isPublic: {
@@ -90,7 +94,7 @@ const challengeSchema = new Schema(
   { timestamps: true }
 );
 
-challengeSchema.index({ tags: 1, isPublic: 1 });
+challengeSchema.index({ isPublic: 1, challengeOwner: 1, tags: 1 });
 
 export const Challenge =
-  mongoose.models.challenges || mongoose.model("challenges", challengeSchema);
+  mongoose.models.Challenge || mongoose.model("Challenge", challengeSchema);
