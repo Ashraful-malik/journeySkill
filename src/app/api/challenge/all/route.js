@@ -91,7 +91,6 @@ export async function GET(req) {
       },
     });
   } catch (error) {
-    console.error(error);
     return createErrorResponse({
       success: false,
       status: 400,

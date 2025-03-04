@@ -48,7 +48,6 @@ export const uploadPostImage = async ({ file, userId }) => {
     const response = await axiosInstance.post("/upload/post", formData);
     return response.data.data;
   } catch (error) {
-    console.error(error);
     const { message, code } = handleApiError(error);
     throw { message, code };
   }

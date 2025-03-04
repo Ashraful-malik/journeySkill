@@ -60,7 +60,6 @@ function UpdateProfileImage({ userData }) {
             });
           },
           onError: (error) => {
-            console.error("Error in form submission:", error);
             toast({
               title: "Error",
               description: error.message || "An error occurred.",

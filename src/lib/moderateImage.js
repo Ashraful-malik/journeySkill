@@ -36,10 +36,6 @@ export const analyzeImage = async (file) => {
 
     return { isSafe: isSafe, analysis: analysis, limitRemaining: requestLimit };
   } catch (error) {
-    console.error(
-      "Error analyzing image:",
-      error.response?.data || error.message
-    );
     throw new Error("Failed to analyze image");
   }
 };

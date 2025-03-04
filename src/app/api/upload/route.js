@@ -160,7 +160,6 @@ export async function POST(req) {
       },
     });
   } catch (error) {
-    console.error("Image upload error:", error);
     return createErrorResponse({
       success: false,
       status: 500,

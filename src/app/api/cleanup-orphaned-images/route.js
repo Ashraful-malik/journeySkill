@@ -26,7 +26,6 @@ export async function GET(req) {
             await deleteFileOnCloudinary(image.publicId);
             await image.remove();
           } catch (error) {
-            console.error(`Failed to clean up image: ${image.publicId}`, error);
             const errorMessage = error?.message || "Unknown error occurred";
             await UploadedImage.updateOne(
               { _id: image._id },
@@ -49,7 +48,6 @@ export async function GET(req) {
         await deleteFileOnCloudinary(image.publicId);
         await image.remove(); // Delete the document if successful
       } catch (retryError) {
-        console.error(`Retry failed for image: ${image.publicId}`, retryError);
         // Optionally update errorMessage for tracking
         await UploadedImage.updateOne(
           { _id: image._id },
@@ -63,7 +61,6 @@ export async function GET(req) {
       message: `Cleaned up ${processedCount} orphaned images and retried ${erroredImages.length} errored images.`,
     });
   } catch (error) {
-    console.error("Cleanup failed:", error);
     return createErrorResponse(
       { success: false, error: "An unexpected error occurred." },
       { status: 500 }

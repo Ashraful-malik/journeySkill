@@ -83,7 +83,6 @@ export async function GET(req) {
       message: "success",
     });
   } catch (error) {
-    console.error("Error in GET /api/comments/count:", error);
     return createErrorResponse({
       success: false,
       status: 500,

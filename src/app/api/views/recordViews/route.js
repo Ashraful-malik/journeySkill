@@ -111,7 +111,6 @@ export async function POST(req) {
     } catch (error) {
       // Rollback transaction on error
       await session.abortTransaction();
-      console.error("Transaction error:", error);
       return createErrorResponse({
         success: false,
         status: 500,
@@ -122,7 +121,6 @@ export async function POST(req) {
       session.endSession();
     }
   } catch (error) {
-    console.error("Error recording views:", error);
     return createErrorResponse({
       success: false,
       status: 500,

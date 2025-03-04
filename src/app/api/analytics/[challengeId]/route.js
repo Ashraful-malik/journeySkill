@@ -135,7 +135,6 @@ export async function POST(req, { params }) {
       status: 200,
     });
   } catch (error) {
-    console.error(error);
     return createErrorResponse({
       errors: error.message,
       success: false,

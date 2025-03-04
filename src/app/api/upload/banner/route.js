@@ -89,7 +89,6 @@ export async function POST(req) {
       },
     });
   } catch (error) {
-    console.error("Error in banner image upload:", error);
     return createErrorResponse({
       success: false,
       status: 500,

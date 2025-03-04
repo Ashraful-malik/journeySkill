@@ -30,7 +30,6 @@ export const useUploadProfileImage = () => {
     },
     onError: (error, variables, context) => {
       const { userId } = variables; // Ensure userId is passed here
-      console.error("Error during upload:", error);
 
       // Rollback to the previous user data
       queryClient.setQueryData(["user", userId], context.previousUserData);
@@ -67,7 +66,6 @@ export const useUploadBannerImage = () => {
       queryClient.invalidateQueries(["user", userId]);
     },
     onError: (error, variables, context) => {
-      console.error("Error during upload:", error);
       const { userId } = variables;
       // Rollback to the previous user data
       queryClient.setQueryData(["user", userId], context.previousUserData);

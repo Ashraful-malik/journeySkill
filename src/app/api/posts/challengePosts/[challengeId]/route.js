@@ -60,7 +60,6 @@ export async function GET(req, { params }) {
       status: 200,
     });
   } catch (error) {
-    console.error(error);
     return createErrorResponse({
       success: false,
       status: 500,

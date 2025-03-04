@@ -27,7 +27,6 @@ export async function POST(req, { params }) {
 
     return createResponse({ data: user, message: "success", status: 200 });
   } catch (error) {
-    console.error("Error in POST handler:", error);
     return createErrorResponse({
       success: false,
       status: 500,

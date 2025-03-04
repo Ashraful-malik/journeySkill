@@ -28,7 +28,6 @@ export async function POST(req) {
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
     if (!WEBHOOK_SECRET) {
-      console.error("Missing Clerk Webhook Secret");
       throw new Error(
         "Server configuration error: Missing Clerk Webhook Secret"
       );
@@ -43,11 +42,6 @@ export async function POST(req) {
     const svixSignature = headerPayload.get("svix-signature");
 
     if (!svixId || !svixTimestamp || !svixSignature) {
-      console.error("Missing Svix headers", {
-        svixId,
-        svixTimestamp,
-        svixSignature,
-      });
       return createErrorResponse({
         message: "Missing Svix headers",
         status: 400,

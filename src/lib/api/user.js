@@ -40,7 +40,6 @@ export const updateUserProfile = async (formData) => {
     const response = await axiosInstance.post("/upload/profile", formData);
     return response.data;
   } catch (error) {
-    console.error(error);
     const { message, code } = handleApiError(error);
     throw { message, code };
   }
@@ -52,7 +51,6 @@ export const updateBannerImage = async (formData) => {
     const response = await axiosInstance.post("/upload/banner", formData);
     return response.data;
   } catch (error) {
-    console.error(error);
     const { message, code } = handleApiError(error);
     throw { message, code };
   }

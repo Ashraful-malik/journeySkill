@@ -92,7 +92,6 @@ export async function POST(req, { params }) {
     if (session) {
       await session.abortTransaction();
     }
-    console.error("Error in follow API:", error);
 
     return createErrorResponse({
       success: false,
@@ -183,7 +182,6 @@ export async function DELETE(req, { params }) {
     if (session) {
       await session.abortTransaction();
     }
-    console.error("Error in DELETE follow API:", error);
 
     return createErrorResponse({
       success: false,

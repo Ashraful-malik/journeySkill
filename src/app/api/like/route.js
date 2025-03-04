@@ -132,7 +132,6 @@ export async function POST(req) {
     });
   } catch (error) {
     if (session) await session.abortTransaction();
-    console.error("Batch like error:", error);
 
     return createErrorResponse({
       status: 500,
