@@ -1,6 +1,5 @@
 import "./globals.css";
-import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import NavbarWrapper from "@/components/navbar/NavbarWrapper";
 import { Toaster } from "@/components/ui/toaster";
@@ -87,7 +86,6 @@ export default async function RootLayout({ children }) {
                 <Toaster />
               </QueryProvider>
             </ThemeProvider>
-            {/* </ClerkLoaded> */}
           </body>
         </html>
       </UserProvider>

@@ -1,12 +1,8 @@
 "use client";
-import { useAuth, useUser } from "@clerk/nextjs";
 import { AppWindow, ChartColumnIncreasing, Swords, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
-  // const { isLoaded, userId, sessionId, getToken } = useAuth();
-  const { isLoaded, isSignedIn, user } = useUser();
-
   const heroSectionContent = {
     title: " The Developer’s Challenge Platform – Your Goals, Your Journey",
     description:
@@ -163,7 +159,7 @@ export default function Home() {
           &copy; {new Date().getFullYear()} JourneySkill. All rights reserved.
         </p>
         <div className="mt-2">
-          <Link href="/terms-of-services" className="hover:underline">
+          <Link href="/terms" className="hover:underline">
             Terms of Service
           </Link>
           |{" "}

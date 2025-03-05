@@ -2,15 +2,16 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 // Define public routes
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/"]);
-
-// Define public API routes
-const isPublicApiRoute = createRouteMatcher([
-  "/api/webhook/register",
-  "/api(.*)",
-  "/terms-of-services",
+const isPublicRoute = createRouteMatcher([
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/",
+  "/terms",
   "/privacy-policy",
 ]);
+
+// Define public API routes
+const isPublicApiRoute = createRouteMatcher(["/api/webhook/register"]);
 
 export default clerkMiddleware(async (authFn, req) => {
   try {
@@ -38,7 +39,7 @@ export default clerkMiddleware(async (authFn, req) => {
     if (userId) {
       if (isPublicRoute(req) && currentUrl.pathname !== "/") {
         // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/home", req.url));
       }
       if (isApiRequest) {
         // Allow authenticated users to make API requests
