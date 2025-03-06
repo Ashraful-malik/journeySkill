@@ -12,8 +12,14 @@ function Page() {
   const { data: allUserChallenges, isLoading: isChallengeLoading } =
     useUserChallengesQuery(userId);
 
-  const allChallenges = allUserChallenges?.pages?.flatMap(
-    (page) => page?.allChallenges
+  const allChallenges = allUserChallenges?.pages?.flatMap((pageArray) =>
+    Array.isArray(pageArray)
+      ? pageArray.flatMap((page) =>
+          Array.isArray(page.allChallenges)
+            ? page.allChallenges.map((challenge) => challenge)
+            : []
+        )
+      : []
   );
 
   return (

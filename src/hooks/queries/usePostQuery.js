@@ -17,7 +17,7 @@ export const usePostQuery = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined; // 🛠 Handle missing data safely
+      if (!lastPage || !lastPage.pagination) return undefined;
       const { currentPage, totalPages } = lastPage.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },

@@ -10,6 +10,8 @@ import { useGlobalUser } from "@/context/userContent";
 import Masonry from "react-masonry-css";
 import PostCardSkeleton from "@/components/skeleton/card/PostCardSkeleton";
 import { LoaderCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function UserPosts({ userData }) {
   const profileUserId = userData?._id;
@@ -24,10 +26,15 @@ function UserPosts({ userData }) {
   } = useFetchUserPostsQuery({ profileUserId });
 
   const postIds = useMemo(() => {
-    return (
-      userPosts?.pages?.flatMap((page) =>
-        page.posts?.map((post) => post._id)
-      ) || []
+    if (!Array.isArray(userPosts?.pages)) return [];
+    return userPosts.pages.flatMap((pageArray) =>
+      Array.isArray(pageArray)
+        ? pageArray.flatMap((page) =>
+            Array.isArray(page.posts)
+              ? page.posts.map((challenge) => challenge._id).filter(Boolean)
+              : []
+          )
+        : []
     );
   }, [userPosts]);
 
@@ -38,7 +45,14 @@ function UserPosts({ userData }) {
       targetType: "Post",
       contentType: "Post",
     });
-
+  // -------all user posts--------------
+  const allUserPosts = Array.isArray(userPosts?.pages)
+    ? userPosts.pages.flatMap((pageArray) =>
+        Array.isArray(pageArray)
+          ? pageArray.flatMap((page) => page?.posts || [])
+          : []
+      )
+    : [];
   //   -----------------observer for infinite scrolling-------------------
   const loadMoreRef = useRef(null);
 
@@ -94,16 +108,35 @@ function UserPosts({ userData }) {
       </div>
     );
   }
-
+  console.log(hasNextPage);
   return (
-    <Masonry
-      breakpointCols={breakPointColumnsObj}
-      className="flex gap-2"
-      columnClassName="masonry-column"
-    >
-      {userPosts?.pages
-        ?.flatMap((page) => page.posts)
-        ?.map((post) => {
+    <>
+      {allUserPosts?.length === 0 && (
+        <div
+          className="text-center text-muted-foreground  w-full 
+         "
+        >
+          <div className="flex items-center justify-center flex-col gap-2 max-w-lg mx-auto p-4">
+            <p>
+              No posts? No problem! Every great journey starts with the first
+              step. Time to create your first post!
+            </p>
+            <Link
+              href="/create"
+              className="px-4 bg-primary/95 py-2 rounded-sm text-sm font-semibold 
+              text-primary-foreground hover:bg-primary/90"
+            >
+              Create a Post
+            </Link>
+          </div>
+        </div>
+      )}
+      <Masonry
+        breakpointCols={breakPointColumnsObj}
+        className="flex gap-2"
+        columnClassName="masonry-column"
+      >
+        {allUserPosts?.map((post) => {
           const engagement = engagementData?.[post._id] || {};
           return (
             <PostCard
@@ -127,24 +160,26 @@ function UserPosts({ userData }) {
             />
           );
         })}
-      {hasNextPage && (
-        <div ref={loadMoreRef}>
-          <div
-            className="flex items-center justify-center pt-8"
-            aria-busy="true"
-            aria-label="loading posts"
-            role="status"
-          >
-            <span className="mr-2">
-              <LoaderCircle className="animate-spin" />
-            </span>{" "}
-            <p className="text-sm animate-pulse" aria-hidden="true">
-              Loading more challenges...
-            </p>
+
+        {hasNextPage && (
+          <div ref={loadMoreRef}>
+            <div
+              className="flex items-center justify-center pt-8"
+              aria-busy="true"
+              aria-label="loading posts"
+              role="status"
+            >
+              <span className="mr-2">
+                <LoaderCircle className="animate-spin" />
+              </span>{" "}
+              <p className="text-sm animate-pulse" aria-hidden="true">
+                Loading more challenges...
+              </p>
+            </div>
           </div>
-        </div>
-      )}
-    </Masonry>
+        )}
+      </Masonry>
+    </>
   );
 }
 

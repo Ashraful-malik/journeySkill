@@ -38,7 +38,7 @@ export default clerkMiddleware(async (authFn, req) => {
     if (userId) {
       if (isPublicRoute(req) && currentUrl.pathname !== "/") {
         // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/home", req.url));
       }
       if (isApiRequest) {
         // Allow authenticated users to make API requests

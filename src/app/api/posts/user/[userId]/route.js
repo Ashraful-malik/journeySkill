@@ -2,7 +2,6 @@ import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
 import { Post } from "@/models/post.model";
-import { auth } from "@clerk/nextjs/server";
 import mongoose from "mongoose";
 
 //Get all users post
@@ -47,12 +46,16 @@ export async function GET(req, { params }) {
       status: 200,
       message: "Posts fetched successfully",
       data: {
-        posts,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPage,
-          totalPosts: totalPost,
-        },
+        pages: [
+          {
+            posts: posts || [],
+            pagination: {
+              currentPage: page,
+              totalPages: totalPage,
+              totalPosts: totalPost,
+            },
+          },
+        ],
       },
     });
   } catch (error) {

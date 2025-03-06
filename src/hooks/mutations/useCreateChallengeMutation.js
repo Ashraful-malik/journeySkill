@@ -10,7 +10,8 @@ export const useCreateChallengeMutation = () => {
       await queryClient.cancelQueries(["challenges"]);
       const previousChallenges = queryClient.getQueryData(["challenges"]);
       queryClient.setQueryData(["challenges"], (old) => {
-        const pages = old.pages || [];
+        if (!old) return { pages: [{ allChallenges: [] }] };
+        const pages = old.pages ? old.pages : [{ allChallenges: [] }];
         return {
           ...old,
           pages: pages.map((page, index) =>
@@ -56,6 +57,7 @@ export const useDeleteChallengeMutation = () => {
 
       queryClient.setQueryData(["challenges"], (old) => {
         if (!old || !old.pages) return old;
+
         const updatedPages = old.pages.map((page) => ({
           ...page,
           allChallenges: page.allChallenges.map((challenge) =>

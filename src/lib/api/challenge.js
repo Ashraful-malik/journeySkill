@@ -5,9 +5,9 @@ import { handleApiError } from "../utils/errorHandler";
 export const fetchChallenges = async ({ pageParams }) => {
   try {
     const response = await axiosInstance.get(
-      `/challenge/all/?page=${pageParams}`
+      `/challenge/all?page=${pageParams}`
     );
-    return response.data.data;
+    return response.data.data.pages;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };
@@ -44,7 +44,7 @@ export const fetchUserChallenges = async ({ userId, pageParams }) => {
     const response = await axiosInstance.get(
       `/challenge/user/${userId}/?page=${pageParams}`
     );
-    return response.data.data;
+    return response.data.data.pages;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };

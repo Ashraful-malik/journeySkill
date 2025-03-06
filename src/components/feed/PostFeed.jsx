@@ -1,7 +1,7 @@
 "use client";
 import { useCrateViewMutation } from "@/hooks/mutations/useViewMutation";
 import PostCard from "../cards/PostCard";
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useCallback } from "react";
 import { useGlobalUser } from "@/context/userContent";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { Virtuoso } from "react-virtuoso";
@@ -16,15 +16,21 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   const router = useRouter();
-  // Memoized post IDs
+
   const postIds = useMemo(() => {
-    return (
-      posts?.pages?.flatMap((page) => page.posts?.map((post) => post._id)) || []
+    if (!Array.isArray(posts?.pages)) return [];
+    return posts.pages.flatMap((pageArray) =>
+      Array.isArray(pageArray)
+        ? pageArray.flatMap((page) =>
+            Array.isArray(page.posts)
+              ? page.posts.map((post) => post._id).filter(Boolean)
+              : []
+          )
+        : []
     );
   }, [posts]);
 
   // --------------Loading likes vies and comments-------------------------
-
   const { data: engagementData, isLoading: engagementLoading } =
     useEngagementMetrics({
       postIds,
@@ -157,12 +163,19 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
     [engagementData, engagementLoading, handleLike, handleView, userId]
   );
   // Check if there are no challenges
-  const hasPosts = posts?.pages?.flatMap((page) =>
-    page?.posts?.length > 0 ? true : false
-  );
+  const allPosts = useMemo(() => {
+    return Array.isArray(posts?.pages)
+      ? posts.pages.flatMap((pageArray) =>
+          Array.isArray(pageArray)
+            ? pageArray.flatMap((page) => page?.posts || [])
+            : []
+        )
+      : [];
+  }, [posts]);
+
   return (
     <div className="flex-1 max-w-2xl mx-auto">
-      {hasPosts?.length === 0 ? (
+      {/* {allPosts?.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center mt-20">
           <h2 className="text-xl font-semibold mb-4">
             🌱 No Posts Yet... Be the First to Share!
@@ -176,24 +189,24 @@ const PostFeed = ({ posts, isFetchingNextPage, fetchNextPage }) => {
             Create Your Challenge
           </Button>
         </div>
-      ) : (
-        <Virtuoso
-          useWindowScroll
-          data={[
-            ...(posts?.pages?.flatMap((page) =>
-              page.posts.map((post) => post)
-            ) || []),
-            ...(isFetchingNextPage
-              ? new Array(3).fill({ isSkeleton: true })
-              : []),
-          ]}
-          endReached={fetchNextPage}
-          overscan={500}
-          itemContent={(_, post) =>
-            post.isSkeleton ? <PostCardSkeleton /> : MemoizedPostCard(post)
-          }
-        />
-      )}
+      ) : ( */}
+      <Virtuoso
+        useWindowScroll
+        data={[
+          ...posts.pages?.flatMap((pageArray) =>
+            pageArray.flatMap((page) => page.posts)
+          ),
+          ...(isFetchingNextPage
+            ? new Array(3).fill({ isSkeleton: true })
+            : []),
+        ]}
+        endReached={fetchNextPage}
+        overscan={500}
+        itemContent={(_, post) =>
+          post.isSkeleton ? <PostCardSkeleton /> : MemoizedPostCard(post)
+        }
+      />
+      {/* )} */}
     </div>
   );
 };

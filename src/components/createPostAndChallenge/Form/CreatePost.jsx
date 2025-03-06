@@ -48,6 +48,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
   const navigate = useRouter();
   const { toast } = useToast();
   const { mutate: createNewPost, isPending } = useCreatePostMutation();
+
   const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
   const form = useForm({
     resolver: zodResolver(postSchema),
@@ -94,7 +95,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
     const postData = {
       ...data,
       imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
-      imagePublicId: imageData?.public_id || "", // Ensure fallback for missing imagePublicId
+      ...(imageData?.public_id && { imagePublicId: imageData.public_id }),
       userId,
     };
 
@@ -109,6 +110,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
           navigate.push("/home");
         },
         onError: (error) => {
+          console.log("error", error);
           toast({
             title: "Error",
             description: error.message || "An error occurred.",
@@ -165,7 +167,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
                       <SelectLabel>Your Challenges</SelectLabel>
                       {allUserChallenges?.map((challenge) => (
                         <SelectItem
-                          className="max-w-2xl line-clamp-1 overflow-hidden "
+                          className="max-w-2xl line-clamp-1 overflow-hidden  "
                           value={challenge.value}
                           key={challenge.value}
                         >

@@ -12,17 +12,21 @@ export const UserStatsProvider = ({ children, userId }) => {
   const { data: userChallenges } = useUserChallengesQuery(userId);
   //   fetch all user posts
   const { data: userPosts } = useFetchUserPostsQuery({ profileUserId: userId });
-
   useEffect(() => {
     if (userChallenges) {
-      const total = userChallenges?.pages?.[0]?.pagination?.total || 0;
+      const total = userChallenges?.pages?.flatMap(
+        (pageArray) => pageArray[0]?.pagination?.total || 0
+      );
       setTotalChallenges(total);
     }
   }, [userChallenges]);
 
   useEffect(() => {
     if (userPosts) {
-      const total = userPosts?.pages?.[0]?.pagination?.totalPosts || 0;
+      const total = userPosts?.pages?.flatMap(
+        (pageArray) => pageArray[0]?.pagination?.totalPosts || 0
+      );
+      console.log(total);
       setTotalPosts(total);
     }
   }, [userPosts]);

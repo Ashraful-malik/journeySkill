@@ -17,13 +17,21 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
 
   // Extract challenge post IDs
   const postIds = useMemo(() => {
-    return (
-      challenges?.pages?.flatMap((page) =>
-        page?.allChallenges?.map((challenge) => challenge?._id)
-      ) || []
+    if (!Array.isArray(challenges?.pages)) return [];
+
+    return challenges.pages.flatMap((pageArray) =>
+      Array.isArray(pageArray)
+        ? pageArray.flatMap((page) =>
+            Array.isArray(page.allChallenges)
+              ? page.allChallenges
+                  .map((challenge) => challenge._id)
+                  .filter(Boolean)
+              : []
+          )
+        : []
     );
   }, [challenges]);
-  // --------------Loading likes vies and comments-------------------------
+  // ----------------------Engagement Metrics ----------------------------------
 
   const { data: engagementData, isLoading: engagementLoading } =
     useEngagementMetrics({
@@ -82,14 +90,21 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
     [engagementData, engagementLoading, userId, handleLike]
   );
   // Check if there are no challenges
-  const hasChallenges = challenges?.pages?.flatMap((page) =>
-    page?.allChallenges?.length > 0 ? true : false
-  );
+  const allChallenges = Array.isArray(challenges?.pages)
+    ? challenges.pages.flatMap((pageArray) =>
+        Array.isArray(pageArray)
+          ? pageArray.flatMap((page) => page?.allChallenges || [])
+          : []
+      )
+    : [];
+
+  console.log("allChallenges", allChallenges);
+
   return (
     <div className="flex-1 mx-auto ">
       <BackButton />
       <div className="flex flex-col pb-4">
-        {hasChallenges?.length === 0 ? (
+        {allChallenges?.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center mt-8">
             <h2 className="text-xl font-semibold mb-4">
               🚀 No Challenges Yet... Be the First!
@@ -109,9 +124,7 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
             className="mt-4"
             useWindowScroll
             data={[
-              ...(challenges?.pages?.flatMap((page) =>
-                page.allChallenges.map((challenge) => challenge)
-              ) || []),
+              ...allChallenges,
               ...(isFetchingNextPage
                 ? new Array(3).fill({ isSkeleton: true })
                 : []),
