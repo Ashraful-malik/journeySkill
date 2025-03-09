@@ -22,8 +22,8 @@ const postSchema = new Schema(
     },
 
     imagePublicId: {
-      type: String, //cloudinary public id
-      unique: true,
+      type: String,
+      default: undefined,
     },
 
     viewCount: {
@@ -45,6 +45,14 @@ const postSchema = new Schema(
     },
   },
   { timestamps: true }
+);
+postSchema.index(
+  { imagePublicId: 1 },
+  {
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { imagePublicId: { $exists: true, $ne: null } },
+  }
 );
 
 postSchema.index({ challengeId: 1, isPublic: 1 });

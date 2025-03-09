@@ -10,7 +10,8 @@ export const useCreateChallengeMutation = () => {
       await queryClient.cancelQueries(["challenges"]);
       const previousChallenges = queryClient.getQueryData(["challenges"]);
       queryClient.setQueryData(["challenges"], (old) => {
-        const pages = old.pages || [];
+        if (!old) return { pages: [{ allChallenges: [] }] };
+        const pages = old.pages ? old.pages : [{ allChallenges: [] }];
         return {
           ...old,
           pages: pages.map((page, index) =>
@@ -55,18 +56,21 @@ export const useDeleteChallengeMutation = () => {
       const previousPosts = queryClient.getQueryData(["challenges"]);
 
       queryClient.setQueryData(["challenges"], (old) => {
-        if (!old || !old.pages) return old;
-        const updatedPages = old.pages.map((page) => ({
-          ...page,
-          allChallenges: page.allChallenges.map((challenge) =>
-            challenge?._id === challengeId
-              ? { ...challenge, isDeleting: true }
-              : challenge
-          ),
-        }));
+        if (!old || !old.pages || !Array.isArray(old.pages)) return old;
+
+        const updatedPages = old.pages.flatMap((innerPages) =>
+          innerPages.map((page) => ({
+            ...page,
+            allChallenges: page.allChallenges.map((challenge) =>
+              challenge?._id === challengeId
+                ? { ...challenge, isDeleting: true }
+                : challenge
+            ),
+          }))
+        );
         return {
           ...old,
-          pages: updatedPages,
+          pages: [updatedPages],
         };
       });
       return { previousPosts };
@@ -79,15 +83,17 @@ export const useDeleteChallengeMutation = () => {
     onSuccess: (variables, context) => {
       queryClient.setQueryData(["challenges"], (old) => {
         if (!old || !old.pages) return old;
-        const updatedPages = old.pages.map((page) => ({
-          ...page,
-          allChallenges: page.allChallenges.filter(
-            (challenge) => challenge._id !== variables.challengeId // Remove the challenge entirely
-          ),
-        }));
+        const updatedPages = old.pages.flatMap((innerPages) =>
+          innerPages.map((page) => ({
+            ...page,
+            allChallenges: page.allChallenges.filter(
+              (challenge) => challenge._id !== variables.challengeId // Remove the challenge entirely
+            ),
+          }))
+        );
         return {
           ...old,
-          pages: updatedPages,
+          pages: [updatedPages],
         };
       });
     },

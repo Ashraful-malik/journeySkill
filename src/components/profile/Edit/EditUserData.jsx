@@ -153,7 +153,7 @@ function EditUserData() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="location" {...field} />
+                  <Input placeholder="Country" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

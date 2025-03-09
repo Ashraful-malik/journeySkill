@@ -117,7 +117,6 @@ function PostCard({
     }
     setIsLiked(!isLiked); // Optimistic update for immediate UI feedback
   };
-
   if (optimistic) return <PostCardSkeleton />;
 
   return (

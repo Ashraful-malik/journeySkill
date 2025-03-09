@@ -19,13 +19,19 @@ export default clerkMiddleware(async (authFn, req) => {
     const { userId } = auth; // Clerk provides `userId` if authenticated
 
     const currentUrl = new URL(req.url);
-    const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
+    // const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
 
     // 1. **Allow public API routes to bypass all authentication logic**
     if (isPublicApiRoute(req)) {
       return NextResponse.next(); // Let public API routes proceed
     }
-
+    // 2️⃣ **Restrict access to ALL OTHER API routes for unauthenticated users**
+    if (currentUrl.pathname.startsWith("/api") && !userId) {
+      return NextResponse.json(
+        { success: false, message: "Authentication required" },
+        { status: 401 }
+      );
+    }
     // 2. **Unauthenticated user logic**
     if (!userId) {
       if (!isPublicRoute(req)) {
@@ -35,16 +41,9 @@ export default clerkMiddleware(async (authFn, req) => {
       return NextResponse.next(); // Allow unauthenticated users to access public routes
     }
 
-    // 3. **Authenticated user logic**
-    if (userId) {
-      if (isPublicRoute(req) && currentUrl.pathname !== "/") {
-        // Redirect signed-in users away from public routes like `/sign-in` or `/sign-up`
-        return NextResponse.redirect(new URL("/", req.url));
-      }
-      if (isApiRequest) {
-        // Allow authenticated users to make API requests
-        return NextResponse.next();
-      }
+    // 4️⃣ **Redirect authenticated users away from `/`, `/sign-in`, `/sign-up`**
+    if (userId && isPublicRoute(req)) {
+      return NextResponse.redirect(new URL("/home", req.url));
     }
 
     // 4. **Default case**

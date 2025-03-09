@@ -7,7 +7,6 @@ import { postSchema } from "@/schema/postSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-
 import {
   Form,
   FormControl,
@@ -32,10 +31,16 @@ import PostImageUpload from "@/components/fileUpload/PostImageUpload";
 import { useCreatePostMutation } from "@/hooks/mutations/useCreatePostMutation";
 import { Loader } from "lucide-react";
 import { useGlobalUser } from "@/context/userContent";
-import { usePostQuery } from "@/hooks/queries/usePostQuery";
+// import { usePostQuery } from "@/hooks/queries/usePostQuery";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 
-function CreatePost({ userChallenges, isChallengeLoading }) {
+function CreatePost({
+  userChallenges,
+  isChallengeLoading,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+}) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   // all user challenges
@@ -48,6 +53,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
   const navigate = useRouter();
   const { toast } = useToast();
   const { mutate: createNewPost, isPending } = useCreatePostMutation();
+
   const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
   const form = useForm({
     resolver: zodResolver(postSchema),
@@ -94,7 +100,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
     const postData = {
       ...data,
       imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
-      imagePublicId: imageData?.public_id || "", // Ensure fallback for missing imagePublicId
+      ...(imageData?.public_id && { imagePublicId: imageData.public_id }),
       userId,
     };
 
@@ -118,9 +124,6 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
       }
     );
   };
-  // we are fetching all the posts its important because if we dont do that-
-  //  in the post page we will get an error
-  const { data } = usePostQuery();
 
   return (
     <div>
@@ -163,15 +166,27 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Your Challenges</SelectLabel>
+
                       {allUserChallenges?.map((challenge) => (
                         <SelectItem
-                          className="max-w-2xl line-clamp-1 overflow-hidden "
+                          className="max-w-2xl line-clamp-1 overflow-hidden  "
                           value={challenge.value}
                           key={challenge.value}
                         >
                           {challenge.name}
                         </SelectItem>
                       ))}
+                      {hasNextPage && (
+                        <button
+                          onClick={() => fetchNextPage()}
+                          disabled={isFetchingNextPage}
+                          className="text-indigo-500 text-sm mt-2"
+                        >
+                          {isFetchingNextPage
+                            ? "Loading..."
+                            : "Load More Challenges"}
+                        </button>
+                      )}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

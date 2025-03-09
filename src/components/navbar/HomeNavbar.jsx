@@ -1,12 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
 function HomeNavbar({ onHamburgerClick }) {
-  const { theme } = useTheme();
-  const logoSrc = theme === "dark" ? "/logo.png" : "/logo-dark.png";
+  const { theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const logoSrc = !mounted
+    ? "/logo.png" // Default to dark mode logo before mounting
+    : currentTheme === "dark"
+    ? "/logo.png"
+    : "/logo-dark.png";
   return (
     <div className="p-4 flex justify-between">
       <Button variant="ghost" size="icon" onClick={onHamburgerClick}>

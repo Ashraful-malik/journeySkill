@@ -35,12 +35,16 @@ export async function GET(req) {
     const totalPage = Math.ceil(totalPost / limit);
     return createResponse({
       data: {
-        posts,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPage,
-          totalPosts: totalPost,
-        },
+        pages: [
+          {
+            posts: posts || [],
+            pagination: {
+              currentPage: page,
+              totalPages: totalPage,
+              totalPosts: totalPost,
+            },
+          },
+        ],
       },
       message: "Posts fetched successfully",
       status: 200,

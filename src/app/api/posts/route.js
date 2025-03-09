@@ -91,10 +91,8 @@ export async function POST(req) {
           challenge.consistencyIncentiveDays * 24 * 60 * 60 * 1000;
 
         // **Only count ONE post per day towards the challenge progress**
-        let isTaskCounted = false;
-
-        if (!isSameDay) {
-          isTaskCounted = true;
+        let isTaskCounted = challenge.tasksCompleted === 0 || !isSameDay;
+        if (isTaskCounted) {
           if (lastActiveDate && now - lastActiveDate <= requiredInterval) {
             challenge.currentStreak += 1; // Increase streak if within interval
           } else {
@@ -102,10 +100,6 @@ export async function POST(req) {
           }
         }
         challenge.lastActivityDate = now;
-
-        if (isTaskCounted) {
-          challenge.tasksCompleted += 1;
-        }
 
         // Completion Check
         const meetsTaskRequirement =
@@ -129,11 +123,13 @@ export async function POST(req) {
             },
             $set: {
               currentStreak: challenge.currentStreak,
-              lastActivityDate: now,
               isCompleted: challenge.isCompleted,
               completionDate: challenge.completionDate,
+              lastActivityDate: now,
             },
-            ...(isTaskCounted && { $inc: { tasksCompleted: 1 } }),
+            $inc: {
+              tasksCompleted: isTaskCounted ? 1 : 0,
+            },
           },
           { session }
         );

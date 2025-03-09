@@ -46,7 +46,7 @@ function UpdateProfileImage({ userData }) {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("folder", `user/${userData?._id}/profile`);
+    formData.append("folder", `users/profile_image/${userData?._id}/profile`);
     formData.append("type", "profile");
 
     try {

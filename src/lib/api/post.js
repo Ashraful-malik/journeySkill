@@ -8,7 +8,7 @@ import { fetchViews } from "./view";
 export const fetchPosts = async ({ pageParams }) => {
   try {
     const response = await axiosInstance.get(`/posts/feed/?page=${pageParams}`);
-    return response.data.data;
+    return response.data.data.pages;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };
@@ -41,7 +41,7 @@ export const uploadPostImage = async ({ file, userId }) => {
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("folder", `user/${userId}/post`); // 'profile', 'banner', or 'post'
+  formData.append("folder", `users/post_image/${userId}/post`);
   formData.append("type", "post");
 
   try {
@@ -59,7 +59,7 @@ export const fetchUserPosts = async ({ profileUserId, pageParams }) => {
     const response = await axiosInstance.get(
       `/posts/user/${profileUserId}/?page=${pageParams}`
     );
-    return response.data.data;
+    return response.data.data.pages;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };
@@ -87,7 +87,7 @@ export const fetchChallengePosts = async ({ challengeId, pageParam }) => {
         },
       }
     );
-    return response.data.data;
+    return response.data.data.pages;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };

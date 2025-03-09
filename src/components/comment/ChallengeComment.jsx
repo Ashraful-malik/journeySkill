@@ -101,7 +101,7 @@ function ChallengeComment({ id }) {
       );
       form.reset();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   if (challengeLoading) {

@@ -23,6 +23,7 @@ import {
   XCircleIcon,
   EyeOff,
   Hourglass,
+  CalendarClock,
 } from "lucide-react";
 import BarChart from "@/components/charts/BarChart";
 import { CalendarChart } from "@/components/charts/CalendarChart";
@@ -57,7 +58,6 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
     (new Date(challengeDetails?.endDate).getTime() - new Date().getTime()) /
       (1000 * 3600 * 24)
   );
-
   const dailyProgress = challengeAnalyticsData?.dailyProgress?.map((item) => {
     return { day: item.day, tasks: item.tasks, taskDate: item.taskDates };
   });
@@ -138,7 +138,7 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
           <QuickStat
             title="Current Streak"
             value={challengeData.currentStreak}
-            suffix=" days"
+            suffix="days"
           />
 
           <QuickStat
@@ -150,6 +150,10 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
             title="Time Left"
             value={timeLeft > 0 ? `${timeLeft} days` : "Challenge Ended"}
             icon={<Hourglass className="w-4 h-4" />}
+          />
+          <QuickStat
+            title="ConsistentDays"
+            value={challengeData.consistencyIncentiveDays}
           />
         </div>
       </section>
@@ -224,7 +228,12 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
                   ).toLocaleDateString()}
                 />
               )}
-              <DetailItem title="Days Elapsed" value={`${daysElapsed} days`} />
+              <DetailItem
+                title="Days Elapsed"
+                value={`${daysElapsed} days`}
+                icon={<CalendarClock />}
+              />
+
               <DetailItem
                 title="Visibility"
                 value={challengeData.isPublic ? "Public" : "Private"}

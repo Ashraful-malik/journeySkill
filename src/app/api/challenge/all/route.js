@@ -70,24 +70,21 @@ export async function GET(req) {
 
     const totalPages = Math.ceil(total / limit);
 
-    if (!allChallenges || allChallenges.length === 0) {
-      return createResponse({
-        message: "No challenge found",
-        status: 404,
-        data: null,
-      });
-    }
-
     return createResponse({
       message: "success",
       status: 200,
       data: {
-        allChallenges,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPages,
-          totalChallenges: total,
-        },
+        pages: [
+          {
+            allChallenges: allChallenges || [],
+            pagination: {
+              currentPage: 1,
+              totalPages: 0,
+              totalPosts: 0,
+              hasNextPage: false,
+            },
+          },
+        ],
       },
     });
   } catch (error) {
