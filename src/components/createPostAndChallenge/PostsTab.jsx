@@ -5,7 +5,13 @@ import CreatePost from "./Form/CreatePost";
 import CreateChallenge from "./Form/CreateChallenge";
 import { StickyNote, Swords } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-function PostsTab({ userChallenges, isChallengeLoading }) {
+function PostsTab({
+  userChallenges,
+  isChallengeLoading,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+}) {
   // fetch use challenges
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,6 +57,9 @@ function PostsTab({ userChallenges, isChallengeLoading }) {
         <CreatePost
           userChallenges={userChallenges}
           isChallengeLoading={isChallengeLoading}
+          hasNextPage={hasNextPage}
+          fetchNextPage={fetchNextPage}
+          isFetchingNextPage={isFetchingNextPage}
         />
       </TabsContent>
       <TabsContent value="create-challenge">

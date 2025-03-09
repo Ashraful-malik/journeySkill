@@ -17,8 +17,11 @@ export const usePostQuery = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined;
-      const { currentPage, totalPages } = lastPage.pagination;
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0)
+        return undefined;
+      const pageData = lastPage[0];
+      if (!pageData?.pagination) return undefined;
+      const { currentPage, totalPages } = pageData.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });
@@ -33,8 +36,11 @@ export const useFetchUserPostsQuery = ({ profileUserId }) => {
     staleTime: 60 * 60 * 1000, // 1 hour
     enabled: !!profileUserId,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined;
-      const { currentPage, totalPages } = lastPage.pagination;
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0)
+        return undefined;
+      const pageData = lastPage[0];
+      if (!pageData?.pagination) return undefined;
+      const { currentPage, totalPages } = pageData.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });
@@ -50,8 +56,11 @@ export const useChallengePostsQuery = (challengeId) => {
     staleTime: 5 * 60 * 1000, // 5 minutes cache
     enabled: !!challengeId,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined;
-      const { currentPage, totalPages } = lastPage.pagination;
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0)
+        return undefined;
+      const pageData = lastPage[0];
+      if (!pageData?.pagination) return undefined;
+      const { currentPage, totalPages } = pageData.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });
@@ -66,9 +75,7 @@ export const usePostByIdQuery = (postId) => {
   });
 };
 
-// Use React Query's useQueries for parallel requests
-
-// fetch inganment matrix
+// fetch engagement matrix
 export const useEngagementMetrics = ({
   postIds,
   userId,

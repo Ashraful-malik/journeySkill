@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Home,
   User,
@@ -25,15 +24,26 @@ import { useClerk } from "@clerk/nextjs";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
   const username = userData?.username;
   const pathname = usePathname(); // Get the current route
   const { signOut } = useClerk();
-  const { theme } = useTheme();
-  const logoSrc = theme === "dark" ? "/logo.png" : "/logo-dark.png";
+  const { theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const logoSrc = !mounted
+    ? "/logo.png" // Default to dark mode logo before mounting
+    : currentTheme === "dark"
+    ? "/logo.png"
+    : "/logo-dark.png";
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
@@ -72,7 +82,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="fixed h-full w-64 lg:flex flex-col bg-background p-4"
+      className="fixed h-full w-64 lg:flex flex-col bg-background p-4 z-50"
       aria-label="Sidebar"
     >
       {/* Sidebar title */}
@@ -124,7 +134,7 @@ const Sidebar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="dark:text-neutral-300">
                 {item.subItems.map((subItem, subIdx) => (
-                  <DropdownMenuItem key={subIdx}>
+                  <DropdownMenuItem key={subIdx} onClick={subItem.onClick}>
                     <Link
                       href={subItem.link}
                       className="flex items-center gap-3 rounded-lg hover:bg-accent focus:bg-accent"
@@ -132,10 +142,7 @@ const Sidebar = () => {
                       {...(subItem.target && { target: subItem.target })}
                     >
                       <subItem.icon size={24} aria-hidden="true" />
-                      <span
-                        className={`text-lg ${subItem.className}`}
-                        onClick={subItem.onClick}
-                      >
+                      <span className={`text-lg ${subItem.className}`}>
                         {subItem.name}
                       </span>
                     </Link>

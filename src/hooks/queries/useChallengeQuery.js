@@ -14,8 +14,16 @@ export const useChallengeQuery = () => {
     staleTime: 30 * 1000, // Data is fresh for 30 seconds
     initialPageParam: 1,
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined;
-      const { currentPage, totalPages } = lastPage.pagination;
+      if (
+        !lastPage ||
+        !lastPage.pagination ||
+        Array.isArray(lastPage) ||
+        lastPage.length === 0
+      )
+        return undefined;
+      const pageData = lastPage[0];
+      if (!pageData.pagination) return undefined;
+      const { currentPage, totalPages } = pageData.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });
@@ -41,8 +49,11 @@ export const useUserChallengesQuery = (userId) => {
     enabled: !!userId,
     staleTime: 30 * 1000, // Data is fresh for 30 seconds
     getNextPageParam: (lastPage) => {
-      if (!lastPage || !lastPage.pagination) return undefined;
-      const { currentPage, totalPages } = lastPage.pagination;
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0)
+        return undefined;
+      const pageData = lastPage[0];
+      if (!pageData?.pagination) return undefined;
+      const { currentPage, totalPages } = pageData.pagination;
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
   });

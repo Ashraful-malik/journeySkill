@@ -5,7 +5,6 @@ import { Loader2, Plus } from "lucide-react";
 import { useUploadPostImageMutation } from "@/hooks/mutations/useUploadPostImageMutation";
 import { useToast } from "@/hooks/use-toast";
 import { useGlobalUser } from "@/context/userContent";
-import { usePostQuery } from "@/hooks/queries/usePostQuery";
 import Image from "next/image";
 
 const allowedImageTypes = [

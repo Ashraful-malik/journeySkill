@@ -4,46 +4,54 @@ import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 // create post
 export const useCreatePostMutation = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["create-post"],
     mutationFn: ({ postData }) => createPostApi(postData),
+
     onMutate: async ({ postData }) => {
       await queryClient.cancelQueries(["feed"]);
+
       const previousPosts = queryClient.getQueryData(["feed"]);
 
       if (!previousPosts || !previousPosts.pages) {
-        return { previousPosts }; // Return to avoid breaking the mutation
+        return { previousPosts };
       }
 
       queryClient.setQueryData(["feed"], (old) => {
-        const pages = old.pages || []; // Ensure `pages` exists
+        if (!old || !old.pages) return old;
+
+        const updatedPages = old.pages.flatMap((innerPages, index) =>
+          index === 0
+            ? innerPages.map((page) => ({
+                ...page,
+                posts: [
+                  {
+                    ...postData,
+                    optimisticId: `optimistic-${Date.now()}`, // Temporary optimistic ID
+                    optimistic: true,
+                  },
+                  ...page.posts, // Keep existing posts
+                ],
+              }))
+            : innerPages
+        );
+
         return {
           ...old,
-          pages: pages.map((page, index) =>
-            index === 0
-              ? {
-                  ...page,
-                  posts: [
-                    {
-                      ...postData,
-                      optimisticId: Date.now(),
-                      optimistic: true,
-                    },
-                    ...(page.posts || []),
-                  ],
-                }
-              : page
-          ),
+          pages: [updatedPages], // Maintain the original nested structure
         };
       });
 
       return { previousPosts };
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries(["feed"]);
     },
+
     onError: (error, variables, context) => {
-      console.log(error);
+      console.error("Error creating post:", error);
       if (context?.previousPosts) {
         queryClient.setQueryData(["feed"], context.previousPosts);
       }
@@ -62,21 +70,28 @@ export const useDeletePostMutation = () => {
     mutationFn: ({ postId }) => deletePost(postId),
     onMutate: async ({ postId }) => {
       await queryClient.cancelQueries(["feed"]);
-      // Get previous user data for rollback
+
+      // Get previous data
       const previousPosts = queryClient.getQueryData(["feed"]);
+
+      // Check if the pages array exists and is not empty
       queryClient.setQueryData(["feed"], (old) => {
-        if (!old || !old.pages) return old;
-        const updatedPages = old.pages.map((page) => ({
+        if (!old || !old.pages || !Array.isArray(old.pages)) return old;
+
+        // Flatten the pages array if it's nested
+        const updatedPages = old.pages.flat().map((page) => ({
           ...page,
           posts: page.posts.map((post) =>
-            post?._id === postId ? { ...post, isDeleting: true } : post
+            post._id === postId ? { ...post, isDeleting: true } : post
           ),
         }));
+
         return {
           ...old,
-          pages: updatedPages,
+          pages: [updatedPages], // Wrap the updated pages back in an array
         };
       });
+
       return { previousPosts };
     },
     onError: (error, variables, context) => {
@@ -84,18 +99,20 @@ export const useDeletePostMutation = () => {
         queryClient.setQueryData(["feed"], context.previousPosts);
       }
     },
-    onSuccess: (variables, context) => {
+    onSuccess: (data, variables, context) => {
       queryClient.setQueryData(["feed"], (old) => {
         if (!old || !old.pages) return old;
-        const updatedPages = old.pages.map((page) => ({
-          ...page,
-          posts: page.posts.filter(
-            (post) => post._id !== variables.postId // Remove the post entirely
-          ),
-        }));
+
+        const updatedPages = old.pages.flatMap((innerPages) =>
+          innerPages.map((page) => ({
+            ...page,
+            posts: page.posts.filter((post) => post._id !== variables.postId),
+          }))
+        );
+
         return {
           ...old,
-          pages: updatedPages,
+          pages: [updatedPages], // Maintain the original nested structure
         };
       });
     },

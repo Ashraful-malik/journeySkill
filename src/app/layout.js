@@ -80,7 +80,7 @@ export default async function RootLayout({ children }) {
           <body className="antialiased">
             <HotjarTracker /> {/* Track route changes */}
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-            <ThemeProvider attribute="class" defaultTheme="dark">
+            <ThemeProvider attribute="class" defaultTheme="system">
               <NavbarWrapper />
               <QueryProvider dehydratedState={dehydratedState}>
                 {children}

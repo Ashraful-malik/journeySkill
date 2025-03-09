@@ -26,7 +26,6 @@ export const UserStatsProvider = ({ children, userId }) => {
       const total = userPosts?.pages?.flatMap(
         (pageArray) => pageArray[0]?.pagination?.totalPosts || 0
       );
-      console.log(total);
       setTotalPosts(total);
     }
   }, [userPosts]);

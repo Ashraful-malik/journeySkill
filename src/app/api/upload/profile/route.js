@@ -24,12 +24,13 @@ export async function POST(req) {
     await dbConnect();
     const data = await req.formData();
     const file = data.get("file");
+    const folder = data.get("folder");
 
-    if (!file) {
+    if (!file || !folder) {
       return createErrorResponse({
         success: false,
         status: 400,
-        message: "File is missing",
+        message: "File or folder is missing",
       });
     }
 
@@ -48,7 +49,7 @@ export async function POST(req) {
     }
 
     // Upload new profile image
-    const result = await uploadImageToCloudinary(file, "profile", [
+    const result = await uploadImageToCloudinary(file, folder, [
       { width: 300, height: 300, crop: "thumb" },
       { quality: "auto" },
       { fetch_format: "auto" },

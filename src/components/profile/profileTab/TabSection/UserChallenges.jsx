@@ -20,7 +20,6 @@ function UserChallenges({ userData }) {
     hasNextPage,
     fetchNextPage,
   } = useUserChallengesQuery(userData?._id);
-  console.log("user challenge", userChallenges);
 
   const loadMoreRef = useRef(null);
 
@@ -111,7 +110,6 @@ function UserChallenges({ userData }) {
         </div>
       );
   }
-  console.log(allChallenges, "hadNext page", hasNextPage);
   return (
     <>
       {allChallenges?.length === 0 && (

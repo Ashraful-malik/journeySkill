@@ -19,7 +19,7 @@ export async function GET(req, { params }) {
     // Extract pagination parameters from query
     const { searchParams } = req.nextUrl;
     const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
-    const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
+    const limit = parseInt(searchParams.get("limit") || "5"); // Default limit: 10
     const skip = (page - 1) * limit;
 
     const challenges = await Challenge.find({

@@ -24,6 +24,7 @@ export async function POST(req) {
     await dbConnect();
     const data = await req.formData();
     const file = data.get("file");
+    const folder = data.get("folder");
 
     if (!file) {
       return createErrorResponse({
@@ -65,7 +66,7 @@ export async function POST(req) {
     }
 
     // Upload new banner image
-    const result = await uploadImageToCloudinary(file, "banners", [
+    const result = await uploadImageToCloudinary(file, folder, [
       { width: 1600, height: 600, crop: "crop" },
       { quality: "auto" },
       { fetch_format: "auto" },

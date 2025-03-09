@@ -108,7 +108,6 @@ function UserPosts({ userData }) {
       </div>
     );
   }
-  console.log(hasNextPage);
   return (
     <>
       {allUserPosts?.length === 0 && (
@@ -140,6 +139,7 @@ function UserPosts({ userData }) {
           const engagement = engagementData?.[post._id] || {};
           return (
             <PostCard
+              className="mb-2"
               key={post._id}
               linkUrl={post?.link}
               content={post?.text}

@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 export async function GET(req, { params }) {
   const { searchParams } = req.nextUrl;
   const page = parseInt(searchParams.get("page") || "1"); // Default page: 1
-  const limit = parseInt(searchParams.get("limit") || "5"); // Default limit: 10
+  const limit = parseInt(searchParams.get("limit") || "10"); // Default limit: 10
   const skip = (page - 1) * limit;
   const { challengeId } = await params;
 
@@ -47,14 +47,19 @@ export async function GET(req, { params }) {
       isPublic: true,
     });
     const totalPage = Math.ceil(totalPost / limit);
+
     return createResponse({
       data: {
-        posts,
-        pagination: {
-          currentPage: page,
-          totalPages: totalPage,
-          totalPosts: totalPost,
-        },
+        pages: [
+          {
+            posts: posts || [],
+            pagination: {
+              currentPage: page,
+              totalPages: totalPage,
+              totalPosts: totalPost,
+            },
+          },
+        ],
       },
       message: "Posts fetched successfully",
       status: 200,

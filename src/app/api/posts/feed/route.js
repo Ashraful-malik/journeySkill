@@ -39,10 +39,9 @@ export async function GET(req) {
           {
             posts: posts || [],
             pagination: {
-              currentPage: 1,
-              totalPages: 0,
-              totalPosts: 0,
-              hasNextPage: false,
+              currentPage: page,
+              totalPages: totalPage,
+              totalPosts: totalPost,
             },
           },
         ],

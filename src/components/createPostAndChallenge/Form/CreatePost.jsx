@@ -7,7 +7,6 @@ import { postSchema } from "@/schema/postSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-
 import {
   Form,
   FormControl,
@@ -32,10 +31,16 @@ import PostImageUpload from "@/components/fileUpload/PostImageUpload";
 import { useCreatePostMutation } from "@/hooks/mutations/useCreatePostMutation";
 import { Loader } from "lucide-react";
 import { useGlobalUser } from "@/context/userContent";
-import { usePostQuery } from "@/hooks/queries/usePostQuery";
+// import { usePostQuery } from "@/hooks/queries/usePostQuery";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 
-function CreatePost({ userChallenges, isChallengeLoading }) {
+function CreatePost({
+  userChallenges,
+  isChallengeLoading,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+}) {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
   // all user challenges
@@ -110,7 +115,6 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
           navigate.push("/home");
         },
         onError: (error) => {
-          console.log("error", error);
           toast({
             title: "Error",
             description: error.message || "An error occurred.",
@@ -120,9 +124,6 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
       }
     );
   };
-  // we are fetching all the posts its important because if we dont do that-
-  //  in the post page we will get an error
-  const { data } = usePostQuery();
 
   return (
     <div>
@@ -165,6 +166,7 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Your Challenges</SelectLabel>
+
                       {allUserChallenges?.map((challenge) => (
                         <SelectItem
                           className="max-w-2xl line-clamp-1 overflow-hidden  "
@@ -174,6 +176,17 @@ function CreatePost({ userChallenges, isChallengeLoading }) {
                           {challenge.name}
                         </SelectItem>
                       ))}
+                      {hasNextPage && (
+                        <button
+                          onClick={() => fetchNextPage()}
+                          disabled={isFetchingNextPage}
+                          className="text-indigo-500 text-sm mt-2"
+                        >
+                          {isFetchingNextPage
+                            ? "Loading..."
+                            : "Load More Challenges"}
+                        </button>
+                      )}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

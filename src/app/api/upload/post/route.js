@@ -22,6 +22,7 @@ export async function POST(req) {
     await dbConnect();
     const data = await req.formData();
     const file = data.get("file");
+    const folder = data.get("folder");
 
     if (!file) {
       return createErrorResponse({
@@ -32,7 +33,7 @@ export async function POST(req) {
     }
 
     // Upload new post image
-    const result = await uploadImageToCloudinary(file, "posts", [
+    const result = await uploadImageToCloudinary(file, folder, [
       { width: 1200, height: 800, crop: "limit" },
       { quality: "auto" },
       { fetch_format: "auto" },

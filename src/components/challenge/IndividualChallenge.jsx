@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChartColumnStacked, Info, User } from "lucide-react";
 import PostCard from "../cards/PostCard";
@@ -23,10 +29,11 @@ import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { Virtuoso } from "react-virtuoso";
 
-const calculateProgress = ({ tasksRequired, tasksCompleted }) => {
-  if (!tasksRequired || tasksRequired === 0) return 0;
+// calculating percentage
+const calculateProgress = ({ tasksRequired = 0, tasksCompleted = 0 }) => {
+  if (tasksRequired <= 0) return 0; // Ensure no division by zero
   const progress = (tasksCompleted / tasksRequired) * 100;
-  return Math.min(progress, 100);
+  return Math.min(Math.max(Math.round(progress), 0), 100); // Ensure range is 0-100 and round it
 };
 
 function IndividualChallenge({ challengeId }) {
@@ -51,7 +58,12 @@ function IndividualChallenge({ challengeId }) {
     challenge?.startDate
   ).toLocaleDateString();
 
-  const isPostAvailable = !postLoading && challengePosts?.pages?.length > 0;
+  const isPostAvailable =
+    !postLoading &&
+    challengePosts?.pages?.length > 0 &&
+    challengePosts.pages.some((outerArray) =>
+      outerArray.some((page) => page.posts?.length > 0)
+    );
   const progress = calculateProgress({
     tasksRequired: challenge?.tasksRequired,
     tasksCompleted: challenge?.tasksCompleted,
@@ -60,54 +72,68 @@ function IndividualChallenge({ challengeId }) {
   // ---------------record views  function------------
   const { mutate: recordViews } = useCrateViewMutation();
 
-  const [timeSpent, setTimeSpent] = useState(0);
-  const MIN_VIEW_THRESHOLD = 5000;
+  const timeSpentRef = useRef(0); // Tracks total time spent
+  const lastActiveRef = useRef(null); // Stores last active time
+  const MIN_VIEW_THRESHOLD = 3000;
+  const intervalRef = useRef(null); // Stores interval ID
   const [hasRecordedView, setHasRecordedView] = useState(false);
 
   useEffect(() => {
-    let interval;
-    let startTime = Date.now();
+    const startTracking = () => {
+      lastActiveRef.current = Date.now(); // Store last active timestamp
+
+      intervalRef.current = setInterval(() => {
+        const now = Date.now();
+        const timeDiff = now - lastActiveRef.current; // Calculate time spent since last active
+        timeSpentRef.current += timeDiff;
+        lastActiveRef.current = now; // Reset last active time
+
+        if (timeSpentRef.current >= MIN_VIEW_THRESHOLD && !hasRecordedView) {
+          recordViews({
+            viewData: {
+              contentType: "Challenge",
+              postIds: [challengeId],
+              userId,
+            },
+          });
+          setHasRecordedView(true);
+          clearInterval(intervalRef.current); // Stop tracking after recording
+        }
+      }, 1000);
+    };
+
+    const stopTracking = () => {
+      clearInterval(intervalRef.current);
+    };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        startTime = Date.now();
-        interval = setInterval(() => setTimeSpent((pre) => pre + 1000), 1000);
+        startTracking();
       } else {
-        clearInterval(interval);
+        stopTracking();
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    handleVisibilityChange();
+    startTracking(); // Start tracking when component mounts
 
     return () => {
-      clearInterval(interval);
+      clearInterval(intervalRef.current);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [hasRecordedView, recordViews, challengeId, userId]);
 
-  useEffect(() => {
-    if (!hasRecordedView && timeSpent >= MIN_VIEW_THRESHOLD) {
-      recordViews({
-        viewData: {
-          contentType: "Challenge",
-          postIds: [challengeId],
-          userId: userId,
-        },
-      });
-      setHasRecordedView(true);
-    }
-  }, [timeSpent, hasRecordedView, userId, challengeId, recordViews]);
-
-  // ----------------fetching all post views,likes and comments---------------
-
+  // postId---------------
   const postIds = useMemo(() => {
     return (
-      challengePosts?.pages?.flatMap((page) =>
-        page.posts?.map((post) => post._id)
+      challengePosts?.pages?.flatMap((outerArray) =>
+        outerArray.flatMap((page) => page.posts?.map((post) => post._id))
       ) || []
     );
   }, [challengePosts]);
+
+  // ----------------fetching all post views,likes and comments---------------
+
   const { data: engagementData, isLoading: engagementLoading } =
     useEngagementMetrics({
       postIds,
@@ -162,7 +188,6 @@ function IndividualChallenge({ challengeId }) {
   if (challengeLoading) {
     return <IndividualChallengeSkeleton />;
   }
-
   return (
     <>
       <div className="px-2 lg:px-0">
@@ -291,8 +316,10 @@ function IndividualChallenge({ challengeId }) {
               className=" h-[calc(100vh-200px)]"
               useWindowScroll
               data={[
-                ...(challengePosts?.pages?.flatMap((page) =>
-                  page.posts.map((post) => ({ ...post, key: post._id }))
+                ...(challengePosts?.pages?.flatMap((outerArray) =>
+                  outerArray.flatMap((page) =>
+                    page.posts.map((post) => ({ ...post, key: post._id }))
+                  )
                 ) || []),
                 ...(isFetchingNextPage
                   ? new Array(3).fill({ isSkeleton: true })

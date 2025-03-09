@@ -9,8 +9,13 @@ import { Suspense } from "react";
 function Page() {
   const { user } = useGlobalUser();
   const userId = user?.publicMetadata?.userId;
-  const { data: allUserChallenges, isLoading: isChallengeLoading } =
-    useUserChallengesQuery(userId);
+  const {
+    data: allUserChallenges,
+    isLoading: isChallengeLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useUserChallengesQuery(userId);
 
   const allChallenges = allUserChallenges?.pages?.flatMap((pageArray) =>
     Array.isArray(pageArray)
@@ -30,6 +35,9 @@ function Page() {
         <PostsTab
           userChallenges={allChallenges}
           isChallengeLoading={isChallengeLoading}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
         />
       </Suspense>
     </WrapperLayout>

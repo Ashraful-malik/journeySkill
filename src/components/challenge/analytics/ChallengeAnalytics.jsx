@@ -58,7 +58,6 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
     (new Date(challengeDetails?.endDate).getTime() - new Date().getTime()) /
       (1000 * 3600 * 24)
   );
-
   const dailyProgress = challengeAnalyticsData?.dailyProgress?.map((item) => {
     return { day: item.day, tasks: item.tasks, taskDate: item.taskDates };
   });
@@ -232,7 +231,7 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
               <DetailItem
                 title="Days Elapsed"
                 value={`${daysElapsed} days`}
-                icons={<CalendarClock />}
+                icon={<CalendarClock />}
               />
 
               <DetailItem

@@ -49,8 +49,7 @@ function BannerImageUpload({ userData }) {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("folder", `user/${userData?._id}/banner`);
-    formData.append("type", "banner");
+    formData.append("folder", `users/banner_image/${userData?._id}/banner`);
 
     try {
       uploadBannerImage(
@@ -87,10 +86,10 @@ function BannerImageUpload({ userData }) {
   return (
     <div className="relative">
       {/* banner edit overlays button */}
-      <div className="z-10 absolute top-0 right-0 bg-black/30 w-full h-full rounded-lg"></div>
+      <div className=" absolute top-0 right-0 bg-black/30 w-full h-full rounded-lg"></div>
 
       {/* banner edit button */}
-      <div className="z-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <Button
           variant="ghost"
           size="sm"
@@ -99,11 +98,11 @@ function BannerImageUpload({ userData }) {
           onClick={handleButtonClick} // Bind the button click to file input trigger
         >
           {isPending ? (
-            <span className="flex">
+            <span className="flex border px-2 py-1 rounded bg-black/30 animate-bounce shadow-md">
               <Upload className="mr-2" /> uploading...
             </span>
           ) : (
-            <span className="flex">
+            <span className="flex border px-2 py-1 rounded bg-black/30 ">
               <Camera className="mr-2" /> Change Banner
             </span>
           )}

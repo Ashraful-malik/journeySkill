@@ -98,8 +98,6 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
       )
     : [];
 
-  console.log("allChallenges", allChallenges);
-
   return (
     <div className="flex-1 mx-auto ">
       <BackButton />
