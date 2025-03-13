@@ -46,7 +46,7 @@ const challengeSchema = new Schema(
     },
     currentStreak: {
       type: Number,
-      default: 1,
+      default: 0,
     },
 
     consistencyIncentiveDays: {

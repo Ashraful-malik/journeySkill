@@ -92,6 +92,7 @@ export async function POST(req) {
 
         // **Only count ONE post per day towards the challenge progress**
         let isTaskCounted = challenge.tasksCompleted === 0 || !isSameDay;
+
         if (isTaskCounted) {
           if (lastActiveDate && now - lastActiveDate <= requiredInterval) {
             challenge.currentStreak += 1; // Increase streak if within interval

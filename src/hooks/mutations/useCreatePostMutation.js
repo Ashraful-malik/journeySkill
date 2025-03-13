@@ -50,6 +50,18 @@ export const useCreatePostMutation = () => {
       queryClient.invalidateQueries(["feed"]);
     },
 
+    /*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Handles errors during the post creation mutation.
+     * Logs the error and rolls back to the previous state using the cached data.
+     *
+     * @param {Object} error - The error object encountered during mutation.
+     * @param {Object} variables - The variables used for the mutation.
+     * @param {Object} context - The context object returned from onMutate,
+     *                           containing previous cached data for rollback.
+     */
+
+    /******  077cd614-c01f-430f-9600-a975e5868354  *******/
     onError: (error, variables, context) => {
       console.error("Error creating post:", error);
       if (context?.previousPosts) {

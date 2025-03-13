@@ -54,7 +54,6 @@ export async function POST(req, { params }) {
       },
       {
         $facet: {
-          // Fetch aggregated daily task data
           dailyProgress: [
             { $unwind: "$taskLogs" },
             {
@@ -62,39 +61,34 @@ export async function POST(req, { params }) {
                 day: {
                   $add: [
                     {
-                      $divide: [
-                        {
-                          $subtract: [
-                            "$taskLogs.taskCompletionDate",
-                            "$startDate",
-                          ],
-                        },
-                        1000 * 60 * 60 * 24, // Convert milliseconds to days
-                      ],
+                      $dateDiff: {
+                        startDate: "$startDate",
+                        endDate: "$taskLogs.taskCompletionDate",
+                        unit: "day",
+                      },
                     },
-                    1, // Start days at 1
+                    1, // To start counting days from 1
                   ],
                 },
               },
             },
             {
               $group: {
-                _id: { day: { $floor: "$day" } },
+                _id: "$day",
                 tasks: { $sum: 1 },
-                taskDates: { $push: "$taskLogs.taskCompletionDate" }, // Collect task completion dates
+                taskDates: { $push: "$taskLogs.taskCompletionDate" },
               },
             },
             {
               $project: {
                 _id: 0,
-                day: "$_id.day",
+                day: "$_id",
                 tasks: 1,
-                taskDates: 1, // Include taskCompletionDates in the result
+                taskDates: 1,
               },
             },
             { $sort: { day: 1 } },
           ],
-          // Fetch overall challenge details
           challengeDetails: [
             {
               $project: {

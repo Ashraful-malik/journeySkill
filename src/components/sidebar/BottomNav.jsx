@@ -12,16 +12,15 @@ const BottomNav = () => {
   const { data: userData, isLoading: userLoading } = useUserQuery();
   const username = userData?.username;
   const navItems = [
-    { name: "Home", icon: Home, link: "/home" },
-    { name: "Challenges", icon: Swords, link: "/challenges" },
-    { name: "Create", icon: SquarePlus, link: "/create" },
+    { icon: Home, link: "/home" },
+    { icon: Swords, link: "/challenges" },
+    { icon: SquarePlus, link: "/create" },
     {
-      name: "✨Feedback",
       icon: MessageSquareText,
       link: "https://forms.gle/SXqpyrsJNbg8Nqiu7",
       target: "_blank",
     },
-    { name: "Profile", icon: User, link: `/profile/${username}` },
+    { icon: User, link: `/profile/${username}` },
   ];
 
   return (
@@ -35,7 +34,6 @@ const BottomNav = () => {
           {...(item.target && { target: item.target })}
         >
           <item.icon className="w-6 h-6" />
-          <span>{item.name}</span>
         </Link>
       ))}
     </div>

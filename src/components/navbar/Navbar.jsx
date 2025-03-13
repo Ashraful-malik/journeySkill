@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "../ui/button";
 import Link from "next/link";
@@ -16,10 +16,32 @@ import Image from "next/image";
 function Navbar() {
   const { userId } = useAuth();
   const { setTheme } = useTheme();
+  const [isInFeatureSection, setIsInFeatureSection] = useState(false);
+  useEffect(() => {
+    const section = document.getElementById("features");
+    const observer = new IntersectionObserver(
+      ([entries]) => {
+        setIsInFeatureSection(entries.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.2, // Trigger when 20% of the section is visible
+      }
+    );
+    if (section) observer.observe(section);
+    return () => {
+      if (section) observer.unobserve(section);
+    };
+  }, []);
+
   return (
     <nav
-      className="p-2 md:h-14 fixed top-0 left-0 right-0 z-10 bg-indigo-500/20 backdrop-blur-md
-     flex items-center justify-between "
+      className={`p-2 md:h-14 fixed top-0 left-0 right-0 z-10  backdrop-blur-md
+     flex items-center justify-between ${
+       isInFeatureSection
+         ? "bg-indigo-500/20 dark:bg-black/50 "
+         : "bg-indigo-500/20"
+     }`}
     >
       <div
         className="container mx-auto flex justify-center md:justify-between items-center flex-wrap p-2 md:p-0

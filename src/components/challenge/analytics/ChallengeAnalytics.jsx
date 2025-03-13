@@ -53,11 +53,13 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
     (new Date().getTime() - new Date(challengeDetails?.startDate).getTime()) /
       (1000 * 3600 * 24)
   );
+  const now = new Date(new Date().toISOString());
+  const endDate = new Date(challengeData?.endDate);
+  const timeDifference = endDate - now;
 
-  const timeLeft = Math.ceil(
-    (new Date(challengeDetails?.endDate).getTime() - new Date().getTime()) /
-      (1000 * 3600 * 24)
-  );
+  const timeLeft =
+    timeDifference > 0 ? Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) : 0; // Return 0 if the date has passed
+
   const dailyProgress = challengeAnalyticsData?.dailyProgress?.map((item) => {
     return { day: item.day, tasks: item.tasks, taskDate: item.taskDates };
   });
@@ -149,7 +151,7 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
           <QuickStat
             title="Time Left"
             value={timeLeft > 0 ? `${timeLeft} days` : "Challenge Ended"}
-            icon={<Hourglass className="w-4 h-4" />}
+            icon={<Hourglass className="w-4 h-4 hover:animate-spin" />}
           />
           <QuickStat
             title="ConsistentDays"
