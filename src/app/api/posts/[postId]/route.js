@@ -8,6 +8,7 @@ import { auth } from "@clerk/nextjs/server";
 export async function GET(req, { params }) {
   try {
     const { postId } = await params;
+    console.log("postId=====>", postId);
     if (!postId) {
       return createErrorResponse({
         success: false,

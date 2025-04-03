@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import ChallengeCardSkeleton from "../skeleton/card/ChallengesCardSkeleton";
+import ShareButtons from "../ShareButtons";
 function ChallengeCard({
   id,
   description,
@@ -46,6 +47,9 @@ function ChallengeCard({
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
   const challengeCreatedAt = new Date(createdAt).toDateString();
+
+  // Full URL
+  const fullUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/challenges/${id}`;
 
   useEffect(() => {
     setIsLiked(initialIsLiked);
@@ -180,22 +184,31 @@ function ChallengeCard({
           </div>
 
           {/* Right side Action */}
-          {userId === challengeOwner?._id && (
-            <div className="flex items-center space-x-4">
-              <TooltipProvider arial-label="challenge analytics">
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Link href={`/challenges/analytics/${id}`}>
-                      <ChartColumnStacked size={20} />
-                    </Link>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Challenge Analytics</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+          <div className="flex gap-2">
+            {userId === challengeOwner?._id && (
+              <div className="flex items-center space-x-4">
+                <TooltipProvider arial-label="challenge analytics">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Link href={`/challenges/analytics/${id}`}>
+                        <ChartColumnStacked size={20} />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Challenge Analytics</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
+            <div className="text-muted-foreground ">
+              <ShareButtons
+                url={fullUrl}
+                title={title}
+                description={description}
+              />
             </div>
-          )}
+          </div>
         </div>
       </CardFooter>
     </Card>

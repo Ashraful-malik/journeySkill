@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -26,13 +26,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import PostImageUpload from "@/components/fileUpload/PostImageUpload";
 import { useCreatePostMutation } from "@/hooks/mutations/useCreatePostMutation";
 import { Loader } from "lucide-react";
 import { useGlobalUser } from "@/context/userContent";
 // import { usePostQuery } from "@/hooks/queries/usePostQuery";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
+import TiptapWrapper from "@/components/richTextEditor/TiptapWrapper";
+
+// rich text editor models
 
 function CreatePost({
   userChallenges,
@@ -52,6 +54,8 @@ function CreatePost({
   const [imageData, setImageData] = useState(null);
   const navigate = useRouter();
   const { toast } = useToast();
+  const [content, setContent] = useState("Whats on your mind?...");
+
   const { mutate: createNewPost, isPending } = useCreatePostMutation();
 
   const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
@@ -97,8 +101,10 @@ function CreatePost({
       });
       return;
     }
+
     const postData = {
       ...data,
+      text: content,
       imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
       ...(imageData?.public_id && { imagePublicId: imageData.public_id }),
       userId,
@@ -130,7 +136,13 @@ function CreatePost({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 max-w-2xl p-2 "
+          className="space-y-4 max-w-2xl p-2"
+          onKeyDown={(e) => {
+            // Prevent form submission on Enter key in the editor
+            if (e.key === "Enter" && e.target.closest(".ProseMirror")) {
+              e.preventDefault();
+            }
+          }}
         >
           {!isChallengeSelected && (
             <p className="text-red-500 mb-4 text-sm">
@@ -198,21 +210,25 @@ function CreatePost({
             )}
           />
           <fieldset disabled={!isChallengeSelected} className="space-y-4">
-            {/* text */}
+            {/* Rich Text Editor */}
             <FormField
               control={form.control}
               disabled={!isChallengeSelected}
               name="text"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Text</FormLabel>
+                  <FormLabel>Post content</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="What's on your mind?"
-                      {...field}
-                      className="resize-none h-44"
+                    <TiptapWrapper
+                      disabled={!isChallengeSelected} // Pass disabled state here
+                      content={field.value}
+                      onChange={(newContent) => {
+                        setContent(newContent);
+                        field.onChange(newContent); // This updates form state
+                      }}
                     />
                   </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}

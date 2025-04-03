@@ -1,12 +1,23 @@
 "use client";
 import { ResponsiveCalendar } from "@nivo/calendar";
+import { useEffect, useState } from "react";
 
 export const CalendarChart = ({ dailyProgress, from, to }) => {
   if (!dailyProgress) {
     return null;
   }
 
-  // data for the calendar
+  // State for screen width
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 640);
+    checkScreenSize(); // Run initially
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  // Data for the calendar
   const data = dailyProgress?.map((item) => ({
     day: new Date(item.taskDate[0])?.toISOString().split("T")[0], // Convert to YYYY-MM-DD
     value: item.tasks, // Keep the tasks count as is
@@ -31,30 +42,34 @@ export const CalendarChart = ({ dailyProgress, from, to }) => {
   };
 
   return (
-    <div className="h-56 w-full ">
+    <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
       <ResponsiveCalendar
         data={data}
         from={startingFrom}
         to={endingTo}
         emptyColor={isDarkMode ? "#0a0a0a" : "#F3F4F6"}
         colors={["#d6e685", "#8cc665", "#44a340", "#1e6823"]}
-        margin={{ top: 40, right: 40, bottom: 20, left: 40 }}
+        margin={{ top: 20, right: 10, bottom: 20, left: 10 }}
         yearSpacing={40}
         monthBorderColor={isDarkMode ? "#262626" : "#E5E7EB"}
         dayBorderWidth={1}
         dayBorderColor={isDarkMode ? "#262626" : "#D1D5DB"}
-        legends={[
-          {
-            anchor: "bottom-right",
-            direction: "row",
-            translateY: 36,
-            itemCount: 4,
-            itemWidth: 44,
-            itemHeight: 36,
-            itemsSpacing: 15,
-            itemDirection: "right-to-left",
-          },
-        ]}
+        legends={
+          isSmallScreen
+            ? []
+            : [
+                {
+                  anchor: "bottom-right",
+                  direction: "row",
+                  translateY: 36,
+                  itemCount: 4,
+                  itemWidth: 44,
+                  itemHeight: 36,
+                  itemsSpacing: 15,
+                  itemDirection: "right-to-left",
+                },
+              ]
+        }
         theme={{
           tooltip: tooltipStyles,
         }}

@@ -11,7 +11,10 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 // Define public API routes
-const isPublicApiRoute = createRouteMatcher(["/api/webhook/register"]);
+const isPublicApiRoute = createRouteMatcher([
+  "/api/webhook/register",
+  "/api/metadata(.*)",
+]);
 
 export default clerkMiddleware(async (authFn, req) => {
   try {

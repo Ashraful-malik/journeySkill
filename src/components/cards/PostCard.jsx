@@ -20,6 +20,8 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import RichTextContent from "../richTextEditor/RichTextContent";
+import ShareButtons from "../ShareButtons";
 
 function PostCard({
   content,
@@ -51,6 +53,8 @@ function PostCard({
     setLikesCount(initialLikesCount);
   }, [initialIsLiked, initialLikesCount]);
 
+  // full URL
+  const fullUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/comment/${postId}/?type=post`;
   // ---------------------------Recording Views -----------------
   const postRef = useRef();
   const timerRef = useRef();
@@ -120,133 +124,144 @@ function PostCard({
   if (optimistic) return <PostCardSkeleton />;
 
   return (
-    <Card
-      className={`border rounded-none ${className} ${
-        isDeleting && "opacity-50 pointer-events-none"
-      }`}
-      data-post-id={postId}
-      ref={postRef}
-    >
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Avatar aria-label={`User Avatar: ${owner?.fullName}`}>
-              <AvatarImage
-                src={owner?.profileImage?.imageUrl}
-                alt={owner?.username}
-              />
-              <AvatarFallback>
-                <User />
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <Link href={`/profile/${owner?.username}`}>
-                <p className="hover:underline">{owner?.fullName}</p>
-              </Link>
-              <p className="text-sm text-muted-foreground">
-                @{owner?.username}
-              </p>
-            </div>
-          </div>
-          {/* custom dropdown menu */}
-          {owner?._id === userId && (
-            <CustomDropdownMenu
-              postId={postId}
-              isDeleting={isDeleting}
-              targetType="post"
-            />
-          )}
-        </CardTitle>
-        <CardDescription>
-          {new Date(createdAt).toDateString()}
-          {challenge?.challengeName && (
-            <Link href={`/challenges/${challenge?._id}`} className="w-fit">
-              <Badge
-                variant="secondary"
-                className="w-fit max-w-xs line-clamp-1"
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>{challenge?.challengeName}</TooltipTrigger>
-                    <TooltipContent>View challenge details</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </Badge>
-            </Link>
-          )}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        {image && (
-          <Image
-            src={image}
-            className="w-full h-auto object-cover rounded-md"
-            height={500}
-            width={500}
-            alt="Post content image"
-          />
-        )}
-        <div className={`content ${image && "mt-4"}`}>
-          <p className="leading-7 text-base">{content}</p>
-          {linkUrl && (
-            <Link
-              href={linkUrl}
-              target="_blank"
-              className="text-sm hover:underline text-blue-500"
-            >
-              {linkUrl}
-            </Link>
-          )}
-        </div>
-      </CardContent>
-      {/* Hide likes, comments, and views if hideStats is true */}
-      {!hideStats && (
-        <CardFooter>
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center space-x-4 text-muted-foreground">
-              {/* Toggle Like Button */}
-
-              <button
-                onClick={handleToggleLike}
-                className="flex items-center gap-2 cursor-pointer"
-                disabled={likeLoading}
-              >
-                <Heart
-                  size={20}
-                  className={
-                    isLiked ? "text-red-500 fill-current" : "text-gray-500"
-                  }
-                  style={{
-                    animation: likeLoading
-                      ? "pulse 1s ease-in-out infinite"
-                      : "",
-                  }}
+    <>
+      <Card
+        className={`border rounded-none ${className} ${
+          isDeleting && "opacity-50 pointer-events-none"
+        }`}
+        data-post-id={postId}
+        ref={postRef}
+      >
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Avatar aria-label={`User Avatar: ${owner?.fullName}`}>
+                <AvatarImage
+                  src={owner?.profileImage?.imageUrl}
+                  alt={owner?.username}
                 />
-                <span className="text-sm">{likesCount}</span>
-              </button>
-
-              <Link href={`/comment/${postId}/?type=post`}>
-                <button className="flex items-center gap-2 cursor-pointer">
-                  <MessageCircle size={20} className="hover:text-primary" />
-                  <span className="text-sm">{commentCount}</span>
-                </button>
-              </Link>
-
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Eye
-                  size={20}
-                  className={`hover:text-primary ${
-                    viewsLoading && "animate-pulse"
-                  }`}
-                />
-                <span className="text-sm">{viewCount}</span>
+                <AvatarFallback>
+                  <User />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <Link href={`/profile/${owner?.username}`}>
+                  <p className="hover:underline">{owner?.fullName}</p>
+                </Link>
+                <p className="text-sm text-muted-foreground">
+                  @{owner?.username}
+                </p>
               </div>
             </div>
+            {/* custom dropdown menu */}
+            {owner?._id === userId && (
+              <CustomDropdownMenu
+                postId={postId}
+                isDeleting={isDeleting}
+                targetType="post"
+              />
+            )}
+          </CardTitle>
+          <CardDescription>
+            {new Date(createdAt).toDateString()}
+            {challenge?.challengeName && (
+              <Link href={`/challenges/${challenge?._id}`} className="w-fit">
+                <Badge
+                  variant="secondary"
+                  className="w-fit max-w-xs line-clamp-1"
+                >
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        {challenge?.challengeName}
+                      </TooltipTrigger>
+                      <TooltipContent>View challenge details</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </Badge>
+              </Link>
+            )}
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          {image && (
+            <Image
+              src={image}
+              className="w-full h-auto object-cover rounded-md"
+              height={500}
+              width={500}
+              alt="Post content image"
+            />
+          )}
+          <div className={`content ${image && "mt-4"}`}>
+            <RichTextContent html={content} />
+            {linkUrl && (
+              <Link
+                href={linkUrl}
+                target="_blank"
+                className="text-sm hover:underline text-blue-500"
+              >
+                {linkUrl}
+              </Link>
+            )}
           </div>
-        </CardFooter>
-      )}
-    </Card>
+        </CardContent>
+        {/* Hide likes, comments, and views if hideStats is true */}
+        {!hideStats && (
+          <CardFooter>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center space-x-4 text-muted-foreground">
+                {/* Toggle Like Button */}
+
+                <button
+                  onClick={handleToggleLike}
+                  className="flex items-center gap-2 cursor-pointer"
+                  disabled={likeLoading}
+                >
+                  <Heart
+                    size={20}
+                    className={
+                      isLiked ? "text-red-500 fill-current" : "text-gray-500"
+                    }
+                    style={{
+                      animation: likeLoading
+                        ? "pulse 1s ease-in-out infinite"
+                        : "",
+                    }}
+                  />
+                  <span className="text-sm">{likesCount}</span>
+                </button>
+
+                <Link href={`/comment/${postId}/?type=post`}>
+                  <button className="flex items-center gap-2 cursor-pointer">
+                    <MessageCircle size={20} className="hover:text-primary" />
+                    <span className="text-sm">{commentCount}</span>
+                  </button>
+                </Link>
+
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <Eye
+                    size={20}
+                    className={`hover:text-primary ${
+                      viewsLoading && "animate-pulse"
+                    }`}
+                  />
+                  <span className="text-sm">{viewCount}</span>
+                </div>
+              </div>
+              <div className="text-muted-foreground ">
+                <ShareButtons
+                  url={fullUrl}
+                  title={"Look what I just posted! 👀"}
+                  description={content}
+                />
+              </div>
+            </div>
+          </CardFooter>
+        )}
+      </Card>
+    </>
   );
 }
 

@@ -133,3 +133,129 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* .masonry-column {
   background-clip: padding-box;
 } */
+
+/* ------------------rich text editor---------------- */
+/* Tiptap Editor Styles */
+.tiptap-editor {
+  @apply bg-background text-foreground border border-border rounded-md;
+}
+
+.tiptap-editor .toolbar button {
+  @apply border px-1 py-0.5 rounded-sm text-sm;
+}
+
+.tiptap-editor .toolbar button.is-active {
+  @apply bg-accent;
+}
+
+.bubble-menu {
+  @apply bg-background text-foreground border border-border flex gap-2 rounded-lg;
+}
+.bubble-menu button {
+  @apply px-2 py-1  border rounded-sm;
+}
+
+.bubble-menu button.is-active {
+  @apply bg-accent;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .tiptap-editor .toolbar button {
+    padding: 0.5rem;
+    min-width: 44px;
+  }
+
+  .tiptap-editor .prose {
+    padding: 1rem;
+    min-height: 300px;
+  }
+}
+
+/* Prose mirror default styles */
+.ProseMirror {
+  outline: none;
+  min-height: 200px;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+.tiptap-editor[data-disabled="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tiptap-editor[data-disabled="true"] .ProseMirror {
+  pointer-events: none;
+}
+.ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}
+
+.ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+}
+/* Headings */
+.ProseMirror h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 1rem 0;
+  line-height: 1.3;
+}
+
+/* Rich Text content ============== */
+
+/* Rich text content styling */
+.rich-text-content {
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.rich-text-content p {
+  margin-bottom: 1rem;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.rich-text-content ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+}
+
+.rich-text-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+}
+
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3 {
+  font-weight: 700;
+  margin: 1.5rem 0 1rem;
+  line-height: 1.3;
+}
+
+.rich-text-content h1 {
+  font-size: 1.2rem;
+}
+
+.rich-text-content h2 {
+  font-size: 1.5rem;
+}
+
+.rich-text-content h3 {
+  font-size: 1.2rem;
+}
+
+.rich-text-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}

@@ -116,72 +116,74 @@ function PostComment({ id }) {
     );
   }
   return (
-    <div className="w-full mt-2 max-w-2xl mx-auto lg:mx-0 ">
-      <div className="mb-2">
-        <BackButton />
-      </div>
-      <PostCard
-        content={postData?.text}
-        image={postData?.image}
-        linkUrl={postData?.link}
-        createdAt={postData?.createdAt}
-        owner={postData?.owner}
-        challenge={postData?.challengeId}
-        postId={postData?._id}
-        hideStats={true}
-      />
-      {/* comment section */}
-      <section className="flex flex-col gap-2 ">
-        {/* comment input */}
-        <div className="flex items-center ">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="flex item-center  w-full justify-between"
-            >
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormControl>
-                      <Input
-                        placeholder="Type comment ..."
-                        className="resize-none w-full border-r-0  rounded-none h-12 shadow-none border-t-0"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="h-12 rounded-none">
-                Comment
-              </Button>
-            </form>
-          </Form>
+    <>
+      <div className="w-full mt-2 max-w-2xl mx-auto lg:mx-0 ">
+        <div className="mb-2">
+          <BackButton />
         </div>
-        {/* comments */}
-        {loadingComments && <PostCardSkeleton />}
-        {comments?.pages
-          ?.flatMap((page) => page.comments)
-          ?.map((comment, index) => (
-            <Comment
-              key={comment._id || `fallback-${index}`}
-              commentBy={comment.commentBy}
-              commentId={comment._id}
-              createdAt={comment.createdAt}
-              updatedAt={comment.updatedAt}
-              comment={comment.content}
-              optimistic={comment.optimistic}
-              postId={id}
-              isDeleting={comment.isDeleting}
-              userId={userId}
-            />
-          ))}
-        {hasNextPage && <div ref={loadMoreRef}>Loading more...</div>}
-      </section>
-    </div>
+        <PostCard
+          content={postData?.text}
+          image={postData?.image}
+          linkUrl={postData?.link}
+          createdAt={postData?.createdAt}
+          owner={postData?.owner}
+          challenge={postData?.challengeId}
+          postId={postData?._id}
+          hideStats={true}
+        />
+        {/* comment section */}
+        <section className="flex flex-col gap-2 ">
+          {/* comment input */}
+          <div className="flex items-center ">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="flex item-center  w-full justify-between"
+              >
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <Input
+                          placeholder="Type comment ..."
+                          className="resize-none w-full border-r-0  rounded-none h-12 shadow-none border-t-0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="h-12 rounded-none">
+                  Comment
+                </Button>
+              </form>
+            </Form>
+          </div>
+          {/* comments */}
+          {loadingComments && <PostCardSkeleton />}
+          {comments?.pages
+            ?.flatMap((page) => page.comments)
+            ?.map((comment, index) => (
+              <Comment
+                key={comment._id || `fallback-${index}`}
+                commentBy={comment.commentBy}
+                commentId={comment._id}
+                createdAt={comment.createdAt}
+                updatedAt={comment.updatedAt}
+                comment={comment.content}
+                optimistic={comment.optimistic}
+                postId={id}
+                isDeleting={comment.isDeleting}
+                userId={userId}
+              />
+            ))}
+          {hasNextPage && <div ref={loadMoreRef}>Loading more...</div>}
+        </section>
+      </div>
+    </>
   );
 }
 

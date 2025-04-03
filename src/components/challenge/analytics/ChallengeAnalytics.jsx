@@ -106,7 +106,7 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
             <li>
               <strong>Complete the tasks:</strong> You only need to do one task
               each day. No need to overdo it — even if you post multiple times,
-              only one counts for that day!
+              only one counts for that day.
             </li>
             <li>
               <strong>Stay consistent:</strong> Post for at least{" "}

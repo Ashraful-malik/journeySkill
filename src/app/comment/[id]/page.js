@@ -1,16 +1,118 @@
-"use client";
-import WrapperLayout from "@/components/layouts/WrapperLayout";
-import CommentTypeSelector from "@/components/CommentTypeSelector";
-import { Suspense } from "react";
+import CommentWrapper from "@/components/comment/CommentWrapper";
 
-function Page() {
-  return (
-    <WrapperLayout>
-      <Suspense fallback={<div>Loading...</div>}>
-        <CommentTypeSelector />
-      </Suspense>
-    </WrapperLayout>
+function stripHtml(html) {
+  return html
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const url = new URL(
+    `/posts/comment/${id}/?type=post`,
+    process.env.NEXT_PUBLIC_SITE_URL
   );
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/metadata/post/${id}`,
+      { next: { revalidate: 3600 } } // Cache for 1 hour
+    );
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    const post = await res.json();
+
+    // Safely handle data
+    const description = stripHtml(post.data.text || "A post on journeyskill");
+    const username = post.data.owner?.username || "a user";
+    const title = `Post by @${username}`;
+
+    // Dynamic OG Image (recommended)
+    const ogImageUrl = new URL("/api/og", process.env.NEXT_PUBLIC_SITE_URL);
+    ogImageUrl.searchParams.set("title", encodeURIComponent(title));
+    ogImageUrl.searchParams.set(
+      "description",
+      encodeURIComponent(truncateText(description, 200))
+    );
+
+    return {
+      title,
+      description: truncateText(description, 160),
+      alternates: {
+        canonical: url.toString(),
+      },
+      twitter: {
+        card: "summary_large_image", // Better engagement than 'summary'
+        title,
+        description: truncateText(description, 200),
+        images: [ogImageUrl.toString()],
+        creator: "@journeyskill", // Your app's official handle
+      },
+      openGraph: {
+        type: "article",
+        title,
+        description: truncateText(description, 200),
+        url: url.toString(),
+        images: [
+          {
+            url: ogImageUrl.toString(),
+            width: 1200,
+            height: 630,
+            alt: `Post by ${username}`,
+          },
+        ],
+        publishedTime: post.createdAt || new Date().toISOString(),
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  } catch (error) {
+    console.error("Metadata generation failed:", error);
+    return getFallbackMetadata(url);
+  }
 }
 
-export default Page;
+// Utility functions
+function truncateText(str, length) {
+  if (!str) return "";
+  return str.length > length ? str.substring(0, length - 3) + "..." : str;
+}
+
+function getFallbackMetadata(url) {
+  const fallbackImage = new URL(
+    "/default-og.jpg",
+    process.env.NEXT_PUBLIC_SITE_URL
+  );
+  return {
+    title: "Post | journeyskill",
+    description: "View this post on journeyskill",
+    alternates: {
+      canonical: url.toString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Post | journeyskill",
+      description: "Explore this content on journeyskill",
+      images: [fallbackImage.toString()],
+    },
+    openGraph: {
+      title: "Post | journeyskill",
+      description: "View this post on journeyskill",
+      url: url.toString(),
+      images: [
+        {
+          url: fallbackImage.toString(),
+          width: 1200,
+          height: 630,
+          alt: "JourneySkill Post",
+        },
+      ],
+    },
+  };
+}
+
+export default function Page() {
+  return <CommentWrapper />;
+}
