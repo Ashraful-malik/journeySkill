@@ -43,6 +43,7 @@ export async function GET(req) {
           hashtags: 1,
           createdAt: 1,
           endDate: 1,
+          banner: { imageUrl: 1 },
           "challengeTags.tag": 1,
         },
       },

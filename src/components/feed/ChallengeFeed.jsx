@@ -82,6 +82,7 @@ function ChallengeFeed({ challenges, fetchNextPage, isFetchingNextPage }) {
           onUnlike={() => handleLike(challenge?._id, "unlike")}
           optimistic={challenge.optimistic}
           isDeleting={challenge.isDeleting}
+          banner={challenge?.banner}
           userId={userId}
           className="mb-4"
         />

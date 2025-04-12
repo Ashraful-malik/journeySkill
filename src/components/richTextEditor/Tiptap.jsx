@@ -1,9 +1,11 @@
 "use client";
+
 import BulletList from "@tiptap/extension-bullet-list";
 import Heading from "@tiptap/extension-heading";
 import OrderedList from "@tiptap/extension-ordered-list";
-import { BubbleMenu, useEditor, EditorContent } from "@tiptap/react";
+import { BubbleMenu, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Code from "@tiptap/extension-code";
 import {
   Bold,
   Italic,
@@ -12,20 +14,27 @@ import {
   Heading as HeadingIcon,
   Text,
   Loader,
+  Code as CodeIcon,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 function Tiptap({ content = "", onChange, disabled }) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isEditorMounted, setIsEditorMounted] = useState(false);
+  const [error, setError] = useState(null);
+  const isFirstUpdate = useRef(true);
+  const timeoutRef = useRef(null);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+  // Ensure editor is only mounted on client
+  useLayoutEffect(() => {
+    setIsEditorMounted(true);
+    isFirstUpdate.current = false;
+    return () => setIsEditorMounted(false);
   }, []);
 
   const editor = useEditor({
@@ -34,48 +43,57 @@ function Tiptap({ content = "", onChange, disabled }) {
         heading: false,
         bulletList: false,
         orderedList: false,
+        code: false,
       }),
-      Heading.configure({
-        levels: [1],
-      }),
-      BulletList.configure({
+      Code.configure({
         HTMLAttributes: {
-          class: "list-disc pl-5",
+          class: "my-code-block",
         },
+      }),
+      Heading.configure({ levels: [1] }),
+      BulletList.configure({
+        HTMLAttributes: { class: "list-disc pl-5" },
       }),
       OrderedList.configure({
-        HTMLAttributes: {
-          class: "list-decimal pl-5",
-        },
+        HTMLAttributes: { class: "list-decimal pl-5" },
       }),
     ],
-    content: content,
-    editable: !disabled, // This controls editability
-
+    content,
+    editable: !disabled,
+    editorProps: {
+      attributes: {
+        class: "focus:outline-none",
+      },
+    }, 
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       if (!disabled) {
         const html = editor.getHTML();
-        onChange(html);
+        if (!isFirstUpdate.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = setTimeout(() => {
+            onChange(html);
+          }, 200);
+        }
       }
-      // Trigger form validation after update
-      if (typeof document !== "undefined") {
-        const event = new Event("input", { bubbles: true });
-        document.querySelector(".ProseMirror")?.dispatchEvent(event);
-      }
-    },
-    onCreate: () => {
-      setIsLoading(false); // Editor is ready
     },
   });
 
-  // Update editor's editable state when disabled prop changes
   useEffect(() => {
-    if (editor) {
+    if (editor && !editor.isDestroyed) {
       editor.setEditable(!disabled);
     }
   }, [disabled, editor]);
 
-  if (!editor) {
+  if (error) {
+    return (
+      <div className="text-red-500 p-4 border border-red-200 bg-red-50 rounded">
+        Editor error: {error.message}
+      </div>
+    );
+  }
+
+  if (!isEditorMounted || !editor) {
     return (
       <div className="tiptap-editor-loading min-h-[200px] flex items-center justify-center">
         <Loader className="animate-spin w-6 h-6" />
@@ -83,182 +101,92 @@ function Tiptap({ content = "", onChange, disabled }) {
     );
   }
 
-  // Prevent event bubbling for toolbar buttons
-  const handleToolbarClick = (e, command) => {
-    e.preventDefault();
-    e.stopPropagation();
-    command();
-  };
+  const canRenderBubbleMenu =
+    isEditorMounted &&
+    editor &&
+    editor.isEditable &&
+    editor.view?.dom?.isConnected;
 
   return (
     <div className="tiptap-editor" data-disabled={disabled}>
-      {/* Main Toolbar */}
-      {!isMobile && (
-        <div className="toolbar flex flex-wrap gap-2 p-2 border-b">
-          {/* paragraph */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().setParagraph().run()
-              )
-            }
-            className={editor.isActive("paragraph") ? "is-active" : ""}
-            title="Normal text"
-          >
-            <Text className="w-5 h-5" />
-          </button>
-          {/* Heading 1 button */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().toggleHeading({ level: 1 }).run()
-              )
-            }
-            className={
-              editor.isActive("heading", { level: 1 }) ? "is-active" : ""
-            }
-            title="Heading"
-          >
-            <HeadingIcon className="w-5 h-5" />{" "}
-          </button>
+      {/* Use CSS-based responsiveness, not conditional rendering */}
+      <div className="toolbar hidden md:flex flex-wrap gap-2 p-2 border-b">
+        <ToolbarButton editor={editor} command="setParagraph" icon={<Text />} />
+        <ToolbarButton
+          editor={editor}
+          command="toggleHeading"
+          options={{ level: 1 }}
+          icon={<HeadingIcon />}
+        />
+        <ToolbarButton editor={editor} command="toggleBold" icon={<Bold />} />
+        <ToolbarButton
+          editor={editor}
+          command="toggleItalic"
+          icon={<Italic />}
+        />
+        <ToolbarButton
+          editor={editor}
+          command="toggleBulletList"
+          icon={<List />}
+        />
+        <ToolbarButton
+          editor={editor}
+          command="toggleOrderedList"
+          icon={<ListOrdered />}
+        />
+        <ToolbarButton
+          editor={editor}
+          command="toggleCode"
+          icon={<CodeIcon />}
+        />
+      </div>
 
-          {/* bold */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().toggleBold().run()
-              )
-            }
-            className={editor.isActive("bold") ? "is-active" : ""}
-          >
-            <Bold className="w-5 h-5" />
-          </button>
-
-          {/* italic */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().toggleItalic().run()
-              )
-            }
-            className={editor.isActive("italic") ? "is-active" : ""}
-          >
-            <Italic className="w-5 h-5" />
-          </button>
-
-          {/* Bullet List button */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().toggleBulletList().run()
-              )
-            }
-            className={editor.isActive("bulletList") ? "is-active" : ""}
-            title="Bullet List"
-          >
-            <List className="w-5 h-5" />
-          </button>
-
-          {/* Ordered List button */}
-          <button
-            onClick={(e) =>
-              handleToolbarClick(e, () =>
-                editor.chain().focus().toggleOrderedList().run()
-              )
-            }
-            className={editor.isActive("orderedList") ? "is-active" : ""}
-            title="Numbered List"
-          >
-            <ListOrdered className="w-5 h-5" />
-          </button>
-        </div>
-      )}
-
-      {/* Bubble Menu  for mobile*/}
-      {editor && (
+      {canRenderBubbleMenu && (
         <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
           <div className="bubble-menu flex gap-1 bg-white p-1 shadow-lg rounded">
-            {/* paragraph */}
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().setParagraph().run()
-                )
-              }
-              className={editor.isActive("paragraph") ? "is-active" : ""}
-              title="Normal text"
-            >
-              <Text className="w-4 h-4" />
-            </button>
-
-            {/* Heading 1 button */}
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().toggleHeading({ level: 1 }).run()
-                )
-              }
-              className={
-                editor.isActive("heading", { level: 1 }) ? "is-active" : ""
-              }
-              title="Heading"
-            >
-              <HeadingIcon className="w-4 h-4" />{" "}
-            </button>
-
-            {/* bold */}
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().toggleBold().run()
-                )
-              }
-              className={editor.isActive("bold") ? "is-active" : ""}
-            >
-              <Bold className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().toggleItalic().run()
-                )
-              }
-              className={editor.isActive("italic") ? "is-active" : ""}
-            >
-              <Italic className="w-4 h-4" />
-            </button>
-
-            {/* Bullet List  */}
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().toggleBulletList().run()
-                )
-              }
-              className={editor.isActive("bulletList") ? "is-active" : ""}
-              title="Bullet List"
-            >
-              <List className="w-4 h-4" />
-            </button>
-
-            {/* Ordered List  */}
-            <button
-              onClick={(e) =>
-                handleToolbarClick(e, () =>
-                  editor.chain().focus().toggleOrderedList().run()
-                )
-              }
-              className={editor.isActive("orderedList") ? "is-active" : ""}
-              title="Numbered List"
-            >
-              <ListOrdered className="w-4 h-4" />
-            </button>
+            <ToolbarButton
+              editor={editor}
+              command="setParagraph"
+              icon={<Text />}
+              small
+            />
+            <ToolbarButton
+              editor={editor}
+              command="toggleHeading"
+              options={{ level: 1 }}
+              icon={<HeadingIcon />}
+              small
+            />
+            <ToolbarButton
+              editor={editor}
+              command="toggleBold"
+              icon={<Bold />}
+              small
+            />
+            <ToolbarButton
+              editor={editor}
+              command="toggleItalic"
+              icon={<Italic />}
+              small
+            />
+            <ToolbarButton
+              editor={editor}
+              command="toggleBulletList"
+              icon={<List />}
+              small
+            />
+            <ToolbarButton
+              editor={editor}
+              command="toggleOrderedList"
+              icon={<ListOrdered />}
+              small
+            />
           </div>
         </BubbleMenu>
       )}
-      {/* Editor Content */}
+
       <div
-        className="prose max-w-none p-4  overflow-auto h-[calc(100vh-500px)] md:h-[calc(100vh-400px)]"
+        className="prose max-w-none p-4 overflow-auto h-[calc(100vh-500px)] md:h-[calc(100vh-400px)]"
         onClick={() => editor.commands.focus()}
       >
         <EditorContent editor={editor} />
@@ -266,5 +194,33 @@ function Tiptap({ content = "", onChange, disabled }) {
     </div>
   );
 }
+
+const ToolbarButton = ({
+  editor,
+  command,
+  options = {},
+  icon,
+  small = false,
+}) => {
+  const isActive = editor.isActive(
+    command.replace(/^toggle/, "").toLowerCase(),
+    options
+  );
+  const runCommand = () => editor.chain().focus()[command](options).run();
+
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        runCommand();
+      }}
+      className={isActive ? "is-active" : ""}
+      title={command}
+    >
+      {React.cloneElement(icon, { className: small ? "w-4 h-4" : "w-5 h-5" })}
+    </button>
+  );
+};
 
 export default Tiptap;

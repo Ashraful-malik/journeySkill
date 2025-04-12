@@ -28,6 +28,7 @@ import IndividualChallengeSkeleton from "../skeleton/challenges/IndividualChalle
 import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { Virtuoso } from "react-virtuoso";
+import Image from "next/image";
 
 // calculating percentage
 const calculateProgress = ({ tasksRequired = 0, tasksCompleted = 0 }) => {
@@ -190,8 +191,9 @@ function IndividualChallenge({ challengeId }) {
   }
   return (
     <>
-      <div className="px-2 lg:px-0">
+      <div className="px-2 lg:px-0 relative">
         <BackButton />
+
         {/* Header */}
         <header className="flex items-center justify-between pb-4 mt-5">
           <div className="flex items-center gap-2">
@@ -216,6 +218,20 @@ function IndividualChallenge({ challengeId }) {
             </div>
           </div>
         </header>
+        {/* banner image */}
+        {challenge?.banner?.imageUrl && (
+          <div className="w-full h-60 overflow-hidden rounded-t-lg">
+            <Image
+              src={challenge.banner.imageUrl}
+              alt="banner image"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        )}
 
         {/* Progress Bar Section */}
         <div aria-labelledby="progress-label" className="my-4">

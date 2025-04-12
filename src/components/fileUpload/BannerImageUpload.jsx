@@ -1,144 +1,140 @@
 "use client";
-import { useUploadBannerImage } from "@/hooks/mutations/useEditProfileImageMutation";
+import { useEffect, useState } from "react";
+import { IMAGE_FILE_SIZE_LIMIT } from "@/lib/constants";
+import { Loader2, Plus } from "lucide-react";
+import { useUploadPostImageMutation } from "@/hooks/mutations/useUploadPostImageMutation";
 import { useToast } from "@/hooks/use-toast";
-import { gradientStyle } from "@/lib/utils/randomGradientGenerator";
-import React, { useRef } from "react";
-import { Button } from "../ui/button";
-import { Camera, Upload } from "lucide-react";
+import { useGlobalUser } from "@/context/userContent";
 import Image from "next/image";
+import { useUploadChallengeBannerImageMutation } from "@/hooks/mutations/useUploadChallengeBannerImageMutation";
 
-function BannerImageUpload({ userData }) {
-  const { mutate: uploadBannerImage, isPending } = useUploadBannerImage();
+const allowedImageTypes = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+const ChallengeBannerImageUpload = ({ onUploadSuccess, onUploadPending }) => {
+  const { mutate: uploadBannerImage, isPending } =
+    useUploadChallengeBannerImageMutation();
   const { toast } = useToast();
-  const fileInputRef = useRef(null);
-  const handleFileChange = (e) => {
+  const { user } = useGlobalUser();
+  const userId = user?.publicMetadata?.userId;
+
+  const [previewImage, setPreviewImage] = useState(null);
+  const [originalFileName, setOriginalFileName] = useState(null);
+  useEffect(() => {
+    if (onUploadPending) {
+      onUploadPending(isPending);
+    }
+  }, [isPending, onUploadPending]);
+
+  const handleFileChange = async (e) => {
     e.preventDefault();
+
     const file = e.target.files[0];
+
     if (!file) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No file selected",
-      });
+      showToastError("No file selected");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "File size should be less than 5MB",
-      });
-      return;
-    }
-    const allowedImageTypes = [
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-    ];
     if (!allowedImageTypes.includes(file.type)) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select an image file.",
-      });
+      showToastError("Please select a valid image file.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("folder", `users/banner_image/${userData?._id}/banner`);
+    if (file.size > IMAGE_FILE_SIZE_LIMIT) {
+      showToastError("File size should be less than 5MB.");
+      return;
+    }
 
-    try {
-      uploadBannerImage(
-        { userId: userData?._id, formData },
-        {
-          onSuccess: () => {
-            toast({
-              title: "Success",
-              description: "Profile image updated successfully!",
-            });
-          },
-          onError: (error) => {
-            toast({
-              title: "Error",
-              description: error.message || "An error occurred.",
-              variant: "destructive",
-            });
-          },
-        }
-      );
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message || "An error occurred.",
-        variant: "destructive",
-      });
-    }
+    setOriginalFileName(file.name);
+
+    uploadBannerImage(
+      { file, userId },
+      {
+        onSuccess: (data) => {
+          onUploadSuccess(data);
+          setPreviewImage(data);
+        },
+        onError: (error) => {
+          showToastError(error.message || "An error occurred while uploading.");
+        },
+      }
+    );
   };
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+
+  const showToastError = (message) => {
+    toast({
+      title: "Error",
+      description: message,
+      variant: "destructive",
+    });
   };
+
   return (
-    <div className="relative">
-      {/* banner edit overlays button */}
-      <div className=" absolute top-0 right-0 bg-black/30 w-full h-full rounded-lg"></div>
-
-      {/* banner edit button */}
-      <div className="z-20 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <Button
-          variant="ghost"
-          size="sm"
-          arial-label="Change Banner"
-          htmlFor="upload-banner-image"
-          onClick={handleButtonClick} // Bind the button click to file input trigger
+    <>
+      <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 bg-card-background text-gray-300">
+        <label
+          htmlFor="file-upload"
+          className="flex flex-col items-center justify-center cursor-pointer hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary p-4 rounded-md"
         >
           {isPending ? (
-            <span className="flex border px-2 py-1 rounded bg-black/30 animate-bounce shadow-md">
-              <Upload className="mr-2" /> uploading...
-            </span>
+            <div className="flex flex-col items-center">
+              <div className="text-center flex gap-2">
+                <div className="max-w-[20ch] whitespace-nowrap overflow-hidden text-ellipsis dark:text-neutral-500">
+                  {originalFileName}
+                </div>
+                <Loader2 className="animate-spin" />
+              </div>
+              <p className="text-primary animate-pulse" aria-live="polite">
+                Uploading ...
+              </p>
+            </div>
           ) : (
-            <span className="flex border px-2 py-1 rounded bg-black/30 ">
-              <Camera className="mr-2" /> Change Banner
-            </span>
+            <>
+              <div className="flex items-center justify-center text-primary">
+                <Plus />
+              </div>
+              <span className="mt-2 text-sm font-medium">
+                Upload Banner Image
+              </span>
+            </>
           )}
-          <input
-            type="file"
-            id="upload-banner-image"
-            accept="image/*"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-          />
-        </Button>
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={isPending}
+        />
       </div>
 
-      {userData?.bannerImage ? (
-        <div className="relative w-full h-[150px] rounded-lg overflow-hidden">
-          <Image
-            src={
-              userData?.tempBannerImage
-                ? userData?.tempBannerImage
-                : userData?.bannerImage?.imageUrl
-            }
-            alt="banner image"
-            className="object-cover"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-          />
+      {previewImage && (
+        <div className="mt-4 h-[300px] overflow-hidden relative rounded-lg">
+          <div
+            className="absolute inset-0 bg-cover bg-center blur-lg opacity-80"
+            style={{ backgroundImage: `url(${previewImage?.secure_url})` }}
+            aria-hidden="true"
+          ></div>
+          <div className="relative z-2 flex items-center justify-center h-full">
+            <Image
+              src={previewImage?.secure_url}
+              alt="Uploaded"
+              className="object-scale-down "
+              fill
+              loading="lazy"
+            />
+          </div>
         </div>
-      ) : (
-        <div
-          className={`w-full h-[150px] rounded-lg `}
-          style={gradientStyle}
-        ></div>
       )}
-    </div>
+    </>
   );
-}
+};
 
-export default BannerImageUpload;
+export default ChallengeBannerImageUpload;

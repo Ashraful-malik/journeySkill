@@ -3,10 +3,6 @@ import { ResponsiveCalendar } from "@nivo/calendar";
 import { useEffect, useState } from "react";
 
 export const CalendarChart = ({ dailyProgress, from, to }) => {
-  if (!dailyProgress) {
-    return null;
-  }
-
   // State for screen width
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -17,6 +13,10 @@ export const CalendarChart = ({ dailyProgress, from, to }) => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  // Don't render if data is missing
+  if (!dailyProgress) {
+    return null;
+  }
   // Data for the calendar
   const data = dailyProgress?.map((item) => ({
     day: new Date(item.taskDate[0])?.toISOString().split("T")[0], // Convert to YYYY-MM-DD

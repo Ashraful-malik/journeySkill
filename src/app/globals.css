@@ -259,3 +259,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #3b82f6;
   text-decoration: underline;
 }
+
+.my-code-block {
+  background-color: rgba(170, 125, 243, 0.164);
+  border-radius: 0.4rem;
+  color: var(--black);
+  font-size: 0.9rem;
+  padding: 0.25em 0.3em;
+}

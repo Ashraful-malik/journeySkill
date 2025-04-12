@@ -1,5 +1,5 @@
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import NavbarWrapper from "@/components/navbar/NavbarWrapper";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +10,7 @@ import { dehydrate, QueryClient } from "@tanstack/react-query";
 import Script from "next/script";
 import HotjarTracker from "@/components/HotjarTracker";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import ClerkLoadingLoader from "@/components/loader/ClerkLoadingLoader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -48,14 +49,15 @@ export const metadata = {
     images: ["/twitterCard/landing-page.png"],
   },
 };
+const hello = true;
 
 export default async function RootLayout({ children }) {
   const queryClient = new QueryClient();
 
   const dehydratedState = dehydrate(queryClient);
   return (
-    <ClerkProvider appearance={{ baseTheme: "light" }}>
-      <UserProvider>
+    <>
+      <ClerkProvider appearance={{ baseTheme: "light" }}>
         <html lang="en" className={`${inter.className}`}>
           <head>
             {/* Hotjar Tracking Script */}
@@ -64,31 +66,40 @@ export default async function RootLayout({ children }) {
               strategy="afterInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
-      (function(h,o,t,j,a,r){
-        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-        h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID || 0},hjsv:6};
-        a=o.getElementsByTagName('head')[0];
-        r=o.createElement('script');r.async=1;
-        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-        a.appendChild(r);
-      })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-    `,
+                 (function(h,o,t,j,a,r){
+                h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+                  h._hjSettings={hjid:${
+                    process.env.NEXT_PUBLIC_HOTJAR_ID || 0
+                  },hjsv:6};
+                  a=o.getElementsByTagName('head')[0];
+                     r=o.createElement('script');r.async=1;
+                      r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+                     a.appendChild(r);
+                   })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+               `,
               }}
             />
           </head>
           <body className="antialiased">
             <HotjarTracker /> {/* Track route changes */}
             <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-            <ThemeProvider attribute="class" defaultTheme="system">
-              <NavbarWrapper />
-              <QueryProvider dehydratedState={dehydratedState}>
-                {children}
-                <Toaster />
-              </QueryProvider>
-            </ThemeProvider>
+            <ClerkLoading>
+              <ClerkLoadingLoader />
+            </ClerkLoading>
+            <ClerkLoaded>
+              <UserProvider>
+                <ThemeProvider attribute="class" defaultTheme="system">
+                  <NavbarWrapper />
+                  <QueryProvider dehydratedState={dehydratedState}>
+                    {children}
+                    <Toaster />
+                  </QueryProvider>
+                </ThemeProvider>
+              </UserProvider>
+            </ClerkLoaded>
           </body>
         </html>
-      </UserProvider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </>
   );
 }

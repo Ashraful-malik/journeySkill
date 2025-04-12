@@ -130,6 +130,7 @@ function ChallengeComment({ id }) {
         challengeDays={challengeData?.days}
         challengeOwner={challengeData?.challengeOwner}
         createdAt={challengeData?.createdAt}
+        hideStatus={true}
       />
       {/* comment section */}
       <section className="flex flex-col gap-2 ">

@@ -3,9 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateChallengeMutation = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["create-challenge"],
-    mutationFn: ({ challengeData }) => createChallengeApi(challengeData),
+    mutationFn: ({ allChallengeData }) => createChallengeApi(allChallengeData),
     onMutate: async ({ challengeData }) => {
       await queryClient.cancelQueries(["challenges"]);
       const previousChallenges = queryClient.getQueryData(["challenges"]);

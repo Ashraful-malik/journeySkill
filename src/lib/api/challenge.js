@@ -15,11 +15,11 @@ export const fetchChallenges = async ({ pageParams }) => {
 };
 
 // create challenges
-export const createChallengeApi = async (challengeData) => {
+export const createChallengeApi = async (allChallengeData) => {
   try {
     const response = await axiosInstance.post(
       "/challenge/create",
-      challengeData
+      allChallengeData
     );
     return response.data.data;
   } catch (error) {
@@ -67,6 +67,33 @@ export const deleteChallenge = async (challengeId) => {
   try {
     const response = await axiosInstance.delete(`/challenge/${challengeId}`);
     return response.data;
+  } catch (error) {
+    const { message, code } = handleApiError(error);
+    throw { message, code };
+  }
+};
+
+// upload challenge banner
+export const uploadChallengeBannerImage = async ({ file, userId }) => {
+  const allowedImageTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+  ];
+  if (!allowedImageTypes.includes(file.type)) {
+    throw new Error("Please select an image file.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", `users/challenge_banner/${userId}/challenge`);
+  formData.append("type", "banner");
+
+  try {
+    const response = await axiosInstance.post("/upload/post", formData);
+    return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);
     throw { message, code };

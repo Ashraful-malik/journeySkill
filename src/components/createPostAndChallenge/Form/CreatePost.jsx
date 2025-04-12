@@ -54,13 +54,13 @@ function CreatePost({
   const [imageData, setImageData] = useState(null);
   const navigate = useRouter();
   const { toast } = useToast();
-  const [content, setContent] = useState("Whats on your mind?...");
 
   const { mutate: createNewPost, isPending } = useCreatePostMutation();
 
   const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
   const form = useForm({
     resolver: zodResolver(postSchema),
+    mode: "onChange",
     defaultValues: {
       text: "",
       link: "",
@@ -77,22 +77,36 @@ function CreatePost({
   );
 
   // ----------Get individual challenge details with selected Challenge id-------
-
   const { data: individualChallenge } = useChallengeByIdQuery(selectChallenge);
 
-  const challengeIsCompleted = individualChallenge?.isCompleted;
+  const [challengeIsCompleted, setChallengeIsCompleted] = useState(false);
+  const [isChallengeActive, setIsChallengeActive] = useState(false);
 
-  const isChallengeActive = useMemo(() => {
-    if (!individualChallenge?.startDate || !individualChallenge?.endDate)
-      return false;
-    return (
-      new Date() >= new Date(individualChallenge.startDate) &&
-      new Date() <= new Date(individualChallenge.endDate)
-    );
+  useEffect(() => {
+    if (individualChallenge) {
+      const isCompleted = individualChallenge?.isCompleted;
+      const isActive =
+        new Date() >= new Date(individualChallenge?.startDate) &&
+        new Date() <= new Date(individualChallenge?.endDate);
+
+      setChallengeIsCompleted(isCompleted);
+      setIsChallengeActive(isActive);
+    }
   }, [individualChallenge]);
+
+  // setting image to imageData
+  useEffect(() => {
+    if (
+      imageData?.secure_url && // Make sure image data exists
+      !form.getValues("imageUrl") // Only set it if it's not already set
+    ) {
+      form.setValue("imageUrl", imageData.secure_url);
+    }
+  }, [imageData, form]);
 
   // -------submit form---------
   const onSubmit = async (data) => {
+    console.log("data====>", data);
     if (!isChallengeActive && !challengeIsCompleted) {
       toast({
         title: "Challenge is Ended",
@@ -104,7 +118,6 @@ function CreatePost({
 
     const postData = {
       ...data,
-      text: content,
       imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
       ...(imageData?.public_id && { imagePublicId: imageData.public_id }),
       userId,
@@ -213,22 +226,23 @@ function CreatePost({
             {/* Rich Text Editor */}
             <FormField
               control={form.control}
-              disabled={!isChallengeSelected}
               name="text"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Post content</FormLabel>
                   <FormControl>
                     <TiptapWrapper
-                      disabled={!isChallengeSelected} // Pass disabled state here
+                      disabled={!isChallengeSelected}
                       content={field.value}
-                      onChange={(newContent) => {
-                        setContent(newContent);
-                        field.onChange(newContent); // This updates form state
+                      onChange={(html) => {
+                        form.setValue("text", html, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        });
+                        field.onChange(html);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -249,33 +263,26 @@ function CreatePost({
               )}
             />
             {/* File Upload */}
-            <FormField
-              control={form.control}
-              name="imageUrl" // Name it based on how you want the image to be handled in form data
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Upload Image</FormLabel>
-                  <PostImageUpload
-                    onUploadSuccess={(data) => {
-                      // Check if 'data' is defined and has valid properties
-                      if (data?.secure_url && data?.public_id) {
-                        setImageData(data); // Only set imageData if data is valid
-                        field.onChange(data.secure_url);
-                      } else {
-                        toast({
-                          title: "Image upload error",
-                          message: "Please try again",
-                          variant: "destructive",
-                        });
-                      }
-                    }}
-                    onUploadPending={(isPending) => {
-                      setIsImageUploadingPending(isPending);
-                    }}
-                  />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <FormLabel>Upload Image</FormLabel>
+              <PostImageUpload
+                onUploadSuccess={(data) => {
+                  if (data?.secure_url && data?.public_id) {
+                    setImageData(data);
+                  } else {
+                    toast({
+                      title: "Image upload error",
+                      message: "Please try again",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                onUploadPending={(isPending) => {
+                  setIsImageUploadingPending(isPending);
+                }}
+              />
+            </div>
+
             {/* is public */}
             <FormField
               control={form.control}

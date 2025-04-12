@@ -13,7 +13,14 @@ const challengeSchema = new Schema(
       ref: "User",
       required: true,
     },
-
+    banner: {
+      imageUrl: {
+        type: String,
+      },
+      ImagePublicId: {
+        type: String,
+      },
+    },
     challengeName: {
       type: String,
       required: true,

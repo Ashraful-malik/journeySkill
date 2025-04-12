@@ -17,10 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useUser } from "@clerk/nextjs";
 import challengeSchema from "@/schema/challengeSchema";
 import { addDays, format } from "date-fns";
-import { CalendarIcon, Loader, SplineIcon } from "lucide-react";
+import { CalendarIcon, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -31,16 +30,19 @@ import {
 import TagInput from "@/components/ui/tag-input";
 import { useCreateChallengeMutation } from "@/hooks/mutations/useCreateChallengeMutation";
 import { useChallengeQuery } from "@/hooks/queries/useChallengeQuery";
+import ChallengeBannerImageUpload from "@/components/fileUpload/BannerImageUpload";
 
 function CreateChallenge() {
   const { mutate: createChallenge, isPending } = useCreateChallengeMutation();
   const router = useRouter();
   const { toast } = useToast();
 
-  // this is important  to fetch challenges so its not give error
+  // *this is important  to fetch challenges so its not give error
   const { data } = useChallengeQuery();
 
   // Define the mutation
+  const [imageData, setImageData] = useState(null);
+  const [isImageUploadingPending, setIsImageUploadingPending] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(challengeSchema),
@@ -51,6 +53,7 @@ function CreateChallenge() {
       tags: [],
       dateRange: { from: new Date(), to: addDays(new Date(), 10) }, // Default range
       days: 10, //default no of days
+      imageUrl: "",
     },
   });
 
@@ -69,8 +72,16 @@ function CreateChallenge() {
 
   // handle file submit
   const onSubmit = async (challengeData) => {
+    const allChallengeData = {
+      ...challengeData,
+      imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
+      banner: {
+        imageUrl: imageData?.secure_url || "", // Ensure fallback for missing imageUrl
+        ImagePublicId: imageData?.public_id || "",
+      },
+    };
     createChallenge(
-      { challengeData },
+      { allChallengeData },
       {
         onSuccess: (data) => {
           toast({
@@ -81,6 +92,7 @@ function CreateChallenge() {
           router.push(`/challenges/analytics/${data?._id}`);
         },
         onError: (error) => {
+          console.log(error);
           toast({
             title: "Error",
             description: error.message || "An error occurred.",
@@ -99,6 +111,34 @@ function CreateChallenge() {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-4 max-w-2xl p-2 "
       >
+        {/* File Upload */}
+        <FormField
+          control={form.control}
+          name="imageUrl" // Name it based on how you want the image to be handled in form data
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Upload Banner Image</FormLabel>
+              <ChallengeBannerImageUpload
+                onUploadSuccess={(data) => {
+                  // Check if 'data' is defined and has valid properties
+                  if (data?.secure_url && data?.public_id) {
+                    setImageData(data); // Only set imageData if data is valid
+                    field.onChange(data.secure_url);
+                  } else {
+                    toast({
+                      title: "Image upload error",
+                      message: "Please try again",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                onUploadPending={(isPending) => {
+                  setIsImageUploadingPending(isPending);
+                }}
+              />
+            </FormItem>
+          )}
+        />
         {/* Challenge name */}
         <FormField
           control={form.control}
@@ -234,7 +274,7 @@ function CreateChallenge() {
 
         {/* submit button */}
         <div className="flex justify-end">
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending || isImageUploadingPending}>
             {isPending ? (
               <span className="flex gap-2 items-center">
                 <Loader className="animate-spin" size={20} /> Creating...

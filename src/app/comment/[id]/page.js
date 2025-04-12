@@ -46,7 +46,7 @@ export async function generateMetadata({ params }) {
         title,
         description: truncateText(description, 200),
         images: [ogImageUrl.toString()],
-        creator: "@journeyskill", // Your app's official handle
+        creator: "@Ashraful__malik",
       },
       openGraph: {
         type: "article",

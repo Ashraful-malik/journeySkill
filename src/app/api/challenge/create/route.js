@@ -29,8 +29,23 @@ export async function POST(req) {
       });
     }
 
-    const { challengeName, challengeDescription, tags, days, isPublic } =
-      await req.json();
+    const {
+      challengeName,
+      challengeDescription,
+      tags,
+      days,
+      isPublic,
+      banner,
+    } = await req.json();
+
+    console.log(
+      challengeName,
+      challengeDescription,
+      tags,
+      days,
+      isPublic,
+      banner
+    );
 
     if (
       !challengeName ||
@@ -73,10 +88,15 @@ export async function POST(req) {
         endDate,
         consistencyIncentiveDays,
         isPublic,
+        banner: {
+          imageUrl: banner?.imageUrl || "",
+          ImagePublicId: banner?.ImagePublicId || "", // make sure to match your schema key
+        },
       });
       const updatedTagIds = await createOrUpdateTags(tags || [], challenge);
       challenge.tags = updatedTagIds;
       const saveChallenge = await challenge.save();
+      console.log(saveChallenge);
 
       return createResponse({
         data: saveChallenge,
@@ -91,6 +111,7 @@ export async function POST(req) {
       });
     }
   } catch (error) {
+    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

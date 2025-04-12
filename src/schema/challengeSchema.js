@@ -14,6 +14,12 @@ const challengeSchema = z.object({
     to: z.date(),
   }),
   days: z.number().min(5, "Days must be at least 5"),
+  banner: z
+    .object({
+      imageUrl: z.string().url().optional(),
+      ImagePublicId: z.string().optional(),
+    })
+    .optional(),
 });
 
 export default challengeSchema;

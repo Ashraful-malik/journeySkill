@@ -26,6 +26,7 @@ import {
 } from "../ui/tooltip";
 import ChallengeCardSkeleton from "../skeleton/card/ChallengesCardSkeleton";
 import ShareButtons from "../ShareButtons";
+import Image from "next/image";
 function ChallengeCard({
   id,
   description,
@@ -42,7 +43,9 @@ function ChallengeCard({
   optimistic = false,
   isDeleting = false,
   userId,
+  banner,
   className,
+  hideStatus,
 }) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(initialLikesCount);
@@ -111,7 +114,7 @@ function ChallengeCard({
             </div>
           )}
         </CardTitle>
-        <CardDescription aria-labelledby="author-name">
+        <CardDescription aria-labelledby="challenge-created">
           {challengeCreatedAt}
         </CardDescription>
       </CardHeader>
@@ -119,10 +122,19 @@ function ChallengeCard({
       {/* Content */}
       {/* link to individual challenge */}
       <Link href={`/challenges/${id}`}>
-        <CardContent className=" ">
+        <CardContent className="">
+          {banner?.imageUrl && (
+            <Image
+              src={banner?.imageUrl}
+              alt={title}
+              className="w-full rounded-md "
+              width={500}
+              height={900}
+            />
+          )}
           <div className="content">
-            <h1 className="text-xl font-bold">{title}</h1>
-            <p className="leading-7 [&:not(:first-child)]:mt-4 text-base">
+            <h1 className="text-xl font-bold pt-4">{title}</h1>
+            <p className="leading-7 [&:not(:first-child)]:mt-2 text-base">
               {description}
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
@@ -140,77 +152,79 @@ function ChallengeCard({
       </Link>
 
       {/* Footer */}
-      <CardFooter>
-        <div className="flex items-center justify-between w-full">
-          {/* Left Actions */}
-          <div className="flex items-center space-x-4 text-muted-foreground">
-            <button
-              className="flex items-center gap-2 cursor-pointer "
-              aria-label="Like this post"
-              onClick={handleToggle}
-            >
-              <Heart
-                size={20}
-                className={
-                  isLiked ? "text-red-500 fill-current" : "text-gray-500"
-                }
-              />
-              <span className="text-sm" aria-hidden="true">
-                {likesCount}
-              </span>
-            </button>
-            {/* comment */}
-            <Link href={`/comment/${id}/?type=challenge`}>
+      {!hideStatus && (
+        <CardFooter>
+          <div className="flex items-center justify-between w-full">
+            {/* Left Actions */}
+            <div className="flex items-center space-x-4 text-muted-foreground">
               <button
-                className="flex items-center gap-2 cursor-pointer"
-                aria-label="Comment on this post"
+                className="flex items-center gap-2 cursor-pointer "
+                aria-label="Like this post"
+                onClick={handleToggle}
               >
-                <MessageCircle size={20} className="hover:text-primary" />
+                <Heart
+                  size={20}
+                  className={
+                    isLiked ? "text-red-500 fill-current" : "text-gray-500"
+                  }
+                />
                 <span className="text-sm" aria-hidden="true">
-                  {commentCount}
+                  {likesCount}
                 </span>
               </button>
-            </Link>
-            {/* views */}
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              aria-label="View this post"
-            >
-              <Eye size={20} />
-              <span className="text-sm" aria-hidden="true">
-                {viewsCount}
-              </span>
-            </div>
-          </div>
-
-          {/* Right side Action */}
-          <div className="flex gap-2">
-            {userId === challengeOwner?._id && (
-              <div className="flex items-center space-x-4">
-                <TooltipProvider arial-label="challenge analytics">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Link href={`/challenges/analytics/${id}`}>
-                        <ChartColumnStacked size={20} />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Challenge Analytics</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+              {/* comment */}
+              <Link href={`/comment/${id}/?type=challenge`}>
+                <button
+                  className="flex items-center gap-2 cursor-pointer"
+                  aria-label="Comment on this post"
+                >
+                  <MessageCircle size={20} className="hover:text-primary" />
+                  <span className="text-sm" aria-hidden="true">
+                    {commentCount}
+                  </span>
+                </button>
+              </Link>
+              {/* views */}
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                aria-label="View this post"
+              >
+                <Eye size={20} />
+                <span className="text-sm" aria-hidden="true">
+                  {viewsCount}
+                </span>
               </div>
-            )}
-            <div className="text-muted-foreground ">
-              <ShareButtons
-                url={fullUrl}
-                title={title}
-                description={description}
-              />
+            </div>
+
+            {/* Right side Action */}
+            <div className="flex gap-2">
+              {userId === challengeOwner?._id && (
+                <div className="flex items-center space-x-4">
+                  <TooltipProvider arial-label="challenge analytics">
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Link href={`/challenges/analytics/${id}`}>
+                          <ChartColumnStacked size={20} />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Challenge Analytics</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
+              <div className="text-muted-foreground ">
+                <ShareButtons
+                  url={fullUrl}
+                  title={title}
+                  description={description}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 }
