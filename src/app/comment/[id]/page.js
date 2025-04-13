@@ -29,11 +29,8 @@ export async function generateMetadata({ params }) {
 
     // Dynamic OG Image (recommended)
     const ogImageUrl = new URL("/api/og", process.env.NEXT_PUBLIC_SITE_URL);
-    ogImageUrl.searchParams.set("title", encodeURIComponent(title));
-    ogImageUrl.searchParams.set(
-      "description",
-      encodeURIComponent(truncateText(description, 200))
-    );
+    ogImageUrl.searchParams.set("title", title);
+    ogImageUrl.searchParams.set("description", truncateText(description, 100));
 
     return {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
@@ -82,7 +79,7 @@ function truncateText(str, length) {
 
 function getFallbackMetadata(url) {
   const fallbackImage = new URL(
-    "/default-og.jpg",
+    "/twitterCard/landing-page.png",
     process.env.NEXT_PUBLIC_SITE_URL
   );
   return {

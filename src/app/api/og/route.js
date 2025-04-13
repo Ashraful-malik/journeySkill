@@ -4,7 +4,7 @@ export const runtime = "edge";
 
 // Text processing utilities
 function decodeText(encodedStr) {
-  return decodeURIComponent(encodedStr.replace(/\+/g, " "));
+  return encodedStr;
 }
 
 function stripHtml(html) {
@@ -152,6 +152,10 @@ export async function GET(request) {
     {
       width: 1200,
       height: 630,
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "max-age=0, s-maxage=86400",
+      },
     }
   );
 }
