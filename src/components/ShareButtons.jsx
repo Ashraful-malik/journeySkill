@@ -39,7 +39,6 @@ function ShareButtons({ url, title, description }) {
     try {
       await navigator.share(shareDate);
     } catch (error) {
-      console.log("Share cancelled or failed", err);
       setIsNativeSharingSupported(false);
     }
   };

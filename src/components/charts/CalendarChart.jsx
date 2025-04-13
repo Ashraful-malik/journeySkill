@@ -72,6 +72,13 @@ export const CalendarChart = ({ dailyProgress, from, to }) => {
         }
         theme={{
           tooltip: tooltipStyles,
+          labels: {
+            text: {
+              fill: isDarkMode ? "#A1A1AA" : "#4B5563",
+              fontSize: 12,
+              fontWeight: 500,
+            },
+          },
         }}
       />
     </div>

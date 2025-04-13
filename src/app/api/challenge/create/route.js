@@ -38,15 +38,6 @@ export async function POST(req) {
       banner,
     } = await req.json();
 
-    console.log(
-      challengeName,
-      challengeDescription,
-      tags,
-      days,
-      isPublic,
-      banner
-    );
-
     if (
       !challengeName ||
       !challengeDescription ||
@@ -96,7 +87,6 @@ export async function POST(req) {
       const updatedTagIds = await createOrUpdateTags(tags || [], challenge);
       challenge.tags = updatedTagIds;
       const saveChallenge = await challenge.save();
-      console.log(saveChallenge);
 
       return createResponse({
         data: saveChallenge,
@@ -111,7 +101,6 @@ export async function POST(req) {
       });
     }
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       success: false,
       status: 500,

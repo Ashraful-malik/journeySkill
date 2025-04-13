@@ -5,27 +5,27 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChartColumnStacked, Info, User } from "lucide-react";
-import PostCard from "../cards/PostCard";
-import { Progress } from "../ui/progress";
+import PostCard from "@/components/cards/PostCard";
+import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "@/components/ui/tooltip";
 import Link from "next/link";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
-import BackButton from "../BackButton";
+import BackButton from "@/components/BackButton";
 import {
   useChallengePostsQuery,
   useEngagementMetrics,
 } from "@/hooks/queries/usePostQuery";
 import { useCrateViewMutation } from "@/hooks/mutations/useViewMutation";
 import { useGlobalUser } from "@/context/userContent";
-import IndividualChallengeSkeleton from "../skeleton/challenges/IndividualChallengeSkeleton";
-import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
+import IndividualChallengeSkeleton from "@/components/skeleton/challenges/IndividualChallengeSkeleton";
+import PostCardSkeleton from "@/components/skeleton/card/PostCardSkeleton";
 import { useBatchLikeMutation } from "@/hooks/mutations/useBatchLikeMutation";
 import { Virtuoso } from "react-virtuoso";
 import Image from "next/image";

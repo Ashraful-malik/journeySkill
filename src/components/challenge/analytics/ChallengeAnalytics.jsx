@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import BarChart from "@/components/charts/BarChart";
 import { CalendarChart } from "@/components/charts/CalendarChart";
+import { useConfetti } from "@/hooks/useConfetti";
+import { useEffect } from "react";
 
 export default function AnalyticsPage({ challengeAnalyticsData }) {
   const challengeDetails = challengeAnalyticsData?.challengeDetails;
@@ -63,6 +65,21 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
   const dailyProgress = challengeAnalyticsData?.dailyProgress?.map((item) => {
     return { day: item.day, tasks: item.tasks, taskDate: item.taskDates };
   });
+
+  // show confetti if challenge is completed
+  const { celebrateFullScreen } = useConfetti();
+  const isCompleted = challengeData.isCompleted;
+
+  useEffect(() => {
+    const confettiKey = `confettiShown-${challengeDetails?._id}`;
+
+    const hasShownConfetti = localStorage.getItem(confettiKey);
+
+    if (isCompleted && !hasShownConfetti) {
+      celebrateFullScreen();
+      localStorage.setItem(confettiKey, "true");
+    }
+  }, [isCompleted, celebrateFullScreen]);
 
   return (
     <div className="container mx-auto px-4 py-8 lg:px-0">

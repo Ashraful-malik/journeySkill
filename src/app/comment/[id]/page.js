@@ -61,7 +61,7 @@ export async function generateMetadata({ params }) {
             alt: `Post by ${username}`,
           },
         ],
-        publishedTime: post.createdAt || new Date().toISOString(),
+        publishedTime: post.data.createdAt || new Date().toISOString(),
       },
       robots: {
         index: true,
@@ -69,7 +69,6 @@ export async function generateMetadata({ params }) {
       },
     };
   } catch (error) {
-    console.error("Metadata generation failed:", error);
     return getFallbackMetadata(url);
   }
 }

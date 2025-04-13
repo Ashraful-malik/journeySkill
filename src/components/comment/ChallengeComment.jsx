@@ -101,7 +101,11 @@ function ChallengeComment({ id }) {
       );
       form.reset();
     } catch (error) {
-      console.error(error);
+      toast({
+        title: "Error",
+        description: "An error occurred while creating the comment.",
+        variant: "destructive",
+      });
     }
   };
   if (challengeLoading) {

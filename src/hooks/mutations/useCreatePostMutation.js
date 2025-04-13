@@ -63,7 +63,6 @@ export const useCreatePostMutation = () => {
 
     /******  077cd614-c01f-430f-9600-a975e5868354  *******/
     onError: (error, variables, context) => {
-      console.error("Error creating post:", error);
       if (context?.previousPosts) {
         queryClient.setQueryData(["feed"], context.previousPosts);
       }

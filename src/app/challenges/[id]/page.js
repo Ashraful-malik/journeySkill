@@ -1,67 +1,99 @@
-"use client";
+import IndividualChallengeWrapper from "@/components/challenge/individualChallenge/IndividualChallengeWrapper";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
-import IndividualChallenge from "@/components/challenge/IndividualChallenge";
-import WrapperLayout from "@/components/layouts/WrapperLayout";
-import IndividualChallengeSkeleton from "@/components/skeleton/challenges/IndividualChallengeSkeleton";
+// Utility functions
+function truncateText(str, length) {
+  if (!str) return "";
+  return str.length > length ? str.substring(0, length - 3) + "..." : str;
+}
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const url = new URL(`challenges/${id}`, process.env.NEXT_PUBLIC_SITE_URL);
 
-export default function ChallengePage() {
-  const router = useRouter();
-  const params = useParams();
-  const challengeId = params?.id;
-  const [shouldRedirect, setShouldRedirect] = useState(false);
-
-  // Challenge data query
-  const {
-    data: challenge,
-    isLoading,
-    isError,
-    error,
-  } = useChallengeByIdQuery(challengeId);
-
-  useEffect(() => {
-    // Don't proceed if challengeId is missing or invalid
-    if (!challengeId || !challengeId.match(/^[a-f\d]{24}$/i)) {
-      setShouldRedirect(true);
-      return;
-    }
-
-    // Don't proceed if the query is still loading
-    if (isLoading) {
-      return;
-    }
-
-    // Redirect if the query fails with a 404 error
-    if (isError && error?.status === 404) {
-      setShouldRedirect(true);
-      return;
-    }
-
-    // Redirect if the query completes but no data is found
-  }, [challengeId, isLoading, isError, error]);
-
-  // Perform the redirect if needed
-  useEffect(() => {
-    if (shouldRedirect) {
-      router.replace("/404");
-    }
-  }, [shouldRedirect, router]);
-
-  // Show loading state while validating
-  if (isLoading || !challenge) {
-    return (
-      <WrapperLayout>
-        <IndividualChallengeSkeleton />
-      </WrapperLayout>
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/metadata/challenge/${id}`
     );
-  }
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    const challenge = await res.json();
 
-  // Render the challenge if all checks pass
-  return (
-    <WrapperLayout>
-      <IndividualChallenge challengeId={challengeId} />
-    </WrapperLayout>
+    // Safely handle data
+    const title = challenge.data.challengeName || "A challenge on journeyskill";
+    const description =
+      challenge.data.description || "A challenge on journeyskill";
+    const username = challenge.data.challengeOwner?.username || "a user";
+    const cardImage =
+      challenge.data.banner?.imageUrl ||
+      `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/landing-page.png`;
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: url.toString(),
+      },
+      twitter: {
+        card: "summary_large_image", // Better engagement than 'summary'
+        title,
+        description: truncateText(description, 200),
+        images: [cardImage],
+        creator: "@Ashraful__malik",
+      },
+      openGraph: {
+        type: "article",
+        title,
+        description: truncateText(description, 200),
+        url: url.toString(),
+        images: [
+          {
+            url: cardImage,
+            width: 1200,
+            height: 630,
+            alt: `Post by ${username}`,
+          },
+        ],
+        publishedTime: challenge.data.createdAt || new Date().toISOString(),
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+    };
+  } catch (error) {
+    return getFallbackMetadata(url);
+  }
+}
+function getFallbackMetadata(url) {
+  const fallbackImage = new URL(
+    "/twitterCard/landing-page.png",
+    process.env.NEXT_PUBLIC_SITE_URL
   );
+  return {
+    title: "Challenge | journeyskill",
+    description: "View this Challenge on journeyskill",
+    alternates: {
+      canonical: url.toString(),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Post | journeyskill",
+      description: "Explore this content on journeyskill",
+      images: [fallbackImage.toString()],
+    },
+    openGraph: {
+      title: "Challenge | journeyskill",
+      description: "View this Challenge on journeyskill",
+      url: url.toString(),
+      images: [
+        {
+          url: fallbackImage.toString(),
+          width: 1200,
+          height: 630,
+          alt: "JourneySkill challenge",
+        },
+      ],
+    },
+  };
+}
+export default function Page() {
+  return <IndividualChallengeWrapper />;
 }

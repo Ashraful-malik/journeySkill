@@ -111,6 +111,7 @@ export async function POST(req, { params }) {
                 startDate: 1,
                 endDate: 1,
                 viewCount: 1,
+                _id: 1,
               },
             },
           ],

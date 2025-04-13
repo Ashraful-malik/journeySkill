@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "next/image";
 import { Eye, Heart, MessageCircle, User } from "lucide-react";
@@ -22,6 +23,16 @@ import {
 import PostCardSkeleton from "../skeleton/card/PostCardSkeleton";
 import RichTextContent from "../richTextEditor/RichTextContent";
 import ShareButtons from "../ShareButtons";
+
+// This function truncates the challenge name if it exceeds a certain length
+// and adds ellipsis at the end.
+function TruncateChallengeName({ name, value }) {
+  const maxLength = value || 40; // Maximum length of the challenge name
+  if (name.length > maxLength) {
+    return name.slice(0, maxLength) + "...";
+  }
+  return name;
+}
 
 function PostCard({
   content,
@@ -171,9 +182,20 @@ function PostCard({
                   className="w-fit max-w-xs line-clamp-1"
                 >
                   <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        {challenge?.challengeName}
+                    <Tooltip className="w-fit">
+                      <TooltipTrigger className="text-left">
+                        <TruncateChallengeName
+                          name="learning Basic of c in one month challenge to see challege hello challege"
+                          value={
+                            typeof window === "undefined"
+                              ? 40
+                              : window.innerWidth > 768
+                              ? 40
+                              : 20
+                          }
+                        />
+
+                        {/* {challenge?.challengeName} */}
                       </TooltipTrigger>
                       <TooltipContent>View challenge details</TooltipContent>
                     </Tooltip>

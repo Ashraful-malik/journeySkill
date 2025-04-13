@@ -33,7 +33,6 @@ export async function GET(req, { params }) {
       message: "success",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       status: 500,
       message: error.message,

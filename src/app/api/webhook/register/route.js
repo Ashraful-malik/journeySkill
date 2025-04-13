@@ -130,7 +130,6 @@ export async function POST(req) {
           });
         }
       } catch (error) {
-        console.error("Database error:", error.message);
         return createErrorResponse({
           status: 500,
           message: "Database error",
@@ -144,7 +143,6 @@ export async function POST(req) {
       message: "Webhook processed successfully",
     });
   } catch (error) {
-    console.error("Unhandled error:", error);
     return new createErrorResponse({
       message: "Internal server error",
       status: 500,

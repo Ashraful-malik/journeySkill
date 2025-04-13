@@ -31,11 +31,13 @@ import TagInput from "@/components/ui/tag-input";
 import { useCreateChallengeMutation } from "@/hooks/mutations/useCreateChallengeMutation";
 import { useChallengeQuery } from "@/hooks/queries/useChallengeQuery";
 import ChallengeBannerImageUpload from "@/components/fileUpload/BannerImageUpload";
+import { useConfetti } from "@/hooks/useConfetti";
 
 function CreateChallenge() {
   const { mutate: createChallenge, isPending } = useCreateChallengeMutation();
   const router = useRouter();
   const { toast } = useToast();
+  const { smallConfetti } = useConfetti();
 
   // *this is important  to fetch challenges so its not give error
   const { data } = useChallengeQuery();
@@ -84,6 +86,7 @@ function CreateChallenge() {
       { allChallengeData },
       {
         onSuccess: (data) => {
+          smallConfetti(); // 🎉 celebrate
           toast({
             title: "Your Challenge is Live! 🎉",
             description:
@@ -92,7 +95,6 @@ function CreateChallenge() {
           router.push(`/challenges/analytics/${data?._id}`);
         },
         onError: (error) => {
-          console.log(error);
           toast({
             title: "Error",
             description: error.message || "An error occurred.",

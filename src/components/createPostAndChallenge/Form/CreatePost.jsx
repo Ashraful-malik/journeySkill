@@ -106,7 +106,6 @@ function CreatePost({
 
   // -------submit form---------
   const onSubmit = async (data) => {
-    console.log("data====>", data);
     if (!isChallengeActive && !challengeIsCompleted) {
       toast({
         title: "Challenge is Ended",

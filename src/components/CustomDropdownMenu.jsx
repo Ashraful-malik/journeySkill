@@ -37,6 +37,7 @@ const CustomDropdownMenu = ({
               toast({
                 title: "Post deleted",
                 description: "Post deleted successfully",
+                variant: "destructive",
               });
             },
             onError: (error) => {

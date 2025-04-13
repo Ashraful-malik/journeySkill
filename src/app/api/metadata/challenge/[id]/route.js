@@ -15,7 +15,7 @@ export async function GET(req, { params }) {
     }
     const challenge = await Challenge.findById(id)
       .select("challengeName description createdAt banner.imageUrl")
-      .populate("owner", "fullName username ")
+      .populate("challengeOwner", "fullName username ")
       .lean();
     if (!challenge) {
       return createErrorResponse({
@@ -29,7 +29,6 @@ export async function GET(req, { params }) {
       message: "success",
     });
   } catch (error) {
-    console.log(error);
     return createErrorResponse({
       status: 500,
       message: error.message,

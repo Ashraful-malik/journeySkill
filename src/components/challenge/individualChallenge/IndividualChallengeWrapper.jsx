@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
-import IndividualChallenge from "@/components/challenge/IndividualChallenge";
+import IndividualChallenge from "./IndividualChallenge";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import IndividualChallengeSkeleton from "@/components/skeleton/challenges/IndividualChallengeSkeleton";
 import { Suspense } from "react";
