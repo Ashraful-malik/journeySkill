@@ -26,6 +26,7 @@ export async function generateMetadata({ params }) {
       `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/landing-page.png`;
 
     return {
+      metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
       title,
       description,
       alternates: {
@@ -68,6 +69,7 @@ function getFallbackMetadata(url) {
     process.env.NEXT_PUBLIC_SITE_URL
   );
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
     title: "Challenge | journeyskill",
     description: "View this Challenge on journeyskill",
     alternates: {

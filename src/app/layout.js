@@ -19,6 +19,8 @@ const inter = Inter({
   fallback: ["sans-serif"],
 });
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
+
   title: "JourneySkill - Build Your Coding Habit",
   description:
     "Join JourneySkill to create custom coding challenges and track your progress.",

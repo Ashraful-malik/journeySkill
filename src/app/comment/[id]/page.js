@@ -36,6 +36,7 @@ export async function generateMetadata({ params }) {
     );
 
     return {
+      metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
       title,
       description: truncateText(description, 160),
       alternates: {
@@ -85,6 +86,7 @@ function getFallbackMetadata(url) {
     process.env.NEXT_PUBLIC_SITE_URL
   );
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
     title: "Post | journeyskill",
     description: "View this post on journeyskill",
     alternates: {

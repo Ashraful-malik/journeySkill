@@ -40,14 +40,6 @@ I started learning web development through challenges like `#100DaysOfCode` and 
 
 ---
 
-## 📸 Screenshots
-
-| Challenge Creation                          | Progress Analytics                   | Post Feed                        |
-| ------------------------------------------- | ------------------------------------ | -------------------------------- |
-| ![Create Challenge](https://your-image-url) | ![Analytics](https://your-image-url) | ![Posts](https://your-image-url) |
-
----
-
 ## 📬 Feedback
 
 JourneySkill is currently in beta and your feedback means the world 🌍
