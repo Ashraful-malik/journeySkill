@@ -1,36 +1,39 @@
-import IndividualChallengeWrapper from "@/components/challenge/individualChallenge/IndividualChallengeWrapper";
-
-// Utility functions
-export const dynamic = "force-dynamic";
-
-function truncateText(str, length) {
-  if (!str) return "";
-  return str.length > length ? str.substring(0, length - 3) + "..." : str;
+function stripHtml(html) {
+  return html
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const url = new URL(`challenges/${id}`, process.env.NEXT_PUBLIC_SITE_URL);
+  const url = new URL(
+    `/posts/comment/${id}/?type=post`,
+    process.env.NEXT_PUBLIC_SITE_URL
+  );
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/metadata/challenge/${id}`
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/metadata/post/${id}`,
+      { next: { revalidate: 3600 } } // Cache for 1 hour
     );
+
     if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const challenge = await res.json();
+    const post = await res.json();
 
     // Safely handle data
-    const title = challenge.data.challengeName || "A challenge on journeyskill";
-    const description =
-      challenge.data.description || "A challenge on journeyskill";
-    const username = challenge.data.challengeOwner?.username || "a user";
-    const cardImage =
-      challenge.data.banner?.imageUrl ||
-      `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/landing-page.png`;
+    const description = stripHtml(post.data.text || "A post on journeyskill");
+    const username = post.data.owner?.username || "a user";
+    const title = `Post by @${username}`;
+
+    // Dynamic OG Image (recommended)
+    const ogImageUrl = new URL("/api/og", process.env.NEXT_PUBLIC_SITE_URL);
+    ogImageUrl.searchParams.set("title", title);
+    ogImageUrl.searchParams.set("description", truncateText(description, 100));
 
     return {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
       title,
-      description,
+      description: truncateText(description, 160),
       alternates: {
         canonical: url.toString(),
       },
@@ -38,7 +41,7 @@ export async function generateMetadata({ params }) {
         card: "summary_large_image", // Better engagement than 'summary'
         title,
         description: truncateText(description, 200),
-        images: [cardImage],
+        images: [ogImageUrl.toString()],
         creator: "@Ashraful__malik",
       },
       openGraph: {
@@ -48,13 +51,13 @@ export async function generateMetadata({ params }) {
         url: url.toString(),
         images: [
           {
-            url: cardImage,
+            url: ogImageUrl.toString(),
             width: 1200,
             height: 630,
             alt: `Post by ${username}`,
           },
         ],
-        publishedTime: challenge.data.createdAt || new Date().toISOString(),
+        publishedTime: post.data.createdAt || new Date().toISOString(),
       },
       robots: {
         index: true,
@@ -65,6 +68,13 @@ export async function generateMetadata({ params }) {
     return getFallbackMetadata(url);
   }
 }
+
+// Utility functions
+function truncateText(str, length) {
+  if (!str) return "";
+  return str.length > length ? str.substring(0, length - 3) + "..." : str;
+}
+
 function getFallbackMetadata(url) {
   const fallbackImage = new URL(
     "/twitterCard/landing-page.png",
@@ -72,8 +82,8 @@ function getFallbackMetadata(url) {
   );
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
-    title: "Challenge | journeyskill",
-    description: "View this Challenge on journeyskill",
+    title: "Post | journeyskill",
+    description: "View this post on journeyskill",
     alternates: {
       canonical: url.toString(),
     },
@@ -84,20 +94,17 @@ function getFallbackMetadata(url) {
       images: [fallbackImage.toString()],
     },
     openGraph: {
-      title: "Challenge | journeyskill",
-      description: "View this Challenge on journeyskill",
+      title: "Post | journeyskill",
+      description: "View this post on journeyskill",
       url: url.toString(),
       images: [
         {
           url: fallbackImage.toString(),
           width: 1200,
           height: 630,
-          alt: "JourneySkill challenge",
+          alt: "JourneySkill Post",
         },
       ],
     },
   };
-}
-export default function Page() {
-  return <IndividualChallengeWrapper />;
 }
