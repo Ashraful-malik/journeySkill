@@ -19,9 +19,13 @@ function PostsTab({
     const tab = searchParams.get("tab");
     return tab === "create-challenge" ? "create-challenge" : "create-post";
   };
+  const [onBoardingTemplate, setOnBoardingTemplate] = useState();
+
+  useEffect(() => {
+    setOnBoardingTemplate(searchParams.get("template") || null);
+  }, [searchParams]);
 
   const [activeTab, setActiveTab] = useState(getActiveTabFromQuery());
-
   useEffect(() => {
     const currentTab = searchParams.get("tab");
     if (currentTab !== activeTab) {
@@ -64,7 +68,7 @@ function PostsTab({
       </TabsContent>
       <TabsContent value="create-challenge">
         {/* CreateChallenge form */}
-        <CreateChallenge />
+        <CreateChallenge template={onBoardingTemplate} />
       </TabsContent>
     </Tabs>
   );

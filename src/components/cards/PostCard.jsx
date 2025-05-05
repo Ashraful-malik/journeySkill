@@ -137,7 +137,7 @@ function PostCard({
   return (
     <>
       <Card
-        className={`border rounded-none ${className} ${
+        className={`border rounded-none ${className}  ${
           isDeleting && "opacity-50 pointer-events-none"
         }`}
         data-post-id={postId}
@@ -179,13 +179,13 @@ function PostCard({
               <Link href={`/challenges/${challenge?._id}`} className="w-fit">
                 <Badge
                   variant="secondary"
-                  className="w-fit max-w-xs line-clamp-1"
+                  className="w-fit max-w-xs line-clamp-1 bg-accent text-white "
                 >
                   <TooltipProvider>
                     <Tooltip className="w-fit">
                       <TooltipTrigger className="text-left">
                         <TruncateChallengeName
-                          name="learning Basic of c in one month challenge to see challege hello challege"
+                          name={challenge?.challengeName}
                           value={
                             typeof window === "undefined"
                               ? 40
@@ -273,6 +273,7 @@ function PostCard({
                 </div>
               </div>
               <div className="text-muted-foreground ">
+                {/* share buttons */}
                 <ShareButtons
                   url={fullUrl}
                   title={"Look what I just posted! 👀"}

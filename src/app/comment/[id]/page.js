@@ -1,5 +1,6 @@
 import CommentWrapper from "@/components/comment/CommentWrapper";
 
-export default function Page() {
+function Page() {
   return <CommentWrapper />;
 }
+export default Page;

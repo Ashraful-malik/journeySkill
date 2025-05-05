@@ -50,7 +50,6 @@ export const metadata = {
     images: ["/twitterCard/landing-page.png"],
   },
 };
-const hello = true;
 
 export default async function RootLayout({ children }) {
   const queryClient = new QueryClient();

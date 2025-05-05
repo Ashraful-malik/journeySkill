@@ -60,6 +60,7 @@ export const updateBannerImage = async (formData) => {
 export const fetchUserProfile = async (username) => {
   try {
     const response = await axiosInstance.get(`/profile/${username}`);
+
     return response.data.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

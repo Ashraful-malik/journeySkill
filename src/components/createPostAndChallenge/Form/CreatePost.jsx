@@ -33,6 +33,9 @@ import { useGlobalUser } from "@/context/userContent";
 // import { usePostQuery } from "@/hooks/queries/usePostQuery";
 import { useChallengeByIdQuery } from "@/hooks/queries/useChallengeQuery";
 import TiptapWrapper from "@/components/richTextEditor/TiptapWrapper";
+import CreatePostOnboardingTour from "@/components/onBoarding/CreatePostOnboardingTour";
+import { getOnboarding } from "@/lib/api/onboarding";
+import PostSkeleton from "@/components/skeleton/create/PostSkeleton";
 
 // rich text editor models
 
@@ -142,9 +145,27 @@ function CreatePost({
       }
     );
   };
+  //=========== new user onboarding=============
+  const [runTour, setRunTour] = useState(null);
+  // check if user has completed onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const response = await getOnboarding(userId, "postPage");
+      if (response?.data) {
+        const onboardingRequired = !response.data.completed;
+        setRunTour(onboardingRequired);
+      } else {
+        setRunTour(false);
+      }
+    };
+    checkOnboarding();
+  }, [userId, form]);
 
   return (
-    <div>
+    <>
+      {runTour !== null && (
+        <CreatePostOnboardingTour run={runTour} setRun={setRunTour} />
+      )}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -166,7 +187,7 @@ function CreatePost({
             control={form.control}
             name="challengeId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem data-tour="select-challenge">
                 <FormLabel>Select Challenge</FormLabel>
                 <Select
                   onValueChange={(value) => {
@@ -227,7 +248,7 @@ function CreatePost({
               control={form.control}
               name="text"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-tour="post-editor">
                   <FormLabel>Post content</FormLabel>
                   <FormControl>
                     <TiptapWrapper
@@ -251,7 +272,7 @@ function CreatePost({
               control={form.control}
               name="link"
               render={({ field }) => (
-                <FormItem>
+                <FormItem data-tour="link-input">
                   <FormLabel>Link</FormLabel>
                   <FormDescription>Add a link to your post</FormDescription>
                   <FormControl>
@@ -262,7 +283,7 @@ function CreatePost({
               )}
             />
             {/* File Upload */}
-            <div className="space-y-2">
+            <div className="space-y-2" data-tour="image-uploader">
               <FormLabel>Upload Image</FormLabel>
               <PostImageUpload
                 onUploadSuccess={(data) => {
@@ -286,8 +307,9 @@ function CreatePost({
             <FormField
               control={form.control}
               name="isPublic"
+              data-tour="public-toggle"
               render={({ field }) => (
-                <FormItem className="">
+                <FormItem data-tour="public-toggle">
                   <div>
                     <FormLabel>Public</FormLabel>
                     <FormDescription>
@@ -309,6 +331,8 @@ function CreatePost({
             <div className="flex justify-end">
               <Button
                 type="submit"
+                className="bg-accent text-white hover:bg-accent/80"
+                data-tour="create-post-button"
                 disabled={
                   isPending ||
                   !isChallengeSelected ||
@@ -323,7 +347,7 @@ function CreatePost({
           </fieldset>
         </form>
       </Form>
-    </div>
+    </>
   );
 }
 

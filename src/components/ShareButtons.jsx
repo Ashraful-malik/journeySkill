@@ -5,7 +5,6 @@ import {
   Linkedin,
   Mail,
   Share,
-  Share2,
   Twitter,
   TwitterIcon,
   X,
@@ -50,7 +49,7 @@ function ShareButtons({ url, title, description }) {
       {isNativeSharingSupported ? (
         <button
           onClick={handleNativeShare}
-          className="p-2 rounded-full hover:bg-accent"
+          className="p-2 rounded-full hover:bg-accent hover:text-white"
           aria-label="Share"
         >
           <Share size={20} />
@@ -58,7 +57,7 @@ function ShareButtons({ url, title, description }) {
       ) : (
         <button
           onClick={() => setShowShareDialog(true)}
-          className="p-2 rounded-full hover:bg-accent"
+          className="p-2 rounded-full hover:bg-accent hover:text-white"
           aria-label="Share"
         >
           <Share size={20} />

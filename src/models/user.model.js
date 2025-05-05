@@ -26,6 +26,12 @@ const userSchema = new Schema(
       imageUrl: { type: String },
       publicId: { type: String },
     },
+    onboarding: {
+      challengePage: { type: Boolean, default: false },
+      postPage: { type: Boolean, default: false },
+      analyticsPage: { type: Boolean, default: false },
+      homePage: { type: Boolean, default: false },
+    },
 
     email: {
       type: String,

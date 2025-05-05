@@ -4,7 +4,6 @@ import { useUser } from "@clerk/nextjs";
 export const useUserQuery = () => {
   const { user } = useUser();
   const userId = user?.publicMetadata?.userId;
-
   return useQuery({
     queryKey: ["user", userId],
     queryFn: () => fetchUser(userId),

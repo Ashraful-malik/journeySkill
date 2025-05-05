@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
       challenge.data.description || "A challenge on journeyskill";
     const username = challenge.data.challengeOwner?.username || "a user";
     const cardImage =
-      challenge.data.banner?.imageUrl ||
+      challenge?.data.banner?.imageUrl ||
       `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/landing-page.png`;
 
     return {

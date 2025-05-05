@@ -6,6 +6,7 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const { user } = useUser();
+
   const filteredUser = user
     ? {
         id: user.id,

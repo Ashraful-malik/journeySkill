@@ -42,13 +42,18 @@ const Sidebar = () => {
   const logoSrc = !mounted
     ? "/logo.png" // Default to dark mode logo before mounting
     : currentTheme === "dark"
-    ? "/logo.png"
-    : "/logo-dark.png";
+    ? "/logo.png" //add dark mode logo
+    : "/logo.png";
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
     { name: "Profile", icon: User, link: `/profile/${username}` },
-    { name: "Create", icon: SquarePlus, link: "/create" },
+    {
+      name: "Create",
+      icon: SquarePlus,
+      link: "/create",
+      className: "nav-create",
+    },
     {
       name: "✨Give Feedback",
       icon: MessageSquareText,
@@ -93,11 +98,12 @@ const Sidebar = () => {
         <Image
           src={logoSrc}
           alt="logo"
-          width={12}
-          height={12}
+          width={20}
+          height={20}
           style={{ width: "auto", height: "auto" }}
         />
         <p className="">JourneySkill</p>
+        {/* Beta badge */}
         <Badge variant="secondary" className="max-h-min">
           Beta
         </Badge>
@@ -123,8 +129,8 @@ const Sidebar = () => {
                 <button
                   className={`flex items-center gap-3 p-2 rounded-lg w-full ${
                     pathname === item.link
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "hover:bg-sidebar-accent focus:bg-sidebar-accent"
+                      ? "bg-accent/50 text-sidebar-accent-foreground"
+                      : "hover:bg-accent/50 focus:bg-sidebar-accent"
                   }`}
                   aria-label={item.name}
                 >
@@ -159,9 +165,11 @@ const Sidebar = () => {
               href={item.link}
               key={idx}
               className={`flex items-center gap-3 p-2 rounded-lg ${
+                item.className
+              } ${
                 pathname === item.link
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "hover:bg-sidebar-accent focus:bg-sidebar-accent"
+                  ? "bg-accent/50 text-sidebar-accent-foreground"
+                  : "hover:bg-accent/50 focus:bg-sidebar-accent"
               }`}
               aria-label={item.name}
               {...(item.target && { target: item.target })}
