@@ -45,7 +45,6 @@ const HomeOnboardingTour = ({ run, setRun }) => {
   const { theme } = useTheme();
   const router = useRouter();
   const userId = user?.publicMetadata?.userId;
-  console.log("userId", userId);
 
   const handleJoyrideCallback = async (data) => {
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(data.status)) {

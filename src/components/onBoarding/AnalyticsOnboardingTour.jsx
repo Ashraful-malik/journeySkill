@@ -9,43 +9,43 @@ const step = [
   {
     target: '[data-tour="heading"]', // Page title
     content:
-      "🚀 Welcome to your Challenge Dashboard! Here's where you track your journey, progress, and build your streaks. Let’s walk you through it.",
+      "Welcome to your Challenge Dashboard! Here's where you track your journey, progress, and build your streaks. Let’s walk you through it.",
     disableBeacon: true,
   },
   {
     target: '[data-tour="challenge-completion"]',
     content:
-      "🚀 Welcome to your Challenge Dashboard! Here's where you track your journey, progress, and build your streaks. Let’s walk you through it.",
+      " Need help? Click this button anytime to see how to complete the challenge.",
     disableBeacon: true,
   },
   {
     target: '[data-tour="overview"]',
     content:
-      "📊 The overview gives you a snapshot: how many tasks you've done, your current streak, and how many days are left. Everything you need to stay on track!",
+      "The overview gives you a snapshot: how many tasks you've done, your current streak, and how many days are left. Everything you need to stay on track!",
     disableBeacon: true,
   },
   {
     target: '[data-tour="task-chart"]',
     content:
-      "✅ This graph shows your daily task completion. Aim to fill this up by checking in every day!",
+      "This graph shows your daily task completion. Aim to fill this up by checking in every day!",
     disableBeacon: true,
   },
   {
     target: '[data-tour="heatmap"]',
     content:
-      "🔥 Your activity heatmap visualizes consistency over time. The brighter the streak, the closer you are to your goal!",
+      "Your activity heatmap visualizes consistency over time. The brighter the streak, the closer you are to your goal!",
     disableBeacon: true,
   },
   {
     target: '[data-tour="challenge-details"]',
     content:
-      "📅 Here you can see your challenge status, when you started, and when you last logged progress.",
+      "Here you can see your challenge status, when you started, and when you last logged progress.",
     disableBeacon: true,
   },
   {
     target: '[data-tour="insights"]',
     content:
-      "💡 Smart insights help you finish strong — they track how many tasks are left, how many days you’ve been consistent, and offer personalized encouragement.",
+      "Smart insights help you finish strong — they track how many tasks are left, how many days you’ve been consistent, and offer personalized encouragement.",
     disableBeacon: true,
     placement: "top",
   },

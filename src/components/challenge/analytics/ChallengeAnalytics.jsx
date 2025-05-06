@@ -34,7 +34,6 @@ import { getOnboarding } from "@/lib/api/onboarding";
 import ChallengeAnalyticsTour from "@/components/onBoarding/AnalyticsOnboardingTour";
 
 export default function AnalyticsPage({ challengeAnalyticsData }) {
-  console.log("challenge data", challengeAnalyticsData);
   const challengeDetails = challengeAnalyticsData?.challengeDetails;
   const challengeData = {
     challengeName: challengeDetails?.challengeName,
@@ -77,14 +76,13 @@ export default function AnalyticsPage({ challengeAnalyticsData }) {
 
   useEffect(() => {
     const confettiKey = `confettiShown-${challengeDetails?._id}`;
-
     const hasShownConfetti = localStorage.getItem(confettiKey);
 
     if (isCompleted && !hasShownConfetti) {
       celebrateFullScreen();
       localStorage.setItem(confettiKey, "true");
     }
-  }, [isCompleted, celebrateFullScreen]);
+  }, [isCompleted, celebrateFullScreen, challengeDetails?._id]);
 
   // ========onboarding for new user===========
   const [runTour, setRunTour] = useState(null);

@@ -23,27 +23,13 @@ import { useUserQuery } from "@/hooks/queries/useUserQuery";
 import { useClerk } from "@clerk/nextjs";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 const Sidebar = () => {
   const { data: userData } = useUserQuery();
   const username = userData?.username;
   const pathname = usePathname(); // Get the current route
   const { signOut } = useClerk();
-  const { theme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const currentTheme = theme === "system" ? systemTheme : theme;
-  const logoSrc = !mounted
-    ? "/logo.png" // Default to dark mode logo before mounting
-    : currentTheme === "dark"
-    ? "/logo.png" //add dark mode logo
-    : "/logo.png";
   const navItems = [
     { name: "Home", icon: Home, link: "/home" },
     { name: "Challenges", icon: Swords, link: "/challenges" },
@@ -95,13 +81,7 @@ const Sidebar = () => {
         className="text-2xl font-bold mb-4 flex item-center  h-auto text-center gap-2"
         tabIndex={0}
       >
-        <Image
-          src={logoSrc}
-          alt="logo"
-          width={20}
-          height={20}
-          style={{ width: "auto", height: "auto" }}
-        />
+        <Image src="/logo.svg" alt="logo" width={30} height={30} />
         <p className="">JourneySkill</p>
         {/* Beta badge */}
         <Badge variant="secondary" className="max-h-min">

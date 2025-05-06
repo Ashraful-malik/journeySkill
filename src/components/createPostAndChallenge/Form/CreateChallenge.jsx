@@ -37,7 +37,6 @@ import { getOnboarding } from "@/lib/api/onboarding";
 import { useGlobalUser } from "@/context/userContent";
 
 function CreateChallenge(onBoardingTemplate) {
-  console.log(onBoardingTemplate);
   const { mutate: createChallenge, isPending } = useCreateChallengeMutation();
   const router = useRouter();
   const { toast } = useToast();
@@ -118,7 +117,7 @@ function CreateChallenge(onBoardingTemplate) {
   // check if user has completed onboarding
   useEffect(() => {
     const checkOnboarding = async () => {
-      const response = await getOnboarding(userId, "postPage");
+      const response = await getOnboarding(userId, "challengePage");
       if (response?.data) {
         const onboardingRequired = !response.data.completed;
         setRunTour(onboardingRequired);

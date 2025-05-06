@@ -71,6 +71,7 @@
     "react-joyride": "^3.0.0-7",
     "react-masonry-css": "^1.0.16",
     "react-virtuoso": "^4.12.5",
+    "sitemap": "^8.0.0",
     "sonner": "^1.7.1",
     "svix": "^1.42.0",
     "tailwind-merge": "^2.5.5",

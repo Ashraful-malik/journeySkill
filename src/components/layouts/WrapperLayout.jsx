@@ -38,7 +38,7 @@ const WrapperLayout = ({ children, className }) => {
         <HomeNavbar onHamburgerClick={toggleSidebar} />
       </div>
       {/* Main Content */}
-      <div className="lg:ml-64 w-full bg-red-800">{children}</div>
+      <div className="lg:ml-64 w-full  p-2">{children}</div>
       {/* Bottom Navigation for mobile */}
       <BottomNav />
     </div>

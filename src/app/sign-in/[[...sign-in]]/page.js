@@ -23,7 +23,7 @@ export default function Page() {
       <div className="md:w-1/2 hidden md:flex  flex-col justify-center items-center px-6 border-r bg-indigo-600 relative ">
         {/* logo and name its position absolute*/}
         <Link href="/" className="absolute top-4 left-4 flex items-center ">
-          <Image src="/logo.png" alt="logo" width={20} height={20} />
+          <Image src="/logo-light.png" alt="logo" width={20} height={20} />
           <p className="text-2xl font-bold text-white pl-2">JourneySkill</p>
         </Link>
         {signInPageContent.map((item, idx) => (

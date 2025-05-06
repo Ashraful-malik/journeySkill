@@ -49,9 +49,9 @@ function Navbar() {
       >
         <Link
           href="/"
-          className="text-white text-2xl font-bold flex items-start gap-2 pb-2 md:pb-0 "
+          className="text-white text-2xl font-bold flex  items-center gap-2 pb-2 md:pb-0 "
         >
-          <Image src="/logo.png" alt="logo" width={18} height={18} />
+          <Image src="/logo-light.png" alt="logo" width={30} height={30} />
           <p>JourneySkill</p>
         </Link>
         {userId ? (

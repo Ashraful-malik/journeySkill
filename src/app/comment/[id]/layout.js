@@ -31,7 +31,6 @@ export async function generateMetadata({ params }) {
     const ogImageUrl = new URL("/api/og", process.env.NEXT_PUBLIC_SITE_URL);
     ogImageUrl.searchParams.set("title", title);
     ogImageUrl.searchParams.set("description", truncateText(description, 100));
-    console.log("ogImageUrl", ogImageUrl.toString());
 
     return {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),

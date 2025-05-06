@@ -14,7 +14,6 @@ export const getOnboarding = async (userId, page) => {
         page,
       },
     });
-    console.log("onboarding", response.data);
     return response.data;
   } catch (error) {
     const { message, code } = handleApiError(error);

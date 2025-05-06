@@ -11,10 +11,7 @@ export async function GET(req) {
     const { searchParams } = req.nextUrl;
     const page = searchParams.get("page");
     const userId = searchParams.get("userId");
-    const clerkId = (await auth()).userId;
 
-    console.log("clerkId", clerkId);
-    console.log("userId", userId);
     const user = await User.findById(userId);
 
     if (!user) {
@@ -24,7 +21,6 @@ export async function GET(req) {
       });
     }
     const onboarding = user?.onboarding;
-    console.log("onboarding", onboarding);
     return createResponse({
       status: 200,
       message: "User found",
@@ -33,7 +29,6 @@ export async function GET(req) {
       },
     });
   } catch (error) {
-    console.error("Error fetching user:", error);
     return createErrorResponse({
       status: 500,
       message: "Internal server error",
@@ -79,7 +74,6 @@ export async function POST(req) {
       },
     });
   } catch (error) {
-    console.log("Error updating user:", error);
     return createErrorResponse({
       status: 500,
       message: "Internal server error",
