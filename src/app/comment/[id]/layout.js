@@ -79,7 +79,7 @@ function truncateText(str, length) {
 
 function getFallbackMetadata(url) {
   const fallbackImage = new URL(
-    "/twitterCard/landing-page.png",
+    "/twitterCard/journeyskill-card.png",
     process.env.NEXT_PUBLIC_SITE_URL
   );
   return {

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }) {
     const username = challenge.data.challengeOwner?.username || "a user";
     const cardImage =
       challenge?.data.banner?.imageUrl ||
-      `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/landing-page.png`;
+      `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/journeyskill-card.png`;
 
     return {
       metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL),
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }) {
 }
 function getFallbackMetadata(url) {
   const fallbackImage = new URL(
-    "/twitterCard/landing-page.png",
+    "/twitterCard/journeyskill-card.png",
     process.env.NEXT_PUBLIC_SITE_URL
   );
   return {

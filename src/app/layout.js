@@ -32,7 +32,7 @@ export const metadata = {
     siteName: "JourneySkill",
     images: [
       {
-        url: "/twitterCard/landing-page.png",
+        url: "/twitterCard/journeyskill-card.png",
         width: 800,
         height: 600,
         alt: "journeyskill image",
@@ -47,7 +47,7 @@ export const metadata = {
     locale: "en_US",
     type: "website",
     url: "https://journeyskill.online",
-    images: ["/twitterCard/landing-page.png"],
+    images: ["/twitterCard/journeyskill-card.png"],
   },
 };
 
