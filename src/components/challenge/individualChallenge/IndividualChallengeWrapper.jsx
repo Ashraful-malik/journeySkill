@@ -7,6 +7,7 @@ import IndividualChallenge from "./IndividualChallenge";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import IndividualChallengeSkeleton from "@/components/skeleton/challenges/IndividualChallengeSkeleton";
 import { Suspense } from "react";
+import { SignedOut } from "@clerk/nextjs";
 export default function IndividualChallengeWrapper() {
   const router = useRouter();
   const params = useParams();

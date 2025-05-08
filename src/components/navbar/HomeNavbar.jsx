@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";

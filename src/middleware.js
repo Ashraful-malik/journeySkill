@@ -8,51 +8,71 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/terms",
   "/privacy-policy",
+  /^\/challenges\/[^\/]+$/, // Public challenge pages
+  /^\/comment\/[^\/]+$/, // Public comment pages (ID only)
 ]);
 
 // Define public API routes
 const isPublicApiRoute = createRouteMatcher([
   "/api/webhook/register",
   "/api/metadata(.*)",
-  "/api/metadata/challenge",
-  "/api/metadata/post",
-  "/api/og",
+  "/api/og(.*)",
 ]);
 
 export default clerkMiddleware(async (authFn, req) => {
   try {
-    const auth = await authFn();
-    const { userId } = auth; // Clerk provides `userId` if authenticated
+    const url = new URL(req.url);
+    const pathname = url.pathname;
+    const searchParams = url.searchParams;
 
-    const currentUrl = new URL(req.url);
-    // const isApiRequest = currentUrl.pathname.startsWith("/api(.*)");
-
-    // 1. **Allow public API routes to bypass all authentication logic**
+    // 1. Allow public API routes to bypass all authentication logic
     if (isPublicApiRoute(req)) {
-      return NextResponse.next(); // Let public API routes proceed
+      return NextResponse.next();
     }
-    // 2️⃣ **Restrict access to ALL OTHER API routes for unauthenticated users**
-    if (currentUrl.pathname.startsWith("/api") && !userId) {
+
+    const auth = await authFn();
+    const { userId } = auth;
+
+    // 2. Special handling for challenge routes
+    if (pathname.startsWith("/challenges")) {
+      if (pathname.match(/^\/challenges\/[^\/]+$/)) {
+        return NextResponse.next(); // Public access
+      }
+      if (!userId) return redirectToSignIn(req);
+    }
+
+    // 3. Special handling for comment routes
+    if (pathname.startsWith("/comment")) {
+      // Public if it's a basic comment view
+      if (
+        pathname.match(/^\/comment\/[^\/]+$/) &&
+        !pathname.includes("/edit") &&
+        !pathname.includes("/delete")
+      ) {
+        return NextResponse.next();
+      }
+      // Private for comment actions
+      if (!userId) return redirectToSignIn(req);
+    }
+
+    // 4. Restrict other API routes
+    if (pathname.startsWith("/api") && !userId) {
       return NextResponse.json(
         { success: false, message: "Authentication required" },
         { status: 401 }
       );
     }
-    // 2. **Unauthenticated user logic**
-    if (!userId) {
-      if (!isPublicRoute(req)) {
-        // Redirect unauthenticated users trying to access private routes
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-      }
-      return NextResponse.next(); // Allow unauthenticated users to access public routes
+
+    // 5. Handle general public/private routes
+    if (!userId && !isPublicRoute(req)) {
+      return redirectToSignIn(req);
     }
 
-    // 4️⃣ **Redirect authenticated users away from `/`, `/sign-in`, `/sign-up`**
+    // 6. Redirect authenticated users from auth pages
     if (userId && isPublicRoute(req)) {
       return NextResponse.redirect(new URL("/home", req.url));
     }
 
-    // 4. **Default case**
     return NextResponse.next();
   } catch (error) {
     return new NextResponse("Something went wrong. Please try again later.", {
@@ -60,6 +80,13 @@ export default clerkMiddleware(async (authFn, req) => {
     });
   }
 });
+
+// Helper function
+function redirectToSignIn(req) {
+  const signInUrl = new URL("/sign-in", req.url);
+  signInUrl.searchParams.set("redirect_url", req.url);
+  return NextResponse.redirect(signInUrl);
+}
 
 export const config = {
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],

@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="border-t text-white py-10 px-6 text-center flex flex-col justify-center">
       <div>
         <div className="mb-6 flex flex-col items-center">
-          <Image src="/Logo.svg" alt="JourneySkill" width={30} height={30} />
+          <Image src="/logo.svg" alt="JourneySkill" width={30} height={30} />
           <h3 className="text-2xl font-bold">JourneySkill</h3>
           <p className="text-sm text-neutral-400 max-w-md mx-auto mt-4 ">
             Master any skill with consistency and community. Start your learning

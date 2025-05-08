@@ -1,8 +1,6 @@
-import { streakMilestones } from "@/lib/constants";
 import dbConnect from "@/lib/dbConnect";
 import { createErrorResponse } from "@/lib/utils/error";
 import { createResponse } from "@/lib/utils/response";
-import Badge from "@/models/badge.model";
 import { Challenge } from "@/models/challenge.model";
 import { Post } from "@/models/post.model";
 import { UploadedImage } from "@/models/uploadedImage.model";

@@ -21,11 +21,13 @@ export async function generateMetadata({ params }) {
 
     if (!res.ok) throw new Error(`Status: ${res.status}`);
     const post = await res.json();
+    console.log("post", post);
 
     // Safely handle data
-    const description = stripHtml(post.data.text || "A post on journeyskill");
     const username = post.data.owner?.username || "a user";
     const title = `Post by @${username}`;
+    const description = stripHtml(post.data.text || "A post on journeyskill");
+    console.log("Description", description);
 
     // Dynamic OG Image (recommended)
     const ogImageUrl = new URL("/api/og", process.env.NEXT_PUBLIC_SITE_URL);

@@ -3,7 +3,7 @@ import ChallengeFeed from "@/components/feed/ChallengeFeed";
 import WrapperLayout from "@/components/layouts/WrapperLayout";
 import ChallengeCardSkeleton from "@/components/skeleton/card/ChallengesCardSkeleton";
 import { useChallengeQuery } from "@/hooks/queries/useChallengeQuery";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 function Page() {
   const {

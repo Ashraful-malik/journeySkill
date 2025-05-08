@@ -1,4 +1,5 @@
 import IndividualChallengeWrapper from "@/components/challenge/individualChallenge/IndividualChallengeWrapper";
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 
 // Utility functions
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }) {
     const description =
       challenge.data.description || "A challenge on journeyskill";
     const username = challenge.data.challengeOwner?.username || "a user";
+
     const cardImage =
       challenge?.data.banner?.imageUrl ||
       `${process.env.NEXT_PUBLIC_SITE_URL}/twitterCard/journeyskill-card.png`;
@@ -36,14 +38,23 @@ export async function generateMetadata({ params }) {
       },
       twitter: {
         card: "summary_large_image", // Better engagement than 'summary'
-        title,
+        title: title,
         description: truncateText(description, 200),
-        images: [cardImage],
+        // images: [cardImage],
+        images: [
+          {
+            url: cardImage,
+            width: 1200,
+            height: 628,
+            alt: "Challenge image",
+          },
+        ],
+
         creator: "@Ashraful__malik",
       },
       openGraph: {
         type: "article",
-        title,
+        title: title,
         description: truncateText(description, 200),
         url: url.toString(),
         images: [
@@ -99,5 +110,17 @@ function getFallbackMetadata(url) {
   };
 }
 export default function Page() {
-  return <IndividualChallengeWrapper />;
+  return (
+    <>
+      <SignedIn>
+        <IndividualChallengeWrapper />;
+      </SignedIn>
+      <SignedOut>
+        <div className="p-4 text-center">
+          <h3>Please sign in to view this challenge</h3>
+          <RedirectToSignIn redirectUrl={"/sign-in"} />
+        </div>
+      </SignedOut>
+    </>
+  );
 }

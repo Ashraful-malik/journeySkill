@@ -2,26 +2,14 @@ import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
 
-// Text processing utilities
-function decodeText(encodedStr) {
-  return encodedStr;
-}
-
-function stripHtml(html) {
-  return html
-    .replace(/<[^>]*>?/gm, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
 
   // Process text inputs
-  const title = decodeText(searchParams.get("title") || "New Post");
-  const description = stripHtml(
-    decodeText(searchParams.get("description") || "")
-  );
+  const title = searchParams.get("title");
+  const description = searchParams.get("description");
+
+  console.log("Challenge description ", description);
   const image = searchParams.get("image");
 
   // Color palette (adjust to match your brand)
@@ -89,7 +77,7 @@ export async function GET(request) {
               maxWidth: "900px",
             }}
           >
-            {title}
+            {title || "New Post"}
           </h1>
 
           {/* Description */}
