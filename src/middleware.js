@@ -8,8 +8,10 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/terms",
   "/privacy-policy",
-  /^\/challenges\/[^\/]+$/, // Public challenge pages
+  // /^\/challenges\/[^\/]+$/, // Public challenge pages
   /^\/comment\/[^\/]+$/, // Public comment pages (ID only)
+  "/challenges(.*)",
+  "/home",
 ]);
 
 // Define public API routes
@@ -17,6 +19,8 @@ const isPublicApiRoute = createRouteMatcher([
   "/api/webhook/register",
   "/api/metadata(.*)",
   "/api/og(.*)",
+  "/api/challenge/all(.*)",
+  "/api/posts/feed(.*)",
 ]);
 
 export default clerkMiddleware(async (authFn, req) => {
@@ -33,13 +37,13 @@ export default clerkMiddleware(async (authFn, req) => {
     const auth = await authFn();
     const { userId } = auth;
 
-    // 2. Special handling for challenge routes
-    if (pathname.startsWith("/challenges")) {
-      if (pathname.match(/^\/challenges\/[^\/]+$/)) {
-        return NextResponse.next(); // Public access
-      }
-      if (!userId) return redirectToSignIn(req);
-    }
+    // // 2. Special handling for challenge routes
+    // if (pathname.startsWith("/challenges")) {
+    //   if (pathname.match(/^\/challenges\/[^\/]+$/)) {
+    //     return NextResponse.next(); // Public access
+    //   }
+    //   if (!userId) return redirectToSignIn(req);
+    // }
 
     // 3. Special handling for comment routes
     if (pathname.startsWith("/comment")) {

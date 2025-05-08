@@ -1,6 +1,6 @@
 "use client";
 import HeroVideoPlayer from "@/components/HeroVideoPlayer";
-import { AppWindow, ChartColumnIncreasing, Swords, Users } from "lucide-react";
+import { Swords } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,23 +14,63 @@ export default function Home() {
   return (
     <div className="bg-neutral-100  dark:bg-black flex flex-col justify-center ">
       {/* Header Section */}
-      <header className="text-center  bg-indigo-600 text-white flex  flex-col justify-center pb-10 ">
-        <div className="flex flex-col items-center justify-center max-w-3xl mx-auto text-center md:py-32 pt-32 pb-9 ">
+      <header className="text-center  text-neutral-900 dark:text-neutral-200  flex  flex-col justify-center pb-10 ">
+        <div className=" z-20 relative flex flex-col items-center justify-center max-w-3xl mx-auto text-center md:py-32 pt-32 pb-9 ">
+          {/*  Icon*/}
+          <Image
+            src="/assets/images/js.svg"
+            alt="js"
+            width={80}
+            height={80}
+            className="absolute blur-sm left-0 hidden md:block "
+          />
+          <Image
+            src="/assets/images/react.svg"
+            alt="js"
+            width={80}
+            height={80}
+            className="absolute blur-sm right-0 hidden md:block"
+          />
+          <Image
+            src="/assets/images/vue.svg"
+            alt="js"
+            width={80}
+            height={80}
+            className="absolute blur-sm top-0 hidden md:block opacity-30"
+          />
+          <Image
+            src="/assets/images/svelte.svg"
+            alt="js"
+            width={80}
+            height={80}
+            className="absolute blur-sm bottom-0 hidden md:block opacity-50"
+          />
+
           <h1 className="text-4xl font-extrabold sm:text-5xl ">
             {heroSectionContent.title}
           </h1>
-          <p className="mt-4 text-base sm:text-xl max-w-lg">
+          <p className="mt-4 text-base sm:text-base max-w-lg">
             {heroSectionContent.description}
           </p>
-          <Link
-            href="/sign-up"
-            className="mt-6 inline-block bg-indigo-700 px-6 py-3 rounded-lg text-lg 
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <Link
+              href="/sign-up"
+              className="mt-6 inline-block border px-6 py-3 rounded-lg md:text-lg 
+            font-semibold hover:bg-indigo-800 max-w-fit hover:text-white"
+            >
+              Join the Beta Now
+            </Link>
+
+            <Link
+              href="/challenges"
+              className="mt-6 inline-block bg-indigo-700 px-6 py-3 rounded-lg md:text-lg text-white
             font-semibold hover:bg-indigo-800 max-w-fit"
-          >
-            Join the Beta Now
-          </Link>
+            >
+              Explore Challenges
+            </Link>
+          </div>
         </div>
-        <div className="md:w-10/12 w-11/12 mx-auto bg-white/15 rounded-xl  p-1">
+        <div className="md:w-10/12 w-11/12 mx-auto bg-white/15 rounded-xl  p-1 mt-12">
           <HeroVideoPlayer />
         </div>
       </header>
@@ -121,14 +161,22 @@ export default function Home() {
           Master coding habits that stick. Your journey starts with one
           challenge.
         </h2>
-
-        <Link
-          href="/sign-up"
-          className="mt-6 inline-block border border-white px-8 py-3 rounded-lg
+        <div className="flex items-center justify-center gap-4 mt-8">
+          <Link
+            href="/sign-up"
+            className=" inline-block border border-white px-8 py-3 rounded-lg
            text-white text-xl  hover:bg-indigo-800"
-        >
-          Join Now
-        </Link>
+          >
+            Join Now
+          </Link>
+          <Link
+            href="/challenges"
+            className=" border border-white px-8 py-3 rounded-lg bg-neutral-200
+           text-neutral-800 text-xl  hover:bg-neutral-100 flex items-center gap-2"
+          >
+            Explore Challenges <Swords size={24} />
+          </Link>
+        </div>
       </section>
       {/* Footer Section */}
       <footer

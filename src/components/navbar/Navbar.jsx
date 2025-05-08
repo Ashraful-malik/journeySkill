@@ -36,12 +36,8 @@ function Navbar() {
 
   return (
     <nav
-      className={`p-2 md:h-14 fixed top-0 left-0 right-0 z-10  backdrop-blur-md
-     flex items-center justify-between ${
-       isInFeatureSection
-         ? "bg-indigo-500/20 dark:bg-black/50 "
-         : "bg-indigo-500/20"
-     }`}
+      className="p-2 md:h-14 fixed top-0 left-0 right-0 z-10  backdrop-blur-md
+     flex items-center justify-between border-b border-neutral-200 dark:border-none "
     >
       <div
         className="container mx-auto flex justify-center md:justify-between items-center flex-wrap p-2 md:p-0
@@ -51,8 +47,8 @@ function Navbar() {
           href="/"
           className="text-white text-2xl font-bold flex  items-center gap-2 pb-2 md:pb-0 "
         >
-          <Image src="/logo-light.png" alt="logo" width={30} height={30} />
-          <p>JourneySkill</p>
+          <Image src="/logo.png" alt="logo" width={30} height={30} />
+          <p className="text-neutral-600 dark:text-neutral-200">JourneySkill</p>
         </Link>
         {userId ? (
           <Link
@@ -65,7 +61,7 @@ function Navbar() {
           <div className="flex space-x-4 items-center">
             <Link
               href="/sign-in"
-              className="px-5 py-2 rounded-md  text-white hover:bg-indigo-500 font-medium"
+              className="px-5 py-2 rounded-md  dark:text-white hover:bg-indigo-500 font-medium"
             >
               Sign In
             </Link>
