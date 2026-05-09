@@ -29,7 +29,7 @@ export async function POST(req) {
 
     if (!WEBHOOK_SECRET) {
       throw new Error(
-        "Server configuration error: Missing Clerk Webhook Secret"
+        "Server configuration error: Missing Clerk Webhook Secret",
       );
     }
 
@@ -89,7 +89,7 @@ export async function POST(req) {
       }
 
       const primaryEmail = email_addresses.find(
-        (email) => email.id === primary_email_address_id
+        (email) => email.id === primary_email_address_id,
       );
       if (!primaryEmail) {
         return createErrorResponse({
@@ -108,13 +108,23 @@ export async function POST(req) {
           data: existingUser,
         });
       }
+      let finalUsername = username;
+
+      if (!finalUsername) {
+        const emailPrefix = primaryEmail.email_address
+          .split("@")[0]
+          .replace(/[^a-zA-Z0-9]/g, "") // remove weird chars
+          .toLowerCase();
+        const randomSuffix = id.slice(-6);
+        finalUsername = `${emailPrefix}_${randomSuffix}`;
+      }
       const fullName = [first_name, last_name].filter(Boolean).join(" ");
       // insert User to database
       try {
         const newUser = await User.create({
           email: primaryEmail.email_address,
           clerkId: id,
-          username: username,
+          username: finalUsername,
           profileImage: {
             imageUrl: image_url,
           },
