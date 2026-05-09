@@ -25,6 +25,11 @@ const Page = () => {
   // check if user has completed onboarding
   useEffect(() => {
     const checkOnboarding = async () => {
+      if (!userId) {
+        setRunTour(false);
+        return;
+      }
+
       const response = await getOnboarding(userId, "homePage");
 
       if (response?.data) {

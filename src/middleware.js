@@ -5,14 +5,14 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/",
   "/terms",
   "/privacy-policy",
   // /^\/challenges\/[^\/]+$/, // Public challenge pages
   /^\/comment\/[^\/]+$/, // Public comment pages (ID only)
   "/challenges(.*)",
-  "/home",
 ]);
+
+const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 // Define public API routes
 const isPublicApiRoute = createRouteMatcher([
@@ -63,7 +63,7 @@ export default clerkMiddleware(async (authFn, req) => {
     if (pathname.startsWith("/api") && !userId) {
       return NextResponse.json(
         { success: false, message: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -73,7 +73,7 @@ export default clerkMiddleware(async (authFn, req) => {
     }
 
     // 6. Redirect authenticated users from auth pages
-    if (userId && isPublicRoute(req)) {
+    if (userId && isAuthRoute(req)) {
       return NextResponse.redirect(new URL("/home", req.url));
     }
 

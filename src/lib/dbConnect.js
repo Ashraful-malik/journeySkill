@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 let isConnected = false;
+
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
@@ -30,8 +31,12 @@ const dbConnect = async () => {
       .then((mongooseInstance) => {
         isConnected = true;
 
-        mongoose.connection.on("connected", () => {});
-        mongoose.connection.on("error", (err) => {});
+        mongoose.connection.on("connected", () => {
+          console.log("Connected to MongoDB");
+        });
+        mongoose.connection.on("error", (err) => {
+          console.log("mongodb error", err);
+        });
 
         mongoose.connection.on("disconnected", () => {});
         return mongooseInstance;
