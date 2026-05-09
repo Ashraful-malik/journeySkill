@@ -3,11 +3,10 @@ import { Challenge } from "@/models/challenge.model";
 import User from "@/models/user.model";
 import { SitemapStream, streamToPromise } from "sitemap";
 import { Readable } from "stream";
-
-// get user
+export const dynamic = "force-dynamic";
 export async function GET() {
   await dbConnect();
-  const users = await User.find({}, "username");
+  const users = await User.find({}, "username").lean();
   const challenges = await Challenge.find({ isPublic: true }, "_id");
 
   const links = [
@@ -29,7 +28,7 @@ export async function GET() {
     hostname: process.env.NEXT_PUBLIC_API_BASE_URL,
   });
   const xml = await streamToPromise(Readable.from(links).pipe(stream)).then(
-    (data) => data.toString()
+    (data) => data.toString(),
   );
 
   return new Response(xml, {
