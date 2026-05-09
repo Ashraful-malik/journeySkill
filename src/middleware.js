@@ -6,8 +6,8 @@ const isPublicRoute = createRouteMatcher([
   "/sign-in(.*)",
   "/sign-up(.*)",
   "/terms",
+  "/",
   "/privacy-policy",
-
   // /^\/challenges\/[^\/]+$/, // Public challenge pages
   /^\/comment\/[^\/]+$/, // Public comment pages (ID only)
   "/challenges(.*)",
